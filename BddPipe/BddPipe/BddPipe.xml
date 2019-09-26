@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BddPipe</name>
+    </assembly>
+    <members>
+        <member name="T:BddPipe.BddPipeResult`1">
+            <summary>
+            When the test is successful and no exceptions are thrown this will be the final result
+            </summary>
+            <typeparam name="T">Type of the last returned instance from a step</typeparam>
+        </member>
+        <member name="P:BddPipe.BddPipeResult`1.Output">
+            <summary>
+            Last returned item from a step
+            </summary>
+        </member>
+        <member name="P:BddPipe.BddPipeResult`1.Result">
+            <summary>
+            A full description of the scenario and step results
+            </summary>
+        </member>
+        <member name="T:BddPipe.Ctn`1">
+            <summary>
+            A container to represent progress and state so far
+            </summary>
+            <typeparam name="T">Container payload type</typeparam>
+        </member>
+        <member name="P:BddPipe.Ctn`1.Content">
+            <summary>
+            Container payload instance
+            </summary>
+        </member>
+        <member name="T:BddPipe.Outcome">
+            <summary>
+            Step outcome
+            </summary>
+        </member>
+        <member name="F:BddPipe.Outcome.Pass">
+            <summary>
+            Step passed successfully
+            </summary>
+        </member>
+        <member name="F:BddPipe.Outcome.Fail">
+            <summary>
+            Step failed when executed
+            </summary>
+        </member>
+        <member name="F:BddPipe.Outcome.Inconclusive">
+            <summary>
+            Step was inconclusive when executed
+            </summary>
+        </member>
+        <member name="F:BddPipe.Outcome.NotRun">
+            <summary>
+            Step was not run due to a failed or inconclusive previous step
+            </summary>
+        </member>
+        <member name="T:BddPipe.Scenario">
+            <summary>
+            An optional starting piece for a run
+            <remarks>Adding a scenario will prepend the scenario description to the output</remarks>
+            </summary>
+        </member>
+        <member name="P:BddPipe.Scenario.Title">
+            <summary>
+            Title text will make part of the scenario description output
+            </summary>
+        </member>
+        <member name="M:BddPipe.Scenario.#ctor(System.String)">
+            <summary>
+            Create a new instance of <see cref="T:BddPipe.Scenario"/>
+            </summary>
+        </member>
+        <member name="T:BddPipe.ScenarioResult">
+            <summary>
+            The scenario result gives a detailed output for each step outcome
+            </summary>
+        </member>
+        <member name="P:BddPipe.ScenarioResult.Title">
+            <summary>
+            Original scenario title supplied
+            </summary>
+        </member>
+        <member name="P:BddPipe.ScenarioResult.Description">
+            <summary>
+            Scenario description for output
+            </summary>
+        </member>
+        <member name="P:BddPipe.ScenarioResult.StepResults">
+            <summary>
+            A sequence of step results that have occurred for this scenario run
+            </summary>
+        </member>
+        <member name="M:BddPipe.ScenarioResult.#ctor(System.String,System.String,System.Collections.Generic.IReadOnlyList{BddPipe.StepResult})">
+            <summary>
+            Create a new instance of <see cref="T:BddPipe.ScenarioResult"/>
+            </summary>
+        </member>
+        <member name="T:BddPipe.Step">
+            <summary>
+            Defines the step type of a given step
+            </summary>
+        </member>
+        <member name="F:BddPipe.Step.Given">
+            <summary>
+            'Given' step
+            </summary>
+        </member>
+        <member name="F:BddPipe.Step.When">
+            <summary>
+            'When' step
+            </summary>
+        </member>
+        <member name="F:BddPipe.Step.Then">
+            <summary>
+            'Then' step
+            </summary>
+        </member>
+        <member name="F:BddPipe.Step.And">
+            <summary>
+            'And' step
+            </summary>
+        </member>
+        <member name="F:BddPipe.Step.But">
+            <summary>
+            'But' step
+            </summary>
+        </member>
+        <member name="T:BddPipe.StepResult">
+            <summary>
+            The step result gives a detailed output for each step outcome
+            </summary>
+        </member>
+        <member name="P:BddPipe.StepResult.Step">
+            <summary>
+            The type of this step
+            </summary>
+        </member>
+        <member name="P:BddPipe.StepResult.Outcome">
+            <summary>
+            The outcome of this step
+            </summary>
+        </member>
+        <member name="P:BddPipe.StepResult.Title">
+            <summary>
+            Original title for the step
+            </summary>
+        </member>
+        <member name="P:BddPipe.StepResult.Description">
+            <summary>
+            Step description for output
+            </summary>
+        </member>
+        <member name="M:BddPipe.StepResult.#ctor(BddPipe.Step,BddPipe.Outcome,System.String,System.String)">
+            <summary>
+            Create a new instance of <see cref="T:BddPipe.StepResult"/>
+            </summary>
+        </member>
+        <member name="T:BddPipe.Runner">
+            <summary>
+            BddPipe scenario runner
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Run``1(BddPipe.Either{BddPipe.Ctn{System.Exception},BddPipe.Ctn{``0}},System.Action{BddPipe.ScenarioResult})">
+            <summary>
+            The last call to evaluate the result of calls made.
+            </summary>
+            <typeparam name="T">Last returned type</typeparam>
+            <param name="t">The state so far, containing the original exception or last returned result.</param>
+            <param name="scenarioResult">Will output the result to console unless this optional handling is supplied.</param>
+            <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
+        </member>
+        <member name="M:BddPipe.Runner.WriteLogsToConsole(BddPipe.ScenarioResult,System.Action{System.String})">
+            <summary>
+            Writes the scenario title and step results to console
+            </summary>
+            <param name="result">The scenario result gives a detailed output for each step outcome</param>
+            <param name="writeLine">Optionally provide an implementation for each write line call</param>
+        </member>
+        <member name="M:BddPipe.Runner.Given``1(System.String,System.Func{``0})">
+            <summary>
+            Starts the runner with a 'Given' step and no scenario
+            <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given(System.String,System.Action)">
+            <summary>
+            Starts the runner with a 'Given' step and no scenario
+            <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given``1(System.String,System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Starts the runner with a 'Given' step and no scenario
+            <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given(System.String,System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Starts the runner with a 'Given' step and no scenario
+            <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given``1(BddPipe.Scenario,System.String,System.Func{``0})">
+            <summary>
+            Specify the Given step implementation following the Scenario
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given(BddPipe.Scenario,System.String,System.Action)">
+            <summary>
+            Specify the Given step implementation following the Scenario
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given``1(BddPipe.Scenario,System.String,System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Specify the Given step implementation following the Scenario
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Given(BddPipe.Scenario,System.String,System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Specify the Given step implementation following the Scenario
+            </summary>
+        </member>
+        <member name="M:BddPipe.Runner.Scenario(System.String,System.String)">
+            <summary>
+            This optional call starts the runner with a scenario description
+            </summary>
+            <param name="title">The scenario title if supplied</param>
+            <param name="methodName">The caller method name</param>
+            <returns>The title is lifted to the scenario instance for a following call to Given()</returns>
+        </member>
+    </members>
+</doc>
