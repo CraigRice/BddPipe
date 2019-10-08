@@ -13,6 +13,9 @@ namespace BddPipe
         public static Either<Ctn<Exception>, Ctn<R>> When<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, Task<R>> step)
             => Pipe(t, title.ToTitle(StepWhen), step);
 
+        public static Either<Ctn<Exception>, Ctn<R>> When<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<R> step) =>
+            Pipe(t, title.ToTitle(StepWhen), step.PipeFunc<T, R>());
+
         public static Either<Ctn<Exception>, Ctn<T>> When<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, Task> step)
             => Pipe(t, title.ToTitle(StepWhen), step.PipeFunc());
 
