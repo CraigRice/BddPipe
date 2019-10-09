@@ -25,7 +25,7 @@ namespace BddPipe.UnitTests.StepTests
         }
 
         [Test]
-        public void And_WithStepTaskFuncR_UsesR()
+        public void And_WithStepFuncTaskR_UsesR()
         {
             var scenarioResult = Scenario()
                 .Given("Initially Model1 is returned", () => new Model1())
