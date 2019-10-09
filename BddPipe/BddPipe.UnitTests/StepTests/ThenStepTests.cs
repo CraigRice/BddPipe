@@ -23,5 +23,21 @@ namespace BddPipe.UnitTests.StepTests
             step.Step.Should().Be(Step.Then);
             step.Title.Should().Be("Model2 is now returned as Func<R>");
         }
+
+        [Test]
+        public void Then_WithStepTaskFuncR_UsesR()
+        {
+            var scenarioResult = Scenario()
+                .Given("Initially Model1 is returned", () => new Model1())
+                .Then("Model2 is now returned as Func<R>", async () => new Model2())
+                .And("current instance is now Model2", result => result.GetType().Should().Be(typeof(Model2)))
+                .Run();
+
+            var step = scenarioResult.Result.StepResults[1];
+            step.Description.Should().Be("  Then Model2 is now returned as Func<R> [Passed]");
+            step.Outcome.Should().Be(Outcome.Pass);
+            step.Step.Should().Be(Step.Then);
+            step.Title.Should().Be("Model2 is now returned as Func<R>");
+        }
     }
 }

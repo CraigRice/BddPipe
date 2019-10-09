@@ -32,6 +32,9 @@ namespace BddPipe
         public static Func<T, R> PipeFunc<T, R>(this Func<R> fn) =>
             arg => fn();
 
+        public static Func<T, Task<R>> PipeFunc<T, R>(this Func<Task<R>> fn) =>
+            async arg => await fn();
+
         public static Func<T, Task<T>> PipeFunc<T>(this Func<T, Task> fn) =>
             async arg =>
             {
