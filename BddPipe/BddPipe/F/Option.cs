@@ -11,7 +11,7 @@ namespace BddPipe
 
     internal struct Option<T> : IEquatable<OptionNone>, IEquatable<Option<T>>
     {
-        private readonly T value;
+        private readonly T _value;
         private readonly bool _isSome;
         private bool isNone => !_isSome;
 
@@ -20,7 +20,7 @@ namespace BddPipe
             if (value == null)
                 throw new ArgumentNullException();
             _isSome = true;
-            this.value = value;
+            _value = value;
         }
 
         public static implicit operator Option<T>(OptionNone _) => new Option<T>();
@@ -39,23 +39,38 @@ namespace BddPipe
         public bool IsSome => _isSome;
 
         public R Match<R>(Func<T, R> some, Func<R> none)
-            => _isSome ? some(value) : none();
+            => _isSome ? some(_value) : none();
 
         public IEnumerable<T> AsEnumerable()
         {
-            if (_isSome) yield return value;
+            if (_isSome) yield return _value;
         }
 
         public bool Equals(Option<T> other)
             => _isSome == other._isSome
-               && (isNone || value.Equals(other.value));
+               && (isNone || _value.Equals(other._value));
 
         public static bool operator ==(Option<T> @this, Option<T> other) => @this.Equals(other);
         public static bool operator !=(Option<T> @this, Option<T> other) => !(@this == other);
 
         public bool Equals(OptionNone other) => isNone;
 
-        public override string ToString() => _isSome ? $"Some({value})" : "None";
+        public override string ToString() => _isSome ? $"Some({_value})" : "None";
+
+        public override int GetHashCode()
+        {
+            return _isSome 
+                ? _value.GetHashCode() 
+                : 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Option<T> other)
+                return Equals(other);
+
+            return false;
+        }
     }
 
     internal static class OptionExt
