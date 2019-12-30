@@ -8,15 +8,17 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
-        private static Either<Ctn<Exception>, Ctn<R>> Pipe<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, Some<Title> title, Func<T, Task<R>> step) =>
-            Pipe(t, title, tValue =>
-            {
-                return Task.Run(() => step(tValue)).Result;
-            });
+        private static Either<Ctn<Exception>, Ctn<R>> Pipe<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe,
+            Some<Title> title, Func<T, Task<R>> step) =>
+            Pipe(pipe, title, tValue =>
+                Task.Run(() => step(tValue))
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult()
+                );
 
-        private static Either<Ctn<Exception>, Ctn<R>> Pipe<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, Some<Title> title, Func<T, R> step)
-        {
-            return t.BiBind(
+        private static Either<Ctn<Exception>, Ctn<R>> Pipe<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe, Some<Title> title, Func<T, R> step) =>
+            pipe.BiBind(
                 tValue =>
                     step.Apply(tValue.Content)
                     .TryRun()
@@ -26,7 +28,6 @@ namespace BddPipe
                 err => 
                     err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun))
             );
-        }
 
         /// <summary>
         /// The last call to evaluate the result of calls made.

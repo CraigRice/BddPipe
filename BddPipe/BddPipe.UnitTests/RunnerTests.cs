@@ -267,5 +267,38 @@ namespace BddPipe.UnitTests
             })
             .Run();
         }
+
+        [Test]
+        public void BddPipe_FuncTaskAsyncCallThrowsException_RaisesThrownExNotAggregateException()
+        {
+            Action runTest = () =>
+            {
+                Given("Async step throws exception", async () =>
+                {
+                    await Task.Delay(1);
+                    throw new ApplicationException("test exception");
+                })
+                .Run();
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>().WithMessage("test exception");
+        }
+
+        [Test]
+        public void BddPipe_FuncTaskOfTAsyncCallThrowsException_RaisesThrownExNotAggregateException()
+        {
+            Action runTest = () =>
+            {
+                Given("Async step throws exception", async () =>
+                    {
+                        await Task.Delay(1);
+                        throw new ApplicationException("test exception");
+                        return 5;
+                    })
+                    .Run();
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>().WithMessage("test exception");
+        }
     }
 }

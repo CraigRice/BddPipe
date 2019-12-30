@@ -29,12 +29,6 @@ namespace BddPipe
                 return arg;
             };
 
-        public static Func<T, R> PipeFunc<T, R>(this Func<R> fn) =>
-            arg => fn();
-
-        public static Func<T, Task<R>> PipeFunc<T, R>(this Func<Task<R>> fn) =>
-            async arg => await fn();
-
         public static Func<T, Task<T>> PipeFunc<T>(this Func<T, Task> fn) =>
             async arg =>
             {
@@ -42,18 +36,10 @@ namespace BddPipe
                 return arg;
             };
 
-        public static Func<Unit, Unit> PipeFunc(this Func<Task> fn) =>
-            unit =>
-            {
-                Task.Run(fn).Wait();
-                return unit;
-            };
+        public static Func<T, R> PipeFunc<T, R>(this Func<R> fn) =>
+            arg => fn();
 
-        public static Func<Unit, Unit> PipeFunc(this Action fn) =>
-            unit =>
-            {
-                fn();
-                return unit;
-            };
+        public static Func<T, Task<R>> PipeFunc<T, R>(this Func<Task<R>> fn) =>
+            async arg => await fn();
     }
 }
