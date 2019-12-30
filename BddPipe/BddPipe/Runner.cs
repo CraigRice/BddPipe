@@ -8,16 +8,16 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
-        private static Either<Ctn<Exception>, Ctn<R>> Pipe<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe,
+        private static Either<Ctn<Exception>, Ctn<R>> RunStep<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe,
             Some<Title> title, Func<T, Task<R>> step) =>
-            Pipe(pipe, title, tValue =>
+            RunStep(pipe, title, tValue =>
                 Task.Run(() => step(tValue))
                     .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult()
                 );
 
-        private static Either<Ctn<Exception>, Ctn<R>> Pipe<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe, Some<Title> title, Func<T, R> step) =>
+        private static Either<Ctn<Exception>, Ctn<R>> RunStep<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe, Some<Title> title, Func<T, R> step) =>
             pipe.BiBind(
                 tValue =>
                     step.Apply(tValue.Content)
