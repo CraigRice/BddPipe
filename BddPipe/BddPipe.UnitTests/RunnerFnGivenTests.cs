@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using static BddPipe.Runner;
 
@@ -13,6 +14,9 @@ namespace BddPipe.UnitTests
     {
         private const string AnyStringArg = "any-arg";
         private const string ScenarioText = "scenario-text";
+
+        private Exception GetTestException() =>
+            new ApplicationException("test exception message");
 
         [Test]
         public void Given_FuncR_ReceivedCallWithExpectedContext()
@@ -32,6 +36,28 @@ namespace BddPipe.UnitTests
                 ctn.Content.Should().Be(AnyStringArg);
                 ctn.ScenarioTitle.ShouldBeNone();
                 ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+            });
+        }
+
+        [Test]
+        public void Given_FuncRThrowsException_ErrorStateSet()
+        {
+            const string title = "Func<R> step";
+            var fn = Substitute.For<Func<string>>();
+            var ex = GetTestException();
+            fn().Throws(ex);
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -57,6 +83,28 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncRAfterScenarioThrowsException_ErrorStateSet()
+        {
+            const string title = "Func<R> step";
+            var fn = Substitute.For<Func<string>>();
+            var ex = GetTestException();
+            fn().Throws(ex);
+
+            // act
+            var step = Scenario(ScenarioText).Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+            });
+        }
+
+        [Test]
         public void Given_Action_ReceivedCallWithExpectedContext()
         {
             const string title = "Action step";
@@ -77,6 +125,26 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_ActionThrowsException_ErrorStateSet()
+        {
+            const string title = "Action step";
+
+            var ex = GetTestException();
+            Action fn = () => throw ex;
+
+            // act
+            var step = Given(title, fn);
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+            });
+        }
+
+        [Test]
         public void Given_ActionAfterScenario_ReceivedCallWithExpectedContext()
         {
             const string title = "Action step";
@@ -93,6 +161,26 @@ namespace BddPipe.UnitTests
                 ctn.Content.Should().Be(new Unit());
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+            });
+        }
+
+        [Test]
+        public void Given_ActionAfterScenarioThrowsException_ErrorStateSet()
+        {
+            const string title = "Action step";
+
+            var ex = GetTestException();
+            Action fn = () => throw ex;
+
+            // act
+            var step = Scenario(ScenarioText).Given(title, fn);
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -118,6 +206,28 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncTaskRThrowsException_ErrorStateSet()
+        {
+            const string title = "Func<Task<R>> step";
+            var ex = GetTestException();
+            var fn = Substitute.For<Func<Task<string>>>();
+            fn().Throws(ex);
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+            });
+        }
+
+        [Test]
         public void Given_FuncTaskRAfterScenario_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Task<R>> step";
@@ -135,6 +245,28 @@ namespace BddPipe.UnitTests
                 ctn.Content.Should().Be(AnyStringArg);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+            });
+        }
+
+        [Test]
+        public void Given_FuncTaskRAfterScenarioThrowsException_ErrorStateSet()
+        {
+            const string title = "Func<Task<R>> step";
+            var ex = GetTestException();
+            var fn = Substitute.For<Func<Task<string>>>();
+            fn().Throws(ex);
+
+            // act
+            var step = Scenario(ScenarioText).Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -160,6 +292,28 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncTaskThrowsException_ErrorStateSet()
+        {
+            const string title = "Func<Task> step";
+            var ex = GetTestException();
+            var fn = Substitute.For<Func<Task>>();
+            fn().Throws(ex);
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+            });
+        }
+
+        [Test]
         public void Given_FuncTaskAfterScenario_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Task> step";
@@ -177,6 +331,28 @@ namespace BddPipe.UnitTests
                 ctn.Content.Should().Be(new Unit());
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+            });
+        }
+
+        [Test]
+        public void Given_FuncTaskAfterScenarioThrowsException_ErrorStateSet()
+        {
+            const string title = "Func<Task> step";
+            var ex = GetTestException();
+            var fn = Substitute.For<Func<Task>>();
+            fn().Throws(ex);
+
+            // act
+            var step = Scenario(ScenarioText).Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeError(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(ex);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
             });
         }
     }
