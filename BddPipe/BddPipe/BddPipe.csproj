@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Programming\Source\BddPipe\BddPipe\BddPipe\BddPipe.xml</DocumentationFile>
+    <DocumentationFile>D:\Programming\Source\BddPipe\BddPipe\BddPipe\BddPipe.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Programming\Source\BddPipe\BddPipe\BddPipe\BddPipe.xml</DocumentationFile>
+    <DocumentationFile>D:\Programming\Source\BddPipe\BddPipe\BddPipe\BddPipe.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>
