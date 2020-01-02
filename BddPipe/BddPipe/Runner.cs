@@ -8,8 +8,7 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
-        private static Either<Ctn<Exception>, Ctn<R>> RunStep<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe,
-            Some<Title> title, Func<T, Task<R>> step) =>
+        private static Either<Ctn<Exception>, Ctn<R>> RunStep<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe, Some<Title> title, Func<T, Task<R>> step) =>
             RunStep(pipe, title, tValue =>
                 Task.Run(() => step(tValue))
                     .ConfigureAwait(false)
