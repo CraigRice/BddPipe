@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
@@ -22,7 +23,7 @@ namespace BddPipe.UnitTests
         private Exception GetInconclusiveException() =>
             new InconclusiveException("test inconclusive message");
 
-        private Either<Ctn<Exception>, Ctn<int>> RunnerWithGivenStep() =>
+        private Pipe<int> RunnerWithGivenStep() =>
             Scenario(ScenarioText).Given(GivenTitle, () => GivenValue);
 
         [Test]

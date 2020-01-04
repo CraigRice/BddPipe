@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BddPipe.Model;
 using FluentAssertions;
 
 namespace BddPipe.UnitTests.Asserts
@@ -10,7 +11,7 @@ namespace BddPipe.UnitTests.Asserts
             this IReadOnlyList<StepOutcome> stepOutcomes,
             Outcome outcome,
             string text,
-            Step step, 
+            Step step,
             int atIndex
         )
         {
@@ -32,7 +33,7 @@ namespace BddPipe.UnitTests.Asserts
             stepOutcomes.ShouldHaveOutcomeAtIndex(outcome, text, step, 0);
         }
 
-        public static void ShouldBeSuccessfulStepWithValue<T>(this Either<Ctn<Exception>, Ctn<T>> step, Step stepType, string givenTitle, string expectedTitle, T expectedValue)
+        public static void ShouldBeSuccessfulStepWithValue<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, T expectedValue)
         {
             step.ShouldBeSuccessful(ctn =>
             {
@@ -44,7 +45,7 @@ namespace BddPipe.UnitTests.Asserts
             });
         }
 
-        public static void ShouldBeErrorStepWithException<T>(this Either<Ctn<Exception>, Ctn<T>> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
+        public static void ShouldBeErrorStepWithException<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
         {
             step.ShouldBeError(ctn =>
             {
@@ -56,7 +57,7 @@ namespace BddPipe.UnitTests.Asserts
             });
         }
 
-        public static void ShouldBeInconclusiveStepWithException<T>(this Either<Ctn<Exception>, Ctn<T>> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
+        public static void ShouldBeInconclusiveStepWithException<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
         {
             step.ShouldBeError(ctn =>
             {

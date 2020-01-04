@@ -162,7 +162,7 @@
             BddPipe scenario runner
             </summary>
         </member>
-        <member name="M:BddPipe.Runner.Run``1(BddPipe.Either{BddPipe.Ctn{System.Exception},BddPipe.Ctn{``0}},System.Action{BddPipe.ScenarioResult})">
+        <member name="M:BddPipe.Runner.Run``1(BddPipe.Model.Pipe{``0},System.Action{BddPipe.ScenarioResult})">
             <summary>
             The last call to evaluate the result of calls made.
             </summary>

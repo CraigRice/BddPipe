@@ -2,14 +2,14 @@
 
 namespace BddPipe
 {
-    public sealed class EitherNotInitialzedException : Exception
+    internal sealed class EitherNotInitialzedException : Exception
     {
         public EitherNotInitialzedException() : base("Either has not been initialized")
         {
         }
     }
 
-    public struct Either<TLeft, TRight>
+    internal struct Either<TLeft, TRight>
     {
         internal TLeft Left { get; }
         internal TRight Right { get; }

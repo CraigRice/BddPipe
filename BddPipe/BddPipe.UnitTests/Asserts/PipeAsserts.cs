@@ -1,11 +1,12 @@
 ﻿using System;
+using BddPipe.Model;
 using NUnit.Framework;
 
 namespace BddPipe.UnitTests.Asserts
 {
     internal static class PipeAsserts
     {
-        public static void ShouldBeSuccessful<TResponse>(this Either<Ctn<Exception>, Ctn<TResponse>> pipe, Action<Ctn<TResponse>> onSuccess = null)
+        public static void ShouldBeSuccessful<TResponse>(this Pipe<TResponse> pipe, Action<Ctn<TResponse>> onSuccess = null)
         {
             pipe.Match(response =>
                 {
@@ -17,7 +18,7 @@ namespace BddPipe.UnitTests.Asserts
                 });
         }
 
-        public static void ShouldBeError<TResponse>(this Either<Ctn<Exception>, Ctn<TResponse>> pipe, Action<Ctn<Exception>> onError = null)
+        public static void ShouldBeError<TResponse>(this Pipe<TResponse> pipe, Action<Ctn<Exception>> onError = null)
         {
             pipe.Match(response =>
                 {

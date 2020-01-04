@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BddPipe.Model;
 
 namespace BddPipe
 {
@@ -8,7 +9,7 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
-        private static Either<Ctn<Exception>, Ctn<R>> RunStep<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe, Some<Title> title, Func<T, Task<R>> step) =>
+        private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, Task<R>> step) =>
             RunStep(pipe, title, tValue =>
                 Task.Run(() => step(tValue))
                     .ConfigureAwait(false)
@@ -16,12 +17,12 @@ namespace BddPipe
                     .GetResult()
                 );
 
-        private static Either<Ctn<Exception>, Ctn<R>> RunStep<T, R>(this Either<Ctn<Exception>, Ctn<T>> pipe, Some<Title> title, Func<T, R> step) =>
+        private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, R> step) =>
             pipe.BiBind(
                 tValue =>
                     step.Apply(tValue.Content)
                     .TryRun()
-                    .Match<Either<Ctn<Exception>, Ctn<R>>>(
+                    .Match<Pipe<R>>(
                         r => tValue.ToCtn(r,  title.ToStepOutcome(Outcome.Pass)),
                         ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex).ToOutcome()))),
                 err => 
@@ -35,7 +36,7 @@ namespace BddPipe
         /// <param name="t">The state so far, containing the original exception or last returned result.</param>
         /// <param name="scenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
-        public static BddPipeResult<T> Run<T>(this Either<Ctn<Exception>, Ctn<T>> t, Action<ScenarioResult> scenarioResult = null)
+        public static BddPipeResult<T> Run<T>(this Pipe<T> t, Action<ScenarioResult> scenarioResult = null)
         {
             var result = t.Match(
                 r => r.ToResult(),

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BddPipe.Model;
 
 namespace BddPipe
 {
@@ -7,28 +8,28 @@ namespace BddPipe
     {
         private const Step StepWhen = Step.When;
 
-        public static Either<Ctn<Exception>, Ctn<R>> When<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, R> step) =>
+        public static Pipe<R> When<T, R>(this Pipe<T> t, string title, Func<T, R> step) =>
             RunStep(t, title.ToTitle(StepWhen), step);
 
-        public static Either<Ctn<Exception>, Ctn<R>> When<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, Task<R>> step) =>
+        public static Pipe<R> When<T, R>(this Pipe<T> t, string title, Func<T, Task<R>> step) =>
             RunStep(t, title.ToTitle(StepWhen), step);
 
-        public static Either<Ctn<Exception>, Ctn<R>> When<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<R> step) =>
+        public static Pipe<R> When<T, R>(this Pipe<T> t, string title, Func<R> step) =>
             RunStep(t, title.ToTitle(StepWhen), step.PipeFunc<T, R>());
 
-        public static Either<Ctn<Exception>, Ctn<R>> When<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<Task<R>> step) =>
+        public static Pipe<R> When<T, R>(this Pipe<T> t, string title, Func<Task<R>> step) =>
             RunStep(t, title.ToTitle(StepWhen), step.PipeFunc<T, R>());
 
-        public static Either<Ctn<Exception>, Ctn<T>> When<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, Task> step) =>
+        public static Pipe<T> When<T>(this Pipe<T> t, string title, Func<T, Task> step) =>
             RunStep(t, title.ToTitle(StepWhen), step.PipeFunc());
 
-        public static Either<Ctn<Exception>, Ctn<T>> When<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<Task> step) =>
+        public static Pipe<T> When<T>(this Pipe<T> t, string title, Func<Task> step) =>
             RunStep(t, title.ToTitle(StepWhen), step.PipeFunc<T>());
 
-        public static Either<Ctn<Exception>, Ctn<T>> When<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Action<T> step) =>
+        public static Pipe<T> When<T>(this Pipe<T> t, string title, Action<T> step) =>
             RunStep(t, title.ToTitle(StepWhen), step.PipeFunc());
 
-        public static Either<Ctn<Exception>, Ctn<T>> When<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Action step) =>
+        public static Pipe<T> When<T>(this Pipe<T> t, string title, Action step) =>
             RunStep(t, title.ToTitle(StepWhen), step.PipeFunc<T>());
     }
 }

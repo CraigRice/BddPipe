@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BddPipe.Model;
 
 namespace BddPipe
 {
@@ -7,28 +8,28 @@ namespace BddPipe
     {
         private const Step StepBut = Step.But;
 
-        public static Either<Ctn<Exception>, Ctn<R>> But<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, R> step) =>
+        public static Pipe<R> But<T, R>(this Pipe<T> t, string title, Func<T, R> step) =>
             RunStep(t, title.ToTitle(StepBut), step);
 
-        public static Either<Ctn<Exception>, Ctn<R>> But<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, Task<R>> step) =>
+        public static Pipe<R> But<T, R>(this Pipe<T> t, string title, Func<T, Task<R>> step) =>
             RunStep(t, title.ToTitle(StepBut), step);
 
-        public static Either<Ctn<Exception>, Ctn<R>> But<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<R> step) =>
+        public static Pipe<R> But<T, R>(this Pipe<T> t, string title, Func<R> step) =>
             RunStep(t, title.ToTitle(StepBut), step.PipeFunc<T, R>());
 
-        public static Either<Ctn<Exception>, Ctn<R>> But<T, R>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<Task<R>> step) =>
+        public static Pipe<R> But<T, R>(this Pipe<T> t, string title, Func<Task<R>> step) =>
             RunStep(t, title.ToTitle(StepBut), step.PipeFunc<T, R>());
 
-        public static Either<Ctn<Exception>, Ctn<T>> But<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<T, Task> step) =>
+        public static Pipe<T> But<T>(this Pipe<T> t, string title, Func<T, Task> step) =>
             RunStep(t, title.ToTitle(StepBut), step.PipeFunc());
 
-        public static Either<Ctn<Exception>, Ctn<T>> But<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Func<Task> step) =>
+        public static Pipe<T> But<T>(this Pipe<T> t, string title, Func<Task> step) =>
             RunStep(t, title.ToTitle(StepBut), step.PipeFunc<T>());
 
-        public static Either<Ctn<Exception>, Ctn<T>> But<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Action<T> step) =>
+        public static Pipe<T> But<T>(this Pipe<T> t, string title, Action<T> step) =>
             RunStep(t, title.ToTitle(StepBut), step.PipeFunc());
 
-        public static Either<Ctn<Exception>, Ctn<T>> But<T>(this Either<Ctn<Exception>, Ctn<T>> t, string title, Action step) =>
+        public static Pipe<T> But<T>(this Pipe<T> t, string title, Action step) =>
             RunStep(t, title.ToTitle(StepBut), step.PipeFunc<T>());
     }
 }
