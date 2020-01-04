@@ -46,8 +46,8 @@ namespace BddPipe
             return IsLeft ? left(this.Left) : right(this.Right);
         }
 
-        public Unit Match(Action<TRight> payload, Action<TLeft> error)
-            => Match(payload.ToFunc(), error.ToFunc());
+        public Unit Match(Action<TRight> right, Action<TLeft> left)
+            => Match(right.ToFunc(), left.ToFunc());
 
         public override string ToString() => Match(error => $"Error({error})", payload => $"Payload({payload})");
     }
