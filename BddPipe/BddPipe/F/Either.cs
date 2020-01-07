@@ -43,12 +43,12 @@ namespace BddPipe
             {
                 throw new EitherNotInitialzedException();
             }
-            return IsLeft ? left(this.Left) : right(this.Right);
+            return IsLeft ? left(Left) : right(Right);
         }
 
         public Unit Match(Action<TRight> right, Action<TLeft> left)
             => Match(right.ToFunc(), left.ToFunc());
 
-        public override string ToString() => Match(error => $"Error({error})", payload => $"Payload({payload})");
+        public override string ToString() => Match(payload => $"Payload({payload})", error => $"Error({error})");
     }
 }

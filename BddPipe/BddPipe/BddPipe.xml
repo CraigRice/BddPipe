@@ -4,6 +4,11 @@
         <name>BddPipe</name>
     </assembly>
     <members>
+        <member name="T:BddPipe.Extensions.RecipeExtensions">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:BddPipe.BddPipeResult`1">
             <summary>
             When the test is successful and no exceptions are thrown this will be the final result
