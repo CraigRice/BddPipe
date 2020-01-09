@@ -112,7 +112,7 @@ namespace BddPipe.UnitTests.Model
                 default(Pipe<int>).Match(v => v.Content, e => DefaultValue);
             };
 
-            go.Should().ThrowExactly<PipeNotInitialzedException>().WithMessage("Pipe has not been initialized");
+            go.Should().ThrowExactly<PipeNotInitializedException>().WithMessage("Pipe has not been initialized");
         }
 
         [Test]

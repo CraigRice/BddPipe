@@ -4,9 +4,9 @@
         <name>BddPipe</name>
     </assembly>
     <members>
-        <member name="T:BddPipe.Extensions.RecipeExtensions">
+        <member name="T:BddPipe.Unit">
             <summary>
-            
+            Represents a singe value containing no information.
             </summary>
         </member>
         <member name="T:BddPipe.BddPipeResult`1">
@@ -60,6 +60,84 @@
             <summary>
             Step was not run due to a failed or inconclusive previous step
             </summary>
+        </member>
+        <member name="T:BddPipe.Model.PipeNotInitializedException">
+            <summary>
+            Raised when a Pipe(of T) instance is used - after being created as default and not initialized by normal means.
+            </summary>
+        </member>
+        <member name="M:BddPipe.Model.PipeNotInitializedException.#ctor">
+            <summary>
+            Create a new instance of <see cref="T:BddPipe.Model.PipeNotInitializedException"/>
+            </summary>
+        </member>
+        <member name="T:BddPipe.Model.Pipe`1">
+            <summary>
+            Represents either a successful outcome with the intended value or otherwise any type of Exception.
+            <remarks>A custom Either to better represent state and make its declaration succinct compared to its full Either equivalent.</remarks>
+            </summary>
+            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+        </member>
+        <member name="M:BddPipe.Model.Pipe`1.op_Implicit(BddPipe.Ctn{System.Exception})~BddPipe.Model.Pipe{`0}">
+            <summary>
+            Lift a <see cref="T:BddPipe.Ctn`1"/> into an instance of <see cref="T:BddPipe.Model.Pipe`1"/>
+            </summary>
+            <param name="containerOfError">The container instance.</param>
+        </member>
+        <member name="M:BddPipe.Model.Pipe`1.op_Implicit(BddPipe.Ctn{`0})~BddPipe.Model.Pipe{`0}">
+            <summary>
+            Lift a <see cref="T:BddPipe.Ctn`1"/> into an instance of <see cref="T:BddPipe.Model.Pipe`1"/>
+            </summary>
+            <param name="containerOfValue">The container instance.</param>
+        </member>
+        <member name="M:BddPipe.Model.Pipe`1.Match``1(System.Func{BddPipe.Ctn{`0},``0},System.Func{BddPipe.Ctn{System.Exception},``0})">
+            <summary>
+            Returns the value based on the function implementation of each state.
+            </summary>
+            <typeparam name="TResult">The target return result type to be returned by both supplied functions.</typeparam>
+            <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+            <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
+            <returns></returns>
+        </member>
+        <member name="M:BddPipe.Model.Pipe`1.Match(System.Action{BddPipe.Ctn{`0}},System.Action{BddPipe.Ctn{System.Exception}})">
+            <summary>
+            Performs an action based on the value based on the function implementation of each state.
+            </summary>
+            <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+            <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
+            <returns>An instance of Unit.</returns>
+        </member>
+        <member name="M:BddPipe.Model.Pipe`1.ToString">
+            <summary>
+            Returns a string representation of <see cref="T:BddPipe.Model.Pipe`1"/>
+            </summary>
+            <returns>The string returned indicates the contained type</returns>
+        </member>
+        <member name="T:BddPipe.Model.PipeExtensions">
+            <summary>
+            Extension methods that operate on <see cref="T:BddPipe.Model.Pipe`1"/>
+            </summary>
+        </member>
+        <member name="M:BddPipe.Model.PipeExtensions.Bind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}})">
+            <summary>
+            For the successful state, provide a bind function to project to a new Pipe instance. The function not invoked if in the error state already.
+            </summary>Current
+            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+            <typeparam name="R">Type of the value represented when in a successful state</typeparam>
+            <param name="pipe">Current Pipe state</param>
+            <param name="bindContainerOfValue">A function that given a container representing a successful state, returns a new Pipe representing success or failure</param>
+            <returns></returns>
+        </member>
+        <member name="M:BddPipe.Model.PipeExtensions.BiBind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}},System.Func{BddPipe.Ctn{System.Exception},BddPipe.Model.Pipe{``1}})">
+            <summary>
+            For each state, provide a bind function to project to a new Pipe instance. The function suited to the current state is executed.
+            </summary>
+            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+            <typeparam name="R">Type of the value represented when in a successful state</typeparam>
+            <param name="pipe">Current Pipe state</param>
+            <param name="bindContainerOfValue">A function that given a container representing a successful state, returns a new Pipe representing success or failure</param>
+            <param name="bindContainerOfError">A function that given a container representing an error state, returns a new Pipe representing success or failure</param>
+            <returns></returns>
         </member>
         <member name="T:BddPipe.Scenario">
             <summary>
@@ -161,6 +239,40 @@
             <summary>
             Create a new instance of <see cref="T:BddPipe.StepResult"/>
             </summary>
+        </member>
+        <member name="T:BddPipe.Recipe.RecipeExtensions">
+            <summary>
+            Allows reusable recipes to be defined and plugged into the pipeline as a step or combination of steps.
+            </summary>
+        </member>
+        <member name="M:BddPipe.Recipe.RecipeExtensions.GivenRecipe``1(BddPipe.Scenario,System.Func{BddPipe.Scenario,BddPipe.Model.Pipe{``0}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="pipe"></param>
+            <param name="recipeFunction"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BddPipe.Recipe.RecipeExtensions.AndRecipe``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Model.Pipe{``0},BddPipe.Model.Pipe{``1}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="R"></typeparam>
+            <param name="pipe"></param>
+            <param name="recipeFunction"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BddPipe.Recipe.RecipeExtensions.ThenRecipe``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Model.Pipe{``0},BddPipe.Model.Pipe{``1}})">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <typeparam name="R"></typeparam>
+            <param name="pipe"></param>
+            <param name="recipeFunction"></param>
+            <returns></returns>
         </member>
         <member name="T:BddPipe.Runner">
             <summary>
