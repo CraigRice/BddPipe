@@ -63,7 +63,7 @@
         </member>
         <member name="T:BddPipe.Model.PipeNotInitializedException">
             <summary>
-            Raised when a Pipe(of T) instance is used - after being created as default and not initialized by normal means.
+            Raised when a <see cref="T:BddPipe.Model.Pipe`1"/> instance is used - after being created as default and not initialized by normal means.
             </summary>
         </member>
         <member name="M:BddPipe.Model.PipeNotInitializedException.#ctor">
@@ -247,32 +247,32 @@
         </member>
         <member name="M:BddPipe.Recipe.RecipeExtensions.GivenRecipe``1(BddPipe.Scenario,System.Func{BddPipe.Scenario,BddPipe.Model.Pipe{``0}})">
             <summary>
-            
+            Allow a function to run in place of the 'Given' step to add a reusable step or series of steps based on its implementation.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="pipe"></param>
-            <param name="recipeFunction"></param>
-            <returns></returns>
+            <typeparam name="R">Type to be represented by the <see cref="T:BddPipe.Model.Pipe`1"/> after the step(s) are run.</typeparam>
+            <param name="scenario">Current <see cref="T:BddPipe.Scenario"/> instance to add step(s) to.</param>
+            <param name="recipeFunction">Function describing the step(s) added to the <see cref="T:BddPipe.Scenario"/></param>
+            <returns>A <see cref="T:BddPipe.Model.Pipe`1"/> with recipe steps applied via the supplied function.</returns>
         </member>
         <member name="M:BddPipe.Recipe.RecipeExtensions.AndRecipe``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Model.Pipe{``0},BddPipe.Model.Pipe{``1}})">
             <summary>
-            
+            Allow a function to run in place of the 'And' step to add a reusable step or series of steps based on its implementation.
             </summary>
-            <typeparam name="T"></typeparam>
-            <typeparam name="R"></typeparam>
-            <param name="pipe"></param>
-            <param name="recipeFunction"></param>
-            <returns></returns>
+            <typeparam name="T">Initial incoming type represented by the <see cref="T:BddPipe.Model.Pipe`1"/></typeparam>
+            <typeparam name="R">Type to be represented by the <see cref="T:BddPipe.Model.Pipe`1"/> after the step(s) are run.</typeparam>
+            <param name="pipe">Current <see cref="T:BddPipe.Model.Pipe`1"/> instance to add step(s) to.</param>
+            <param name="recipeFunction">Function describing the step(s) added to the <see cref="T:BddPipe.Model.Pipe`1"/></param>
+            <returns>A <see cref="T:BddPipe.Model.Pipe`1"/> with recipe steps applied via the supplied function.</returns>
         </member>
         <member name="M:BddPipe.Recipe.RecipeExtensions.ThenRecipe``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Model.Pipe{``0},BddPipe.Model.Pipe{``1}})">
             <summary>
-            
+            Allow a function to run in place of the 'Then' step to add a reusable step or series of steps based on its implementation.
             </summary>
-            <typeparam name="T"></typeparam>
-            <typeparam name="R"></typeparam>
-            <param name="pipe"></param>
-            <param name="recipeFunction"></param>
-            <returns></returns>
+            <typeparam name="T">Initial incoming type represented by the <see cref="T:BddPipe.Model.Pipe`1"/></typeparam>
+            <typeparam name="R">Type to be represented by the <see cref="T:BddPipe.Model.Pipe`1"/> after the step(s) are run.</typeparam>
+            <param name="pipe">Current <see cref="T:BddPipe.Model.Pipe`1"/> instance to add step(s) to.</param>
+            <param name="recipeFunction">Function describing the step(s) added to the <see cref="T:BddPipe.Model.Pipe`1"/></param>
+            <returns>A <see cref="T:BddPipe.Model.Pipe`1"/> instance as a result of the recipe function.</returns>
         </member>
         <member name="T:BddPipe.Runner">
             <summary>
