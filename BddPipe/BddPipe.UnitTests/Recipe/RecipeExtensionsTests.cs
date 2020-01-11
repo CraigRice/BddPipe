@@ -10,41 +10,66 @@ namespace BddPipe.UnitTests.Recipe
 {
     public sealed class ScenarioInfo
     {
-        public string TestValue { get; }
+        public string TestValueOne { get; }
+        public string TestValueTwo { get; }
 
-        public ScenarioInfo(string testValue)
+        public ScenarioInfo(string testValueOne, string testValueTwo)
         {
-            TestValue = testValue;
+            TestValueOne = testValueOne;
+            TestValueTwo = testValueTwo;
         }
     }
 
-    public sealed class ScenarioInfo2
+    public sealed class ScenarioInfoAlternate
     {
-        public string TestValue { get; }
+        public string TestValueOne { get; }
+        public string TestValueTwo { get; }
 
-        public ScenarioInfo2(string testValue)
+        public ScenarioInfoAlternate(string testValueOne, string testValueTwo)
         {
-            TestValue = testValue;
+            TestValueOne = testValueOne;
+            TestValueTwo = testValueTwo;
         }
     }
 
     public static class Recipe
     {
-        public const string AnyStringArg = "any-arg";
+        public const string StringArgValueOne = "arg-one";
+        public const string StringArgValueTwo = "arg-two";
         public const string GivenStepTitle = "given-step-text";
+        public const string AndStepTitle = "the same type is returned as scenario info";
+        public const string AndStepTitleAlternate = "a different type is returned as scenario info";
+        public const string ThenStepTitle = "test values are equal";
 
-        public static Func<Scenario, Pipe<ScenarioInfo>> SetupWithScenario() =>
+        public static Func<Scenario, Pipe<ScenarioInfo>> SetupScenarioWithGivenStep() =>
             scenario =>
-                scenario.Given(GivenStepTitle, () => new ScenarioInfo(AnyStringArg));
+                scenario.Given(GivenStepTitle, () => new ScenarioInfo(StringArgValueOne, null));
 
-        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> SetupWithScenarioInfo() =>
+        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> AddToScenarioWithAndStep() =>
             pipe =>
-                pipe.And("", scenarioInfo => new ScenarioInfo(scenarioInfo + " extra"));
+                pipe.And(
+                    AndStepTitle,
+                    scenarioInfo => new ScenarioInfo(scenarioInfo.TestValueOne, StringArgValueTwo)
+                );
 
-        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo2>> SetupWithDifferentScenarioInfo() =>
+        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfoAlternate>> AddToScenarioWithAndStepAlternate() =>
             pipe =>
-                pipe.And("", scenarioInfo => new ScenarioInfo2(scenarioInfo + " extra"));
+                pipe.And(
+                    AndStepTitleAlternate,
+                    scenarioInfo => new ScenarioInfoAlternate(scenarioInfo.TestValueOne, StringArgValueTwo)
+                );
 
+        public static Func<Scenario, Pipe<ScenarioInfo>> CombinedRecipe() =>
+            scenario =>
+                scenario
+                    .GivenRecipe(SetupScenarioWithGivenStep())
+                    .AndRecipe(AddToScenarioWithAndStep());
+
+        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> ThenAssertRecipe() =>
+            pipe =>
+                pipe.Then(
+                    ThenStepTitle,
+                    scenarioInfo => { scenarioInfo.TestValueOne.Should().Be(scenarioInfo.TestValueTwo); });
     }
 
     [TestFixture]
@@ -53,18 +78,101 @@ namespace BddPipe.UnitTests.Recipe
         private const string ScenarioText = "scenario-text";
 
         [Test]
-        public void GivenRecipe_WithScenario_AppliesGivenStep()
+        public void GivenRecipe_SetupScenarioWithGivenStep_AppliesGivenStep()
         {
             var scenarioSetup = Scenario(ScenarioText)
-                .GivenRecipe(Recipe.SetupWithScenario());
+                .GivenRecipe(Recipe.SetupScenarioWithGivenStep());
 
             scenarioSetup.ShouldBeSuccessful(ctn =>
             {
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().NotBeNull();
-                ctn.Content.TestValue.Should().Be(Recipe.AnyStringArg);
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(null);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, Recipe.GivenStepTitle, Step.Given);
+            });
+        }
+
+        [Test]
+        public void AndRecipe_AddToScenarioWithAndStep_AppliesAndStep()
+        {
+            var scenarioSetup = Scenario(ScenarioText)
+                .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
+                .AndRecipe(Recipe.AddToScenarioWithAndStep());
+
+            scenarioSetup.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(Recipe.StringArgValueTwo);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.Count.Should().Be(2);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.GivenStepTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.AndStepTitle, Step.And, 1);
+            });
+        }
+
+        [Test]
+        public void AndRecipe_AddToScenarioWithAndStepAlternate_AppliesAndStep()
+        {
+            var scenarioSetup = Scenario(ScenarioText)
+                .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
+                .AndRecipe(Recipe.AddToScenarioWithAndStepAlternate());
+
+            scenarioSetup.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(Recipe.StringArgValueTwo);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.Count.Should().Be(2);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.GivenStepTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.AndStepTitleAlternate, Step.And, 1);
+            });
+        }
+
+        [Test]
+        public void AndRecipe_CombinedRecipe_AppliesSteps()
+        {
+            var scenarioSetup = Scenario(ScenarioText)
+                .GivenRecipe(Recipe.CombinedRecipe());
+
+            scenarioSetup.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(Recipe.StringArgValueTwo);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.Count.Should().Be(2);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.GivenStepTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.AndStepTitle, Step.And, 1);
+            });
+        }
+
+        [Test]
+        public void ThenRecipe_AppliedToAssertFollowingInitialSteps_RunsRecipe()
+        {
+            const string givenTitle = "a scenario info of the same string values";
+
+            var scenarioSetup = Scenario(ScenarioText)
+                .Given(givenTitle,
+                    () => new ScenarioInfo(Recipe.StringArgValueOne, Recipe.StringArgValueOne))
+                .ThenRecipe(Recipe.ThenAssertRecipe());
+
+            scenarioSetup.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(Recipe.StringArgValueOne);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.Count.Should().Be(2);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, Recipe.ThenStepTitle, Step.Then, 1);
             });
         }
     }

@@ -9,7 +9,7 @@ namespace BddPipe.Recipe
     public static class RecipeExtensions
     {
         /// <summary>
-        /// Allow a function to run in place of the 'Given' step to add a reusable step or series of steps based on its implementation.
+        /// Allow a function to run in place of the 'Given' step to add a reusable step or series of steps.
         /// </summary>
         /// <typeparam name="R">Type to be represented by the <see cref="Pipe{R}"/> after the step(s) are run.</typeparam>
         /// <param name="scenario">Current <see cref="Scenario"/> instance to add step(s) to.</param>
@@ -19,7 +19,7 @@ namespace BddPipe.Recipe
             recipeFunction(scenario);
 
         /// <summary>
-        /// Allow a function to run in place of the 'And' step to add a reusable step or series of steps based on its implementation.
+        /// Allow a function to run in place of the 'And' step to add a reusable step or series of steps.
         /// </summary>
         /// <typeparam name="T">Initial incoming type represented by the <see cref="Pipe{T}"/></typeparam>
         /// <typeparam name="R">Type to be represented by the <see cref="Pipe{R}"/> after the step(s) are run.</typeparam>
@@ -30,7 +30,7 @@ namespace BddPipe.Recipe
             recipeFunction(pipe);
 
         /// <summary>
-        /// Allow a function to run in place of the 'Then' step to add a reusable step or series of steps based on its implementation.
+        /// Allow a function to run in place of the 'Then' step to add a reusable step or series of steps.
         /// </summary>
         /// <typeparam name="T">Initial incoming type represented by the <see cref="Pipe{T}"/></typeparam>
         /// <typeparam name="R">Type to be represented by the <see cref="Pipe{R}"/> after the step(s) are run.</typeparam>
