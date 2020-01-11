@@ -1,4 +1,5 @@
 ﻿using System;
+using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using static BddPipe.F;
 using NUnit.Framework;
@@ -90,6 +91,56 @@ namespace BddPipe.UnitTests
         public void ToOutcome_InconclusiveException_Inconclusive()
         {
             StepResultExtensions.ToOutcome(new InconclusiveException("test message")).Should().Be(Outcome.Inconclusive);
+        }
+
+        [Test]
+        public void ToTitle_NullTitleString_ReturnsCorrectTitle()
+        {
+            string titleText = null;
+
+            var result = titleText.ToTitle(Step.And).Value;
+
+            result.Step.Should().Be(Step.And);
+            result.Text.ShouldBeNone();
+        }
+
+        [Test]
+        public void ToTitle_TitleString_ReturnsCorrectTitle()
+        {
+            const string titleText = "title text";
+
+            var result = titleText.ToTitle(Step.And).Value;
+
+            result.Step.Should().Be(Step.And);
+            result.Text.ShouldBeSome(title => title.Should().Be(titleText));
+        }
+
+        [Test]
+        public void ToStepOutcome_TitleAndSuppliedOutcome_ReturnsMappedStepOutcome()
+        {
+            const string titleText = "title text";
+
+            Some<Title> title = new Title(Step.And, titleText);
+
+            var stepOutcome = title.ToStepOutcome(Outcome.Inconclusive);
+
+            stepOutcome.Should().NotBeNull();
+            stepOutcome.Step.Should().Be(Step.And);
+            stepOutcome.Outcome.Should().Be(Outcome.Inconclusive);
+            stepOutcome.Text.ShouldBeSome(titleOptionValue => titleOptionValue.Should().Be(titleText));
+        }
+
+        [Test]
+        public void ToStepOutcome_NullTitleAndSuppliedOutcome_ReturnsMappedStepOutcome()
+        {
+            Some<Title> title = new Title(Step.And, None);
+
+            var stepOutcome = title.ToStepOutcome(Outcome.Inconclusive);
+
+            stepOutcome.Should().NotBeNull();
+            stepOutcome.Step.Should().Be(Step.And);
+            stepOutcome.Outcome.Should().Be(Outcome.Inconclusive);
+            stepOutcome.Text.ShouldBeNone();
         }
     }
 }
