@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BddPipe
 {
@@ -20,6 +20,8 @@ namespace BddPipe
         internal Ctn(T content, Option<string> scenarioTitle) : this(content, new StepOutcome[0], scenarioTitle) {}
         internal Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
         {
+            if (stepOutcomes == null) throw new ArgumentNullException(nameof(stepOutcomes));
+
             StepOutcomes = stepOutcomes;
             Content = content;
             ScenarioTitle = scenarioTitle;
@@ -30,7 +32,7 @@ namespace BddPipe
     {
         public static Ctn<R> ToCtn<T, R>(this Ctn<T> ctn, R newContent, Some<StepOutcome> withStepOutcome)
         {
-            var outcomes = new List<StepOutcome>(ctn.StepOutcomes.Concat(new[] { withStepOutcome.Value }));
+            var outcomes = new List<StepOutcome>(ctn.StepOutcomes) { withStepOutcome.Value };
             return new Ctn<R>(newContent, outcomes, ctn.ScenarioTitle);
         }
 

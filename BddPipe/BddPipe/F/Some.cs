@@ -2,9 +2,16 @@
 
 namespace BddPipe
 {
-    public class NotInitialisedException : Exception
+    /// <summary>
+    /// Raised when a <see cref="Some{T}"/> instance is used - after being created as default and not initialized by normal means.
+    /// </summary>
+    public class NotInitializedException : Exception
     {
-        public NotInitialisedException(string message) : base(message)
+        /// <summary>
+        /// Create a new instance of <see cref="NotInitializedException"/>
+        /// </summary>
+        /// <param name="message">A message describing the issue</param>
+        public NotInitializedException(string message) : base(message)
         {
         }
     }
@@ -12,7 +19,7 @@ namespace BddPipe
     internal struct Some<T>
     {
         private readonly T _value;
-        private readonly bool _initialised;
+        private readonly bool _initialized;
 
         public Some(T value)
         {
@@ -21,19 +28,19 @@ namespace BddPipe
                 throw new ArgumentOutOfRangeException(nameof(value), "Value can not be null");
             }
 
-            _initialised = true;
+            _initialized = true;
             _value = value;
         }
 
-        private static T raise<T>(Exception ex)
+        private static T Raise<T>(Exception ex)
         {
             throw ex;
         }
 
         public T Value =>
-            _initialised
+            _initialized
                 ? _value
-                : raise<T>(new NotInitialisedException($"Some {typeof(T).Name} has not been initialised"));
+                : Raise<T>(new NotInitializedException($"Some {typeof(T).Name} has not been initialized"));
 
         public static bool operator ==(Some<T> a, Some<T> b) => a.Value.Equals(b.Value);
         public static bool operator !=(Some<T> a, Some<T> b) => a.Value.Equals(b.Value) == false;

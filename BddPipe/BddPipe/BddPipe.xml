@@ -4,6 +4,17 @@
         <name>BddPipe</name>
     </assembly>
     <members>
+        <member name="T:BddPipe.NotInitializedException">
+            <summary>
+            Raised when a <see cref="T:BddPipe.Some`1"/> instance is used - after being created as default and not initialized by normal means.
+            </summary>
+        </member>
+        <member name="M:BddPipe.NotInitializedException.#ctor(System.String)">
+            <summary>
+            Create a new instance of <see cref="T:BddPipe.NotInitializedException"/>
+            </summary>
+            <param name="message">A message describing the issue</param>
+        </member>
         <member name="T:BddPipe.Unit">
             <summary>
             Represents a singe value containing no information.
