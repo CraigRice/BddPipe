@@ -34,16 +34,16 @@ namespace BddPipe
         /// </summary>
         /// <typeparam name="T">Last returned type</typeparam>
         /// <param name="t">The state so far, containing the original exception or last returned result.</param>
-        /// <param name="scenarioResult">Will output the result to console unless this optional handling is supplied.</param>
+        /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
-        public static BddPipeResult<T> Run<T>(this Pipe<T> t, Action<ScenarioResult> scenarioResult = null)
+        public static BddPipeResult<T> Run<T>(this Pipe<T> t, Action<ScenarioResult> writeScenarioResult = null)
         {
             var result = t.Match(
                 r => r.ToResult(),
                 e => e.ToResult()
             );
 
-            var logger = scenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
+            var logger = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
 
             logger(result);
 
