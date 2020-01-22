@@ -8,7 +8,7 @@ namespace BddPipe
     {
         private const int DefaultIndentSize = 2;
 
-        private static bool StartsWith(this Some<string> text, Some<string> prefix) =>
+        private static bool StartsWithIgnoreCase(this Some<string> text, Some<string> prefix) =>
             text.Value.IndexOf(prefix.Value, StringComparison.InvariantCultureIgnoreCase) == 0;
 
         public static Some<string> WithPrefix(this Option<string> text, Some<string> prefix) =>
@@ -16,7 +16,7 @@ namespace BddPipe
                 {
                     Some<string> someText = txt;
 
-                    var result = someText.StartsWith(prefix)
+                    var result = someText.StartsWithIgnoreCase(prefix)
                         ? someText
                         : new Some<string>($"{prefix} {txt}".TrimEnd());
 

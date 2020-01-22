@@ -87,7 +87,7 @@
             Represents either a successful outcome with the intended value or otherwise any type of Exception.
             <remarks>A custom Either to better represent state and make its declaration succinct compared to its full Either equivalent.</remarks>
             </summary>
-            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+            <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
         </member>
         <member name="M:BddPipe.Model.Pipe`1.op_Implicit(BddPipe.Ctn{System.Exception})~BddPipe.Model.Pipe{`0}">
             <summary>
@@ -294,8 +294,8 @@
             <summary>
             The last call to evaluate the result of calls made.
             </summary>
-            <typeparam name="T">Last returned type</typeparam>
-            <param name="t">The state so far, containing the original exception or last returned result.</param>
+            <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
+            <param name="pipe">The state so far, containing the original exception or last returned result.</param>
             <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
             <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
         </member>

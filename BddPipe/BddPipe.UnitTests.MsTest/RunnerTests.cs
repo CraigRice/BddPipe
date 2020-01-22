@@ -22,7 +22,7 @@ namespace BddPipe.UnitTests.MsTest
         }
 
         [TestMethod]
-        public void BddPipe_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
+        public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -49,7 +49,7 @@ namespace BddPipe.UnitTests.MsTest
         }
 
         [TestMethod]
-        public void BddPipe_Example_Successful()
+        public void Run_Example_Successful()
         {
             Scenario()
                 .Given("two numbers", () => new { A = 5, B = 10 })
@@ -62,7 +62,7 @@ namespace BddPipe.UnitTests.MsTest
         }
 
         [TestMethod]
-        public void BddPipe_GivenWhenAndThenWithAndAssertInconclusive_IndicatedInconclusive()
+        public void Run_GivenWhenAndThenWithAndAssertInconclusive_IndicatedInconclusive()
         {
             IReadOnlyList<string> logLines = new List<string>();
             Action runTest = () =>
@@ -85,7 +85,7 @@ namespace BddPipe.UnitTests.MsTest
         }
 
         [TestMethod]
-        public void BddPipe_GivenWhenThenWithGivenAssertInconclusive_IndicatedInconclusive()
+        public void Run_GivenWhenThenWithGivenAssertInconclusive_IndicatedInconclusive()
         {
             IReadOnlyList<string> logLines = new List<string>();
 

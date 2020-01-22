@@ -20,7 +20,7 @@ namespace BddPipe.UnitTests.XUnit
         }
 
         [Fact]
-        public void BddPipe_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
+        public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -47,7 +47,7 @@ namespace BddPipe.UnitTests.XUnit
         }
 
         [Fact]
-        public void BddPipe_Example_Successful()
+        public void Run_Example_Successful()
         {
             Scenario()
                 .Given("two numbers", () => new { A = 5, B = 10 })

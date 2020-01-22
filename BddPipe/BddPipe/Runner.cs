@@ -32,24 +32,24 @@ namespace BddPipe
         /// <summary>
         /// The last call to evaluate the result of calls made.
         /// </summary>
-        /// <typeparam name="T">Last returned type</typeparam>
-        /// <param name="t">The state so far, containing the original exception or last returned result.</param>
+        /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
+        /// <param name="pipe">The state so far, containing the original exception or last returned result.</param>
         /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
-        public static BddPipeResult<T> Run<T>(this Pipe<T> t, Action<ScenarioResult> writeScenarioResult = null)
+        public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
         {
-            var result = t.Match(
-                r => r.ToResult(),
-                e => e.ToResult()
+            var result = pipe.Match(
+                ctnValue => ctnValue.ToResult(),
+                ctnError => ctnError.ToResult()
             );
 
-            var logger = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
+            var logResult = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
 
-            logger(result);
+            logResult(result);
 
-            return t.Match(
-                r => new BddPipeResult<T>(r.Content, result),
-                ex => throw ex.Content);
+            return pipe.Match(
+                ctnValue => new BddPipeResult<T>(ctnValue.Content, result),
+                ctnError => throw ctnError.Content);
         }
 
         private static Action<ScenarioResult, Action<string>> WriteOutput => (scenarioResult, writeLine) =>

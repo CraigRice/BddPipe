@@ -19,7 +19,7 @@ namespace BddPipe.Model
     /// Represents either a successful outcome with the intended value or otherwise any type of Exception.
     /// <remarks>A custom Either to better represent state and make its declaration succinct compared to its full Either equivalent.</remarks>
     /// </summary>
-    /// <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+    /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
     public struct Pipe<T>
     {
         private readonly Ctn<Exception> _containerOfError;

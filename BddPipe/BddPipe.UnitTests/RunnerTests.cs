@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BddPipe.UnitTests.Asserts;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests
@@ -23,7 +24,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
+        public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -50,7 +51,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_Example_Successful()
+        public void Run_Example_Successful()
         {
             Scenario()
                 .Given("two numbers", () => new { A = 5, B = 10 })
@@ -63,7 +64,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenThenAndAsActions_Success()
+        public void Run_GivenWhenThenAndAsActions_Success()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -88,7 +89,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenOnly_Success()
+        public void Run_GivenOnly_Success()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -100,7 +101,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenThen_Success()
+        public void Run_GivenWhenThen_Success()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -119,7 +120,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenAndThenWithAndAssertInconclusive_IndicatedInconclusive()
+        public void Run_GivenWhenAndThenWithAndAssertInconclusive_IndicatedInconclusive()
         {
             IReadOnlyList<string> logLines = new List<string>();
             Action runTest = () =>
@@ -142,7 +143,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenThenWithGivenAssertInconclusive_IndicatedInconclusive()
+        public void Run_GivenWhenThenWithGivenAssertInconclusive_IndicatedInconclusive()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -168,7 +169,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenAsyncThen_Success()
+        public void Run_GivenWhenAsyncThen_Success()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -191,7 +192,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenThenAnd_Success()
+        public void Run_GivenWhenThenAnd_Success()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -215,7 +216,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_GivenWhenThenAndHavingWhenFail_LogIsCorrect()
+        public void Run_GivenWhenThenAndHavingWhenFail_LogIsCorrect()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -246,7 +247,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_AssignExternalVarsViaTask_ResultSet()
+        public void Run_AssignExternalVarsViaTask_ResultSet()
         {
             int a = 0, b = 0;
             int result = 0;
@@ -269,7 +270,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_FuncTaskAsyncCallThrowsException_RaisesThrownExNotAggregateException()
+        public void Run_FuncTaskAsyncCallThrowsException_RaisesThrownExNotAggregateException()
         {
             Action runTest = () =>
             {
@@ -285,7 +286,7 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void BddPipe_FuncTaskOfTAsyncCallThrowsException_RaisesThrownExNotAggregateException()
+        public void Run_FuncTaskOfTAsyncCallThrowsException_RaisesThrownExNotAggregateException()
         {
             Action runTest = () =>
             {
@@ -299,6 +300,22 @@ namespace BddPipe.UnitTests
             };
 
             runTest.Should().ThrowExactly<ApplicationException>().WithMessage("test exception");
+        }
+
+        [Test]
+        public void Run_ScenarioTitleExplicitlyNull_ScenarioIsIgnored()
+        {
+            const string title = "Scenario title is null";
+            var bddPipeResult = Scenario(null, null)
+                .Given(title, () => { })
+                .Run();
+
+            bddPipeResult.Result.Should().NotBeNull();
+            bddPipeResult.Result.Title.Should().BeNull();
+            bddPipeResult.Result.Description.Should().Be("Scenario:");
+            bddPipeResult.Result.StepResults.Should().NotBeNull();
+            bddPipeResult.Result.StepResults.Count.Should().Be(1);
+            bddPipeResult.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, title, $"Given {title} [Passed]", Step.Given, 0);
         }
     }
 }

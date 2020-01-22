@@ -17,6 +17,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Scenario_ExplicitlyNullTitle_TitleIsNull()
+        {
+            var scenario = Scenario(null, null);
+
+            scenario.Should().NotBeNull();
+            scenario.Title.Should().Be(null);
+        }
+
+        [Test]
         public void Scenario_Title_UsesExplicitTitle()
         {
             const string scenarioTitle = "A Scenario Title";
