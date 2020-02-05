@@ -49,7 +49,13 @@ namespace BddPipe
 
             return pipe.Match(
                 ctnValue => new BddPipeResult<T>(ctnValue.Content, result),
-                ctnError => throw ctnError.Content);
+                ctnError =>
+                {
+                    var exception = ctnError.Content;
+
+                    exception.TryPreserveStackTrace();
+                    throw exception;
+                });
         }
 
         private static Action<ScenarioResult, Action<string>> WriteOutput => (scenarioResult, writeLine) =>
