@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
@@ -40,6 +41,57 @@ namespace BddPipe.UnitTests.Model
             newCtn.StepOutcomes.Count.Should().Be(2);
             newCtn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
             newCtn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Fail, nextStepTitle, Step.And, 1);
+        }
+
+        [Test]
+        public void Map_NullArgument_ThrowsArgumentNullException()
+        {
+            var initialCtn = GetInitialCtn();
+            Action map = () => { initialCtn.Map<int, string>(null); };
+
+            map.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("map");
+        }
+
+        [Test]
+        public void Map_FromCtnWithNoStepOutcomes_MapsToNewCtnType()
+        {
+            var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
+            var newCtn = ctnWithValueOnly.Map(currentValue => currentValue.ToString());
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(DefaultValue.ToString());
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Map_FunctionToValueOfSameType_MapsCorrectly()
+        {
+            var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
+            var newCtn = ctnWithValueOnly.Map(currentValue => currentValue + 1);
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(DefaultValue + 1);
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Map_FunctionToValueOfDifferentType_MapsCorrectly()
+        {
+            var initialCtn = GetInitialCtn();
+            var newCtn = initialCtn.Map(currentValue => currentValue.ToString());
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(DefaultValue.ToString());
+            newCtn.ScenarioTitle.ShouldBeSome(title => title.Should().Be(ScenarioTitle));
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(1);
+            newCtn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
         }
 
         [Test]

@@ -30,6 +30,13 @@ namespace BddPipe
 
     internal static class CtnExtensions
     {
+        public static Ctn<R> Map<T, R>(this Ctn<T> ctn, Func<T, R> map)
+        {
+            if (map == null) throw new ArgumentNullException(nameof(map));
+
+            return new Ctn<R>(map(ctn.Content), ctn.StepOutcomes, ctn.ScenarioTitle);
+        }
+
         public static Ctn<R> ToCtn<T, R>(this Ctn<T> ctn, R newContent, Some<StepOutcome> withStepOutcome)
         {
             var outcomes = new List<StepOutcome>(ctn.StepOutcomes) { withStepOutcome.Value };
