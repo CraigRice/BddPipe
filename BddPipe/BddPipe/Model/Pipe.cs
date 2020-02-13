@@ -99,6 +99,24 @@ namespace BddPipe.Model
     public static class PipeExtensions
     {
         /// <summary>
+        /// Projects from one value to another and does not impact current step progress.
+        /// </summary>
+        /// <typeparam name="T">Current type</typeparam>
+        /// <typeparam name="R">Type of the resulting value</typeparam>
+        /// <param name="pipe">The <see cref="Pipe{T}"/> instance to perform this operation on.</param>
+        /// <param name="map">A function to map the current value to its new value.</param>
+        /// <returns>A new <see cref="Pipe{T}"/> instance of the destination type</returns>
+        public static Pipe<R> Map<T, R>(this Pipe<T> pipe, Func<T, R> map)
+        {
+            if (map == null) throw new ArgumentNullException(nameof(map));
+
+            return pipe.Match<Pipe<R>>(
+                ctnValue => ctnValue.Map(map),
+                ctnError => ctnError
+            );
+        }
+
+        /// <summary>
         /// For the successful state, provide a bind function to project to a new Pipe instance. The function not invoked if in the error state already.
         /// </summary>Current
         /// <typeparam name="T">Type of the value represented when in a successful state</typeparam>

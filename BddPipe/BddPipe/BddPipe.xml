@@ -58,6 +58,16 @@
             Container payload instance
             </summary>
         </member>
+        <member name="M:BddPipe.CtnExtensions.Map``2(BddPipe.Ctn{``0},System.Func{``0,``1})">
+            <summary>
+            Projects from one value to another and does not impact current step progress.
+            </summary>
+            <typeparam name="T">Current type</typeparam>
+            <typeparam name="R">Type of the resulting value</typeparam>
+            <param name="ctn">The <see cref="T:BddPipe.Ctn`1"/> instance to perform this operation on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A new <see cref="T:BddPipe.Ctn`1"/> instance of the destination type</returns>
+        </member>
         <member name="T:BddPipe.Outcome">
             <summary>
             Step outcome
@@ -139,6 +149,16 @@
             <summary>
             Extension methods that operate on <see cref="T:BddPipe.Model.Pipe`1"/>
             </summary>
+        </member>
+        <member name="M:BddPipe.Model.PipeExtensions.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,``1})">
+            <summary>
+            Projects from one value to another and does not impact current step progress.
+            </summary>
+            <typeparam name="T">Current type</typeparam>
+            <typeparam name="R">Type of the resulting value</typeparam>
+            <param name="pipe">The <see cref="T:BddPipe.Model.Pipe`1"/> instance to perform this operation on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A new <see cref="T:BddPipe.Model.Pipe`1"/> instance of the destination type</returns>
         </member>
         <member name="M:BddPipe.Model.PipeExtensions.Bind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}})">
             <summary>

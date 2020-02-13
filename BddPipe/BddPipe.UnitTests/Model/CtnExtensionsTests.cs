@@ -68,6 +68,36 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public void Map_FromNull_MapsToNewCtnType()
+        {
+            var ctnWithValueOnly = new Ctn<string>(null, None);
+
+            decimal newValue = 12.45m;
+            var newCtn = ctnWithValueOnly.Map(currentValue => newValue);
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(newValue);
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
+        public void Map_ToNull_MapsToNewCtnType()
+        {
+            var ctnWithValueOnly = new Ctn<string>("initial value", None);
+
+            const string newValue = null;
+            var newCtn = ctnWithValueOnly.Map(currentValue => newValue);
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(newValue);
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
         public void Map_FunctionToValueOfSameType_MapsCorrectly()
         {
             var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
