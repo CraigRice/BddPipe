@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using static BddPipe.Runner;
 
@@ -316,6 +317,21 @@ namespace BddPipe.UnitTests
             bddPipeResult.Result.StepResults.Should().NotBeNull();
             bddPipeResult.Result.StepResults.Count.Should().Be(1);
             bddPipeResult.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, title, $"Given {title} [Passed]", Step.Given, 0);
+        }
+
+        [Test]
+        public void Map_AfterGivenWhen_PipeIsInCorrectState()
+        {
+            const string givenTitle = "the given title";
+            const string whenTitle = "the when title";
+            const string valueInComplexType = "the string value";
+
+            var pipe = Scenario()
+                .Given(givenTitle, () => { })
+                .When(whenTitle, () => new { A = 1, B = valueInComplexType })
+                .Map(stepValue => stepValue.B);
+
+            pipe.ShouldBeSuccessfulStepWithValue(Step.When, givenTitle, whenTitle, valueInComplexType);
         }
     }
 }

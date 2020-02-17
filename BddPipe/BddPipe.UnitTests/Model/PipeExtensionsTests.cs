@@ -21,9 +21,132 @@ namespace BddPipe.UnitTests.Model
             return new Ctn<Exception>(ex, None);
         }
 
-        private Pipe<int> GetPipeInSuccessState(int withThisValue)
+        private Pipe<T> GetPipeInSuccessState<T>(T withThisValue)
         {
-            return new Ctn<int>(withThisValue, None);
+            return new Ctn<T>(withThisValue, None);
+        }
+
+        private void CtnShouldHaveValueState<T>(Ctn<T> ctnValue, T expectedValue)
+        {
+            ctnValue.Should().NotBeNull();
+            ctnValue.Content.Should().Be(expectedValue);
+            ctnValue.Should().NotBeNull();
+            ctnValue.ScenarioTitle.ShouldBeNone();
+            ctnValue.StepOutcomes.Should().BeEmpty();
+        }
+
+        private void CtnExceptionShouldHaveErrorState(Ctn<Exception> ctnEx)
+        {
+            ctnEx.Should().NotBeNull();
+            ctnEx.Content.Should().NotBeNull();
+            ctnEx.Content.GetType().Should().Be<ApplicationException>();
+            ctnEx.Content.Message.Should().Be(ErrorMessage);
+            ctnEx.Should().NotBeNull();
+            ctnEx.ScenarioTitle.ShouldBeNone();
+            ctnEx.StepOutcomes.Should().BeEmpty();
+        }
+
+        [Test]
+        public void Map_NullArgument_ThrowsArgumentNullException()
+        {
+            var pipe = GetPipeInSuccessState(NewValue);
+            Action map = () => { pipe.Map((Func<int, string>) null); };
+            map.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("map");
+        }
+
+        [Test]
+        public void Map_IsInErrorStateToChangedType_MapFunctionIsNotCalled()
+        {
+            const string nextValue = "next value";
+            var pipe = GetPipeInErrorState();
+
+            var fnMap = Substitute.For<Func<int, string>>();
+            fnMap(Arg.Any<int>()).Returns(nextValue);
+
+            var asString = pipe.Map(fnMap);
+
+            fnMap.DidNotReceive()(Arg.Any<int>());
+            asString.ShouldBeError(CtnExceptionShouldHaveErrorState);
+        }
+
+        [Test]
+        public void Map_IsInValueStateToChangedType_MapFunctionIsCalled()
+        {
+            const string nextValue = "next value";
+            var pipe = GetPipeInSuccessState(NewValue);
+
+            var fnMap = Substitute.For<Func<int, string>>();
+            fnMap(Arg.Any<int>()).Returns(nextValue);
+
+            var asString = pipe.Map(fnMap);
+
+            fnMap.Received()(Arg.Any<int>());
+            asString.ShouldBeSuccessful(ctn => CtnShouldHaveValueState(ctn, nextValue));
+        }
+
+        [Test]
+        public void Map_IsInErrorStateToChangedType_IsStillInErrorState()
+        {
+            var pipe = GetPipeInErrorState();
+
+            var asString = pipe.Map(i => i.ToString());
+
+            asString.ShouldBeError(CtnExceptionShouldHaveErrorState);
+        }
+
+        [Test]
+        public void Map_IsInValueStateToChangedType_MapsToCtnOfNewValue()
+        {
+            var pipe = GetPipeInSuccessState(NewValue);
+
+            var asString = pipe.Map(i => i.ToString());
+
+            asString.ShouldBeSuccessful(ctn =>
+            {
+                CtnShouldHaveValueState(ctn, NewValue.ToString());
+            });
+        }
+
+        [Test]
+        public void Map_IsInValueStateToSameType_MapsToCtnOfNewValue()
+        {
+            var pipe = GetPipeInSuccessState(NewValue);
+
+            var asString = pipe.Map(i => i + 10);
+
+            asString.ShouldBeSuccessful(ctn =>
+            {
+                CtnShouldHaveValueState(ctn, NewValue + 10);
+            });
+        }
+
+        [Test]
+        public void Map_IsInValueStateToNull_MapsToCtnOfNewValue()
+        {
+            var pipe = GetPipeInSuccessState(NewValue);
+
+            var asString = pipe.Map(i => (string)null);
+
+            asString.ShouldBeSuccessful(ctn =>
+            {
+                CtnShouldHaveValueState(ctn, null);
+            });
+        }
+
+        [Test]
+        public void Map_IsInValueStateFromNull_MapsToCtnOfNewValue()
+        {
+            var pipe = GetPipeInSuccessState((string)null);
+            const int nextValue = 423;
+
+            var asString = pipe.Map(i => nextValue);
+
+            asString.ShouldBeSuccessful(ctn =>
+            {
+                CtnShouldHaveValueState(ctn, nextValue);
+            });
         }
 
         [Test]
@@ -36,15 +159,7 @@ namespace BddPipe.UnitTests.Model
             var result = pipe.Bind(fnBind);
 
             fnBind.DidNotReceive()(Arg.Any<Ctn<int>>());
-            result.ShouldBeError(ctnEx =>
-            {
-                ctnEx.Content.Should().NotBeNull();
-                ctnEx.Content.GetType().Should().Be<ApplicationException>();
-                ctnEx.Content.Message.Should().Be(ErrorMessage);
-                ctnEx.Should().NotBeNull();
-                ctnEx.ScenarioTitle.ShouldBeNone();
-                ctnEx.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeError(CtnExceptionShouldHaveErrorState);
         }
 
         [Test]
@@ -57,13 +172,7 @@ namespace BddPipe.UnitTests.Model
             var result = pipe.Bind(fnBind);
 
             fnBind.Received()(Arg.Any<Ctn<int>>());
-            result.ShouldBeSuccessful(ctnValue =>
-            {
-                ctnValue.Content.Should().Be(NewValue);
-                ctnValue.Should().NotBeNull();
-                ctnValue.ScenarioTitle.ShouldBeNone();
-                ctnValue.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
         }
 
         [Test]
@@ -76,15 +185,7 @@ namespace BddPipe.UnitTests.Model
             var result = pipe.Bind(fnBind);
 
             fnBind.Received()(Arg.Any<Ctn<int>>());
-            result.ShouldBeError(ctnEx =>
-            {
-                ctnEx.Content.Should().NotBeNull();
-                ctnEx.Content.GetType().Should().Be<ApplicationException>();
-                ctnEx.Content.Message.Should().Be(ErrorMessage);
-                ctnEx.Should().NotBeNull();
-                ctnEx.ScenarioTitle.ShouldBeNone();
-                ctnEx.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeError(CtnExceptionShouldHaveErrorState);
         }
 
         [Test]
@@ -104,15 +205,7 @@ namespace BddPipe.UnitTests.Model
             fnForSuccessState.Received()(Arg.Any<Ctn<int>>());
             fnForErrorState.DidNotReceive()(Arg.Any<Ctn<Exception>>());
 
-            result.ShouldBeError(ctnEx =>
-            {
-                ctnEx.Content.Should().NotBeNull();
-                ctnEx.Content.GetType().Should().Be<ApplicationException>();
-                ctnEx.Content.Message.Should().Be(ErrorMessage);
-                ctnEx.Should().NotBeNull();
-                ctnEx.ScenarioTitle.ShouldBeNone();
-                ctnEx.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeError(CtnExceptionShouldHaveErrorState);
         }
 
         [Test]
@@ -132,13 +225,7 @@ namespace BddPipe.UnitTests.Model
             fnForSuccessState.Received()(Arg.Any<Ctn<int>>());
             fnForErrorState.DidNotReceive()(Arg.Any<Ctn<Exception>>());
 
-            result.ShouldBeSuccessful(ctnValue =>
-            {
-                ctnValue.Content.Should().Be(NewValue);
-                ctnValue.Should().NotBeNull();
-                ctnValue.ScenarioTitle.ShouldBeNone();
-                ctnValue.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
         }
 
         [Test]
@@ -158,15 +245,7 @@ namespace BddPipe.UnitTests.Model
             fnForSuccessState.DidNotReceive()(Arg.Any<Ctn<int>>());
             fnForErrorState.Received()(Arg.Any<Ctn<Exception>>());
 
-            result.ShouldBeError(ctnEx =>
-            {
-                ctnEx.Content.Should().NotBeNull();
-                ctnEx.Content.GetType().Should().Be<ApplicationException>();
-                ctnEx.Content.Message.Should().Be(ErrorMessage);
-                ctnEx.Should().NotBeNull();
-                ctnEx.ScenarioTitle.ShouldBeNone();
-                ctnEx.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeError(CtnExceptionShouldHaveErrorState);
         }
 
         [Test]
@@ -186,13 +265,7 @@ namespace BddPipe.UnitTests.Model
             fnForSuccessState.DidNotReceive()(Arg.Any<Ctn<int>>());
             fnForErrorState.Received()(Arg.Any<Ctn<Exception>>());
 
-            result.ShouldBeSuccessful(ctnValue =>
-            {
-                ctnValue.Content.Should().Be(NewValue);
-                ctnValue.Should().NotBeNull();
-                ctnValue.ScenarioTitle.ShouldBeNone();
-                ctnValue.StepOutcomes.Should().BeEmpty();
-            });
+            result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
         }
     }
 }
