@@ -316,6 +316,27 @@
             <param name="recipeFunction">Function describing the step(s) added to the <see cref="T:BddPipe.Model.Pipe`1"/></param>
             <returns>A <see cref="T:BddPipe.Model.Pipe`1"/> instance as a result of the recipe function.</returns>
         </member>
+        <member name="M:BddPipe.Recipe.RecipeExtensions.Map``2(System.Func{BddPipe.Scenario,BddPipe.Model.Pipe{``0}},System.Func{``0,``1})">
+            <summary>
+            Projects the value represented by the recipe function result to a new value.
+            </summary>
+            <typeparam name="T">Recipe output type</typeparam>
+            <typeparam name="R">Map output type</typeparam>
+            <param name="recipeFunction">A recipe function based on <see cref="T:BddPipe.Scenario"/> input to perform the map on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A <see cref="T:BddPipe.Model.Pipe`1"/> instance representing the mapped type, and containing the mapped value if in a successful state.</returns>
+        </member>
+        <member name="M:BddPipe.Recipe.RecipeExtensions.Map``3(System.Func{BddPipe.Model.Pipe{``0},BddPipe.Model.Pipe{``1}},System.Func{``1,``2})">
+            <summary>
+            Projects the value represented by the recipe function result to a new value.
+            </summary>
+            <typeparam name="T1">Recipe input type</typeparam>
+            <typeparam name="T2">Recipe output type</typeparam>
+            <typeparam name="R">Map output type</typeparam>
+            <param name="recipeFunction">A recipe function based on <see cref="T:BddPipe.Model.Pipe`1"/> input to perform the map on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A <see cref="T:BddPipe.Model.Pipe`1"/> instance representing the mapped type, and containing the mapped value if in a successful state.</returns>
+        </member>
         <member name="T:BddPipe.Runner">
             <summary>
             BddPipe scenario runner
