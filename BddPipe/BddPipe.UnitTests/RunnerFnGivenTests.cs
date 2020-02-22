@@ -38,7 +38,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(AnyStringArg);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -60,7 +60,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -82,7 +82,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -103,7 +103,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(AnyStringArg);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -125,7 +125,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -147,7 +147,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -167,7 +167,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(new Unit());
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -187,7 +187,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -207,7 +207,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -227,7 +227,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(new Unit());
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -247,7 +247,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -267,7 +267,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -288,7 +288,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(AnyStringArg);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -310,7 +310,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -332,7 +332,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -353,7 +353,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(AnyStringArg);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -375,7 +375,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -397,7 +397,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -418,7 +418,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(new Unit());
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -440,7 +440,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -462,7 +462,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
 
@@ -483,7 +483,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(new Unit());
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Pass, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
             });
         }
 
@@ -505,7 +505,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Fail, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
             });
         }
 
@@ -527,7 +527,7 @@ namespace BddPipe.UnitTests
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleOutcome(Outcome.Inconclusive, title, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
         }
     }

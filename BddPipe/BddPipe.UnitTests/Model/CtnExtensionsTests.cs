@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using static BddPipe.F;
 
@@ -15,7 +16,7 @@ namespace BddPipe.UnitTests.Model
         private const string GivenStepTitle = "given-step-title";
         private const string ThenStepTitle = "then-step-title";
 
-        private Ctn<int> GetInitialCtn() =>
+        private Ctn<int> GetInitialCtnWithSuccessfulGiven() =>
             new Ctn<int>(
                 DefaultValue,
                 new List<StepOutcome>
@@ -28,7 +29,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void ToCtn_OnStep_ReturnsNextCtn()
         {
-            var initialCtn = GetInitialCtn();
+            var initialCtn = GetInitialCtnWithSuccessfulGiven();
             const string nextValue = "next-value";
             const string nextStepTitle = "next-step-title";
 
@@ -39,19 +40,102 @@ namespace BddPipe.UnitTests.Model
             newCtn.ScenarioTitle.ShouldBeSome(title => title.Should().Be(ScenarioTitle));
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Count.Should().Be(2);
-            newCtn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
-            newCtn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Fail, nextStepTitle, Step.And, 1);
+            newCtn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
+            newCtn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Fail, nextStepTitle, Step.And, 1);
         }
 
         [Test]
         public void Map_NullArgument_ThrowsArgumentNullException()
         {
-            var initialCtn = GetInitialCtn();
+            var initialCtn = GetInitialCtnWithSuccessfulGiven();
             Action map = () => { initialCtn.Map<int, string>(null); };
 
             map.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");
+        }
+
+        [Test]
+        public void Map_FromCtnIntToCtnBool_ChangesContent()
+        {
+            var fnMap = Substitute.For<Func<int, bool>>();
+            fnMap(Arg.Any<int>()).Returns(true);
+
+            var newCtn = new Ctn<int>(DefaultValue, None)
+                .Map(fnMap);
+
+            newCtn.Content.Should().BeTrue();
+        }
+
+        [Test]
+        public void Map_ScenarioTitleNone_ScenarioTitleRemainsAsNone()
+        {
+            var newCtn = new Ctn<int>(DefaultValue, None)
+                .Map(value => true);
+
+            newCtn.ScenarioTitle.ShouldBeNone();
+        }
+
+        [Test]
+        public void Map_ScenarioTitleSome_ScenarioTitleRemainsAsSome()
+        {
+            const string scenarioTitle = "scenario title value";
+
+            var newCtn = new Ctn<int>(DefaultValue, scenarioTitle)
+                .Map(value => true);
+
+            newCtn.ScenarioTitle.ShouldBeSome(title => 
+                title.Should().Be(scenarioTitle)
+            );
+        }
+
+        [Test]
+        public void Map_OutcomesEmptyViaDefaultCtor_OutcomesRemainsAsEmpty()
+        {
+            var newCtn = new Ctn<int>(DefaultValue, None)
+                .Map(value => true);
+
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Should().BeEmpty();
+        }
+
+        [Test]
+        public void Map_OutcomesEmptyViaExplicitCtor_OutcomesRemainsAsEmpty()
+        {
+            var newCtn = new Ctn<int>(DefaultValue, new List<StepOutcome>(), None)
+                .Map(value => true);
+
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Should().BeEmpty();
+        }
+
+        [Test]
+        public void Map_OutcomesExist_OutcomesRemain()
+        {
+            var newCtn = new Ctn<int>(
+                    DefaultValue,
+                    new List<StepOutcome>
+                    {
+                        new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle)
+                    }, 
+                    None
+                )
+                .Map(value => true);
+
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, GivenStepTitle, Step.Given);
+        }
+
+        [Test]
+        public void Map_FromCtn_MapFunctionIsCalled()
+        {
+            var fnMap = Substitute.For<Func<int, bool>>();
+            fnMap(Arg.Any<int>()).Returns(true);
+
+            new Ctn<int>(DefaultValue, None)
+                .Map(fnMap);
+
+            fnMap.Received()(Arg.Any<int>());
         }
 
         [Test]
@@ -113,7 +197,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Map_FunctionToValueOfDifferentType_MapsCorrectly()
         {
-            var initialCtn = GetInitialCtn();
+            var initialCtn = GetInitialCtnWithSuccessfulGiven();
             var newCtn = initialCtn.Map(currentValue => currentValue.ToString());
 
             newCtn.Should().NotBeNull();
@@ -121,7 +205,7 @@ namespace BddPipe.UnitTests.Model
             newCtn.ScenarioTitle.ShouldBeSome(title => title.Should().Be(ScenarioTitle));
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Count.Should().Be(1);
-            newCtn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
+            newCtn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
         }
 
         [Test]

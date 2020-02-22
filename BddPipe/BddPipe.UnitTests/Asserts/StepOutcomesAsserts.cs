@@ -7,7 +7,7 @@ namespace BddPipe.UnitTests.Asserts
 {
     internal static class StepOutcomesAsserts
     {
-        public static void ShouldHaveOutcomeAtIndex(
+        public static void ShouldHaveStepOutcomeAtIndex(
             this IReadOnlyList<StepOutcome> stepOutcomes,
             Outcome outcome,
             string text,
@@ -21,7 +21,7 @@ namespace BddPipe.UnitTests.Asserts
             stepOutcomes[atIndex].Step.Should().Be(step);
         }
 
-        public static void ShouldHaveSingleOutcome(
+        public static void ShouldHaveSingleStepOutcome(
             this IReadOnlyList<StepOutcome> stepOutcomes,
             Outcome outcome,
             string text,
@@ -30,41 +30,52 @@ namespace BddPipe.UnitTests.Asserts
         {
             stepOutcomes.Should().NotBeNull();
             stepOutcomes.Count.Should().Be(1);
-            stepOutcomes.ShouldHaveOutcomeAtIndex(outcome, text, step, 0);
+            stepOutcomes.ShouldHaveStepOutcomeAtIndex(outcome, text, step, 0);
         }
 
-        public static void ShouldBeSuccessfulStepWithValue<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, T expectedValue)
+        public static void ShouldBeSuccessfulGivenStepWithValue<T>(this Pipe<T> step, string givenTitle, T expectedValue)
         {
             step.ShouldBeSuccessful(ctn =>
             {
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(expectedValue);
-                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
-                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, expectedTitle, stepType, 1);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
+                ctn.StepOutcomes.Count.Should().Be(1);
+            });
+        }
+
+        public static void ShouldBeSuccessfulSecondStepWithValue<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, T expectedValue)
+        {
+            step.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().Be(expectedValue);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, expectedTitle, stepType, 1);
                 ctn.StepOutcomes.Count.Should().Be(2);
             });
         }
 
-        public static void ShouldBeErrorStepWithException<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
+        public static void ShouldBeErrorSecondStepWithException<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
         {
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(expectedException);
-                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
-                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Fail, expectedTitle, stepType, 1);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Fail, expectedTitle, stepType, 1);
                 ctn.StepOutcomes.Count.Should().Be(2);
             });
         }
 
-        public static void ShouldBeInconclusiveStepWithException<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
+        public static void ShouldBeInconclusiveSecondStepWithException<T>(this Pipe<T> step, Step stepType, string givenTitle, string expectedTitle, Exception expectedException)
         {
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
                 ctn.Content.Should().Be(expectedException);
-                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
-                ctn.StepOutcomes.ShouldHaveOutcomeAtIndex(Outcome.Inconclusive, expectedTitle, stepType, 1);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Inconclusive, expectedTitle, stepType, 1);
                 ctn.StepOutcomes.Count.Should().Be(2);
             });
         }

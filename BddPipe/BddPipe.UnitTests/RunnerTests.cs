@@ -331,7 +331,7 @@ namespace BddPipe.UnitTests
                 .When(whenTitle, () => new { A = 1, B = valueInComplexType })
                 .Map(stepValue => stepValue.B);
 
-            pipe.ShouldBeSuccessfulStepWithValue(Step.When, givenTitle, whenTitle, valueInComplexType);
+            pipe.ShouldBeSuccessfulSecondStepWithValue(Step.When, givenTitle, whenTitle, valueInComplexType);
         }
     }
 }

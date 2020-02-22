@@ -39,7 +39,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, StringValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, StringValue);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, StringValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, StringValue);
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, StringValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, StringValue);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -173,7 +173,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, StringValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, StringValue);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -239,7 +239,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, GivenValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, GivenValue);
         }
 
         [Test]
@@ -256,7 +256,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -273,7 +273,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -289,7 +289,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, GivenValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, GivenValue);
         }
 
         [Test]
@@ -306,7 +306,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -323,7 +323,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -338,7 +338,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()(GivenValue);
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, GivenValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, GivenValue);
         }
 
         [Test]
@@ -353,7 +353,7 @@ namespace BddPipe.UnitTests
             // act
             var step = runner.Then(title, fn);
 
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -368,7 +368,7 @@ namespace BddPipe.UnitTests
             // act
             var step = runner.Then(title, fn);
 
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -383,7 +383,7 @@ namespace BddPipe.UnitTests
             var step = runner.Then(title, fn);
 
             fn.Received()();
-            step.ShouldBeSuccessfulStepWithValue(Step.Then, GivenTitle, title, GivenValue);
+            step.ShouldBeSuccessfulSecondStepWithValue(Step.Then, GivenTitle, title, GivenValue);
         }
 
         [Test]
@@ -398,7 +398,7 @@ namespace BddPipe.UnitTests
             // act
             var step = runner.Then(title, fn);
 
-            step.ShouldBeErrorStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeErrorSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
 
         [Test]
@@ -413,7 +413,7 @@ namespace BddPipe.UnitTests
             // act
             var step = runner.Then(title, fn);
 
-            step.ShouldBeInconclusiveStepWithException(Step.Then, GivenTitle, title, ex);
+            step.ShouldBeInconclusiveSecondStepWithException(Step.Then, GivenTitle, title, ex);
         }
     }
 }
