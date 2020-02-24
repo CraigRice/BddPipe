@@ -110,10 +110,21 @@ namespace BddPipe.Model
         {
             if (map == null) throw new ArgumentNullException(nameof(map));
 
-            return pipe.Match<Pipe<R>>(
-                ctnValue => ctnValue.Map(map),
-                ctnError => ctnError
-            );
+            return pipe.Bind(ctnValue =>
+            {
+                Func<Ctn<R>> mapFunction = () => ctnValue.Map(map);
+
+                return mapFunction
+                    .TryRun()
+                    .Match<Pipe<R>>(
+                        ctnR => ctnR,
+                        ex => new Ctn<Exception>(
+                            ex,
+                            ctnValue.StepOutcomes.WithLatestStepOutcomeAsFail(),
+                            ctnValue.ScenarioTitle
+                        )
+                    );
+            });
         }
 
         /// <summary>

@@ -8,24 +8,6 @@ namespace BddPipe
     {
         private const int DefaultIndentSize = 2;
 
-        private static bool StartsWithIgnoreCase(this Some<string> text, Some<string> prefix) =>
-            text.Value.IndexOf(prefix.Value, StringComparison.InvariantCultureIgnoreCase) == 0;
-
-        public static Some<string> WithPrefix(this Option<string> text, Some<string> prefix) =>
-            text.Match(txt =>
-                {
-                    Some<string> someText = txt;
-
-                    var result = someText.StartsWithIgnoreCase(prefix)
-                        ? someText
-                        : new Some<string>($"{prefix} {txt}".TrimEnd());
-
-                    return result;
-                }, () => prefix);
-
-        private static Some<string> ToPrefix(this Step step) =>
-            step.ToString();
-
         private static Some<string> ToOutcomeText(this Outcome outcome)
         {
             switch (outcome)
@@ -58,6 +40,9 @@ namespace BddPipe
         private static Some<string> WithOutcomeDescribed(this Some<string> prefixedStep, Outcome outcome) =>
             $"{prefixedStep.Value} [{outcome.ToOutcomeText()}]";
 
+        private static Some<string> ToPrefix(this Step step) =>
+            step.ToString();
+
         private static Some<string> ToDescription(this StepOutcome stepOutcome, bool hasScenario) =>
             stepOutcome
                 .Text
@@ -73,6 +58,18 @@ namespace BddPipe
                         o.Text.IfNone(null),
                         o.ToDescription(hasScenario)))
                 .ToList();
+
+        public static IReadOnlyList<StepOutcome> WithLatestStepOutcomeAsFail(this IReadOnlyList<StepOutcome> outcomes) =>
+            outcomes.Select((outcome, i) =>
+            {
+                var isLastItem = i == outcomes.Count - 1;
+                return isLastItem
+                    ? outcome.ToStepOutcomeOfOutcome(Outcome.Fail)
+                    : outcome;
+            }).ToList();
+
+        private static StepOutcome ToStepOutcomeOfOutcome(this StepOutcome stepOutcome, Outcome outcome) =>
+            new StepOutcome(stepOutcome.Step, outcome, stepOutcome.Text);
 
         public static StepOutcome ToStepOutcome(this Some<Title> title, Outcome outcome) =>
             new StepOutcome(title.Value.Step, outcome, title.Value.Text);

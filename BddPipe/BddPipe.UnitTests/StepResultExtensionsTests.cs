@@ -4,7 +4,6 @@ using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using static BddPipe.F;
 using NUnit.Framework;
-using BddPipe;
 
 namespace BddPipe.UnitTests
 {
@@ -17,64 +16,107 @@ namespace BddPipe.UnitTests
     [TestFixture]
     public class StepResultExtensionsTests
     {
-        private const string DefaultValue = "test";
-        private const string DefaultPrefix = "Given";
-        private const string DefaultExpectation = "Given test";
-
         [Test]
-        public void WithPrefix_DoesNotHavePrefix_PrefixAdded()
+        public void WithLatestStepOutcomeAsFail_StepOutcomesEmpty_ReturnsEmpty()
         {
-            var result = DefaultValue.AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be(DefaultExpectation);
+            IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>();
+
+            var result = outcomes.WithLatestStepOutcomeAsFail();
+
+            result.Should().BeEmpty();
         }
 
         [Test]
-        public void WithPrefix_AlreadyHasPrefix_PrefixNotAdded()
+        public void WithLatestStepOutcomeAsFail_StepOutcomesSingleFail_ReturnsSingleFail()
         {
-            var result = DefaultExpectation.AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be(DefaultExpectation);
+            IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Fail, "step-text")
+            };
+
+            var result = outcomes.WithLatestStepOutcomeAsFail();
+
+            result.Should().NotBeNull();
+            result.Count.Should().Be(1);
+            result[0].Step.Should().Be(Step.Given);
+            result[0].Outcome.Should().Be(Outcome.Fail);
+            result[0].Text.ShouldBeSome(txt => txt.Should().Be("step-text"));
         }
 
         [Test]
-        public void WithPrefix_AlreadyHasPrefixCaseLower_PrefixNotAdded()
+        public void WithLatestStepOutcomeAsFail_TextIsNone_ReturnsTextAsNone()
         {
-            var result = "given something".AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be("given something");
+            IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.NotRun, None)
+            };
+
+            var result = outcomes.WithLatestStepOutcomeAsFail();
+
+            result.Should().NotBeNull();
+            result.Count.Should().Be(1);
+            result[0].Step.Should().Be(Step.Given);
+            result[0].Outcome.Should().Be(Outcome.Fail);
+            result[0].Text.ShouldBeNone();
         }
 
         [Test]
-        public void WithPrefix_AlreadyHasPrefixCaseUpper_PrefixNotAdded()
+        public void WithLatestStepOutcomeAsFail_StepOutcomesLastOfTwoIsFail_ReturnsLastOfTwoFail()
         {
-            var result = "GIVEN something".AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be("GIVEN something");
+            IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, "given-text"),
+                new StepOutcome(Step.When, Outcome.Fail, "when-text")
+            };
+
+            var result = outcomes.WithLatestStepOutcomeAsFail();
+
+            result.Should().NotBeNull();
+            result.Count.Should().Be(2);
+            result[0].Step.Should().Be(Step.Given);
+            result[0].Outcome.Should().Be(Outcome.Pass);
+            result[0].Text.ShouldBeSome(txt => txt.Should().Be("given-text"));
+            result[1].Step.Should().Be(Step.When);
+            result[1].Outcome.Should().Be(Outcome.Fail);
+            result[1].Text.ShouldBeSome(txt => txt.Should().Be("when-text"));
         }
 
         [Test]
-        public void WithPrefix_AlreadyHasPrefixCaseMixed_PrefixNotAdded()
+        public void WithLatestStepOutcomeAsFail_StepOutcomesSinglePass_ReturnsSingleFail()
         {
-            var result = "GiVeN something".AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be("GiVeN something");
+            IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, "step-text")
+            };
+
+            var result = outcomes.WithLatestStepOutcomeAsFail();
+
+            result.Should().NotBeNull();
+            result.Count.Should().Be(1);
+            result[0].Step.Should().Be(Step.Given);
+            result[0].Outcome.Should().Be(Outcome.Fail);
+            result[0].Text.ShouldBeSome(txt => txt.Should().Be("step-text"));
         }
 
         [Test]
-        public void WithPrefix_Null_PrefixReturned()
+        public void WithLatestStepOutcomeAsFail_StepOutcomesLastOfTwoIsPass_ReturnsLastOfTwoFail()
         {
-            var result = ((string)null).AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be(DefaultPrefix);
-        }
+            IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, "given-text"),
+                new StepOutcome(Step.When, Outcome.Pass, "when-text")
+            };
 
-        [Test]
-        public void WithPrefix_Empty_PrefixReturned()
-        {
-            var result = string.Empty.AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be(DefaultPrefix);
-        }
+            var result = outcomes.WithLatestStepOutcomeAsFail();
 
-        [Test]
-        public void WithPrefix_Whitespace_PrefixReturned()
-        {
-            var result = " ".AsOption().WithPrefix(DefaultPrefix);
-            result.Value.Should().Be(DefaultPrefix);
+            result.Should().NotBeNull();
+            result.Count.Should().Be(2);
+            result[0].Step.Should().Be(Step.Given);
+            result[0].Outcome.Should().Be(Outcome.Pass);
+            result[0].Text.ShouldBeSome(txt => txt.Should().Be("given-text"));
+            result[1].Step.Should().Be(Step.When);
+            result[1].Outcome.Should().Be(Outcome.Fail);
+            result[1].Text.ShouldBeSome(txt => txt.Should().Be("when-text"));
         }
 
         [Test]
