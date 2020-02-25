@@ -59,13 +59,13 @@ namespace BddPipe
                         o.ToDescription(hasScenario)))
                 .ToList();
 
-        public static IReadOnlyList<StepOutcome> WithLatestStepOutcomeAsFail(this IReadOnlyList<StepOutcome> outcomes) =>
-            outcomes.Select((outcome, i) =>
+        public static IReadOnlyList<StepOutcome> WithLatestStepOutcomeAs(this IReadOnlyList<StepOutcome> outcomes, Outcome outcome) =>
+            outcomes.Select((stepOutcome, index) =>
             {
-                var isLastItem = i == outcomes.Count - 1;
+                var isLastItem = index == outcomes.Count - 1;
                 return isLastItem
-                    ? outcome.ToStepOutcomeOfOutcome(Outcome.Fail)
-                    : outcome;
+                    ? stepOutcome.ToStepOutcomeOfOutcome(outcome)
+                    : stepOutcome;
             }).ToList();
 
         private static StepOutcome ToStepOutcomeOfOutcome(this StepOutcome stepOutcome, Outcome outcome) =>

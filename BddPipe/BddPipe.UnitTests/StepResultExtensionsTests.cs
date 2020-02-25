@@ -21,7 +21,7 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<StepOutcome> outcomes = new List<StepOutcome>();
 
-            var result = outcomes.WithLatestStepOutcomeAsFail();
+            var result = outcomes.WithLatestStepOutcomeAs(Outcome.Fail);
 
             result.Should().BeEmpty();
         }
@@ -34,7 +34,7 @@ namespace BddPipe.UnitTests
                 new StepOutcome(Step.Given, Outcome.Fail, "step-text")
             };
 
-            var result = outcomes.WithLatestStepOutcomeAsFail();
+            var result = outcomes.WithLatestStepOutcomeAs(Outcome.Fail);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(1);
@@ -51,7 +51,7 @@ namespace BddPipe.UnitTests
                 new StepOutcome(Step.Given, Outcome.NotRun, None)
             };
 
-            var result = outcomes.WithLatestStepOutcomeAsFail();
+            var result = outcomes.WithLatestStepOutcomeAs(Outcome.Fail);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(1);
@@ -69,7 +69,7 @@ namespace BddPipe.UnitTests
                 new StepOutcome(Step.When, Outcome.Fail, "when-text")
             };
 
-            var result = outcomes.WithLatestStepOutcomeAsFail();
+            var result = outcomes.WithLatestStepOutcomeAs(Outcome.Fail);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(2);
@@ -89,7 +89,7 @@ namespace BddPipe.UnitTests
                 new StepOutcome(Step.Given, Outcome.Pass, "step-text")
             };
 
-            var result = outcomes.WithLatestStepOutcomeAsFail();
+            var result = outcomes.WithLatestStepOutcomeAs(Outcome.Fail);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(1);
@@ -107,7 +107,7 @@ namespace BddPipe.UnitTests
                 new StepOutcome(Step.When, Outcome.Pass, "when-text")
             };
 
-            var result = outcomes.WithLatestStepOutcomeAsFail();
+            var result = outcomes.WithLatestStepOutcomeAs(Outcome.Fail);
 
             result.Should().NotBeNull();
             result.Count.Should().Be(2);

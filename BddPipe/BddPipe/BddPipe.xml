@@ -150,9 +150,21 @@
             Extension methods that operate on <see cref="T:BddPipe.Model.Pipe`1"/>
             </summary>
         </member>
+        <member name="M:BddPipe.Model.PipeExtensions.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,System.Threading.Tasks.Task{``1}})">
+            <summary>
+            Projects from one value to another.
+            <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
+            </summary>
+            <typeparam name="T">Current type</typeparam>
+            <typeparam name="R">Type of the resulting value</typeparam>
+            <param name="pipe">The <see cref="T:BddPipe.Model.Pipe`1"/> instance to perform this operation on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A new <see cref="T:BddPipe.Model.Pipe`1"/> instance of the destination type</returns>
+        </member>
         <member name="M:BddPipe.Model.PipeExtensions.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,``1})">
             <summary>
-            Projects from one value to another and does not impact current step progress.
+            Projects from one value to another.
+            <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
             </summary>
             <typeparam name="T">Current type</typeparam>
             <typeparam name="R">Type of the resulting value</typeparam>

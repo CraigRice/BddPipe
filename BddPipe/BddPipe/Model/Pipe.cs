@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace BddPipe.Model
 {
@@ -99,7 +100,20 @@ namespace BddPipe.Model
     public static class PipeExtensions
     {
         /// <summary>
-        /// Projects from one value to another and does not impact current step progress.
+        /// Projects from one value to another.
+        /// <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
+        /// </summary>
+        /// <typeparam name="T">Current type</typeparam>
+        /// <typeparam name="R">Type of the resulting value</typeparam>
+        /// <param name="pipe">The <see cref="Pipe{T}"/> instance to perform this operation on.</param>
+        /// <param name="map">A function to map the current value to its new value.</param>
+        /// <returns>A new <see cref="Pipe{T}"/> instance of the destination type</returns>
+        public static Pipe<R> Map<T, R>(this Pipe<T> pipe, Func<T, Task<R>> map) =>
+            pipe.Map(TaskFunctions.Run(map));
+
+        /// <summary>
+        /// Projects from one value to another.
+        /// <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
         /// </summary>
         /// <typeparam name="T">Current type</typeparam>
         /// <typeparam name="R">Type of the resulting value</typeparam>
@@ -120,7 +134,7 @@ namespace BddPipe.Model
                         ctnR => ctnR,
                         ex => new Ctn<Exception>(
                             ex,
-                            ctnValue.StepOutcomes.WithLatestStepOutcomeAsFail(),
+                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex).ToOutcome()),
                             ctnValue.ScenarioTitle
                         )
                     );

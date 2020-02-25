@@ -10,12 +10,7 @@ namespace BddPipe
     public static partial class Runner
     {
         private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, Task<R>> step) =>
-            RunStep(pipe, title, tValue =>
-                Task.Run(() => step(tValue))
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult()
-                );
+            RunStep(pipe, title, TaskFunctions.Run(step));
 
         private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, R> step) =>
             pipe.BiBind(
