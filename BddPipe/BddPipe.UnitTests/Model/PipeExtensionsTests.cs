@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
+using BddPipe.UnitTests.Helpers;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -146,6 +148,95 @@ namespace BddPipe.UnitTests.Model
             asString.ShouldBeSuccessful(ctn =>
             {
                 CtnShouldHaveValueState(ctn, nextValue);
+            });
+        }
+
+        [Test]
+        public void Map_AsyncOverload_MapsToCtnOfNewValue()
+        {
+            const string initalValue = "initial-value";
+            const string scenarioTitle = "scenario-title";
+            const string givenStepText = "given-step";
+
+            Pipe<string> pipe = new Ctn<string>(initalValue, new[]
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
+            }, scenarioTitle);
+
+            var result = pipe.Map(async value =>
+            {
+                await Task.Delay(10);
+                return new DateTime(2000, 1, 1, 1, 1, 1);
+            });
+
+            result.ShouldBeSuccessful(ctnValue =>
+            {
+                ctnValue.ScenarioTitle.ShouldBeSome(title => title.Should().Be(scenarioTitle));
+                ctnValue.Content.Should().Be(new DateTime(2000, 1, 1, 1, 1, 1));
+                ctnValue.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, givenStepText, Step.Given);
+            });
+        }
+
+        [TestCase(true, Description = "Async overload")]
+        [TestCase(false, Description = "Sync overload")]
+        public void Map_ThrowsException_PipeIsInErrorStateWithFail(bool isAsync)
+        {
+            const string initalValue = "initial-value";
+            const string scenarioTitle = "scenario-title";
+            const string givenStepText = "given-step";
+
+            Pipe<string> pipe = new Ctn<string>(initalValue, new[]
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
+            }, scenarioTitle);
+
+            Pipe<int> result;
+            if (isAsync)
+            {
+                result = pipe.Map(PipeMapFunctions.MapAsyncRaiseEx());
+            }
+            else
+            {
+                result = pipe.Map(PipeMapFunctions.MapSyncRaiseEx());
+            }
+
+            result.ShouldBeError(ctnError =>
+            {
+                ctnError.ScenarioTitle.ShouldBeSome(title => title.Should().Be(scenarioTitle));
+                ctnError.Content.Should().BeOfType<DivideByZeroException>();
+                ctnError.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, givenStepText, Step.Given);
+            });
+        }
+
+        [TestCase(true, Description = "Async overload")]
+        [TestCase(false, Description = "Sync overload")]
+        public void Map_ThrowsInconclusiveException_PipeIsInErrorStateWithInconclusive(bool isAsync)
+        {
+            const string initalValue = "initial-value";
+            const string scenarioTitle = "scenario-title";
+            const string givenStepText = "given-step";
+
+            Pipe<string> pipe = new Ctn<string>(initalValue, new[]
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
+            }, scenarioTitle);
+
+            Pipe<int> result;
+
+            if (isAsync)
+            {
+                result = pipe.Map(PipeMapFunctions.MapAsyncRaiseInconclusiveEx());
+            }
+            else
+            {
+                result = pipe.Map(PipeMapFunctions.MapSyncRaiseInconclusiveEx());
+            }
+
+            result.ShouldBeError(ctnError =>
+            {
+                ctnError.ScenarioTitle.ShouldBeSome(title => title.Should().Be(scenarioTitle));
+                ctnError.Content.Should().BeOfType<InconclusiveException>();
+                ctnError.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, givenStepText, Step.Given);
             });
         }
 
