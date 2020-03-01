@@ -8,10 +8,10 @@ using NSubstitute;
 using NUnit.Framework;
 using static BddPipe.F;
 
-namespace BddPipe.UnitTests.Model
+namespace BddPipe.UnitTests
 {
     [TestFixture]
-    public class PipeExtensionsTests
+    public class RunnerPipeExtensionsTests
     {
         private const int InitialValue = 1;
         private const int NewValue = 2;

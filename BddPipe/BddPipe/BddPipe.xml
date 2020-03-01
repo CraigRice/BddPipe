@@ -145,54 +145,6 @@
             </summary>
             <returns>The string returned indicates the contained type</returns>
         </member>
-        <member name="T:BddPipe.Model.PipeExtensions">
-            <summary>
-            Extension methods that operate on <see cref="T:BddPipe.Model.Pipe`1"/>
-            </summary>
-        </member>
-        <member name="M:BddPipe.Model.PipeExtensions.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,System.Threading.Tasks.Task{``1}})">
-            <summary>
-            Projects from one value to another.
-            <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
-            </summary>
-            <typeparam name="T">Current type</typeparam>
-            <typeparam name="R">Type of the resulting value</typeparam>
-            <param name="pipe">The <see cref="T:BddPipe.Model.Pipe`1"/> instance to perform this operation on.</param>
-            <param name="map">A function to map the current value to its new value.</param>
-            <returns>A new <see cref="T:BddPipe.Model.Pipe`1"/> instance of the destination type</returns>
-        </member>
-        <member name="M:BddPipe.Model.PipeExtensions.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,``1})">
-            <summary>
-            Projects from one value to another.
-            <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
-            </summary>
-            <typeparam name="T">Current type</typeparam>
-            <typeparam name="R">Type of the resulting value</typeparam>
-            <param name="pipe">The <see cref="T:BddPipe.Model.Pipe`1"/> instance to perform this operation on.</param>
-            <param name="map">A function to map the current value to its new value.</param>
-            <returns>A new <see cref="T:BddPipe.Model.Pipe`1"/> instance of the destination type</returns>
-        </member>
-        <member name="M:BddPipe.Model.PipeExtensions.Bind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}})">
-            <summary>
-            For the successful state, provide a bind function to project to a new Pipe instance. The function not invoked if in the error state already.
-            </summary>Current
-            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
-            <typeparam name="R">Type of the value represented when in a successful state</typeparam>
-            <param name="pipe">Current Pipe state</param>
-            <param name="bindContainerOfValue">A function that given a container representing a successful state, returns a new Pipe representing success or failure</param>
-            <returns></returns>
-        </member>
-        <member name="M:BddPipe.Model.PipeExtensions.BiBind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}},System.Func{BddPipe.Ctn{System.Exception},BddPipe.Model.Pipe{``1}})">
-            <summary>
-            For each state, provide a bind function to project to a new Pipe instance. The function suited to the current state is executed.
-            </summary>
-            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
-            <typeparam name="R">Type of the value represented when in a successful state</typeparam>
-            <param name="pipe">Current Pipe state</param>
-            <param name="bindContainerOfValue">A function that given a container representing a successful state, returns a new Pipe representing success or failure</param>
-            <param name="bindContainerOfError">A function that given a container representing an error state, returns a new Pipe representing success or failure</param>
-            <returns></returns>
-        </member>
         <member name="T:BddPipe.Scenario">
             <summary>
             An optional starting piece for a run
@@ -353,6 +305,9 @@
             <summary>
             BddPipe scenario runner
             </summary>
+            <summary>
+            Extension methods that operate on <see cref="T:BddPipe.Model.Pipe`1"/>
+            </summary>
         </member>
         <member name="M:BddPipe.Runner.Run``1(BddPipe.Model.Pipe{``0},System.Action{BddPipe.ScenarioResult})">
             <summary>
@@ -421,6 +376,49 @@
             <param name="title">The scenario title if supplied</param>
             <param name="methodName">The caller method name</param>
             <returns>The title is lifted to the scenario instance for a following call to Given()</returns>
+        </member>
+        <member name="M:BddPipe.Runner.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,System.Threading.Tasks.Task{``1}})">
+            <summary>
+            Projects from one value to another.
+            <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
+            </summary>
+            <typeparam name="T">Current type</typeparam>
+            <typeparam name="R">Type of the resulting value</typeparam>
+            <param name="pipe">The <see cref="T:BddPipe.Model.Pipe`1"/> instance to perform this operation on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A new <see cref="T:BddPipe.Model.Pipe`1"/> instance of the destination type</returns>
+        </member>
+        <member name="M:BddPipe.Runner.Map``2(BddPipe.Model.Pipe{``0},System.Func{``0,``1})">
+            <summary>
+            Projects from one value to another.
+            <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
+            </summary>
+            <typeparam name="T">Current type</typeparam>
+            <typeparam name="R">Type of the resulting value</typeparam>
+            <param name="pipe">The <see cref="T:BddPipe.Model.Pipe`1"/> instance to perform this operation on.</param>
+            <param name="map">A function to map the current value to its new value.</param>
+            <returns>A new <see cref="T:BddPipe.Model.Pipe`1"/> instance of the destination type</returns>
+        </member>
+        <member name="M:BddPipe.Runner.Bind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}})">
+            <summary>
+            For the successful state, provide a bind function to project to a new Pipe instance. The function not invoked if in the error state already.
+            </summary>Current
+            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+            <typeparam name="R">Type of the value represented when in a successful state</typeparam>
+            <param name="pipe">Current Pipe state</param>
+            <param name="bindContainerOfValue">A function that given a container representing a successful state, returns a new Pipe representing success or failure</param>
+            <returns></returns>
+        </member>
+        <member name="M:BddPipe.Runner.BiBind``2(BddPipe.Model.Pipe{``0},System.Func{BddPipe.Ctn{``0},BddPipe.Model.Pipe{``1}},System.Func{BddPipe.Ctn{System.Exception},BddPipe.Model.Pipe{``1}})">
+            <summary>
+            For each state, provide a bind function to project to a new Pipe instance. The function suited to the current state is executed.
+            </summary>
+            <typeparam name="T">Type of the value represented when in a successful state</typeparam>
+            <typeparam name="R">Type of the value represented when in a successful state</typeparam>
+            <param name="pipe">Current Pipe state</param>
+            <param name="bindContainerOfValue">A function that given a container representing a successful state, returns a new Pipe representing success or failure</param>
+            <param name="bindContainerOfError">A function that given a container representing an error state, returns a new Pipe representing success or failure</param>
+            <returns></returns>
         </member>
     </members>
 </doc>
