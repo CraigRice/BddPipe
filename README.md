@@ -28,14 +28,14 @@ using static BddPipe.Runner;
 ### Basic example: ###
 
 ```C#
-  Scenario()
-    .Given("two numbers", () => new { A = 5, B = 10 })
-    .When("the numbers are summed", setup => setup.A + setup.B)
-    .Then("sum should be as expected", result =>
-    {
-      Assert.AreEqual(15, result);
-    })
-    .Run();
+Scenario()
+  .Given("two numbers", () => new { A = 5, B = 10 })
+  .When("the numbers are summed", setup => setup.A + setup.B)
+  .Then("sum should be as expected", result =>
+  {
+    Assert.AreEqual(15, result);
+  })
+  .Run();
 ```
 
 > **Steps must end with a call to .Run() or the result is not evaluated.**
