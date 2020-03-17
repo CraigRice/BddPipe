@@ -7,6 +7,7 @@ This project was created to describe test steps.  It has been developed to repla
 - [Getting Started](https://github.com/CraigRice/BddPipe/wiki/Getting-Started)
 - [Implementing Steps](https://github.com/CraigRice/BddPipe/wiki/Implementing-Steps)
 - [Recipes](https://github.com/CraigRice/BddPipe/wiki/Recipes) (step reuse)
+- [Test Output](https://github.com/CraigRice/BddPipe/wiki/Test-Output)
 - [Version Release Notes](https://github.com/CraigRice/BddPipe/wiki/Version-Release-Notes)
 
 ### Goals ###
