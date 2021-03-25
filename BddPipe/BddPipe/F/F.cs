@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 
 namespace BddPipe
 {
@@ -36,7 +37,8 @@ namespace BddPipe
             }
             catch (Exception ex)
             {
-                return new Result<T>(ex);
+                var exceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
+                return new Result<T>(exceptionDispatchInfo);
             }
         }
 
@@ -45,6 +47,11 @@ namespace BddPipe
             Try<R> doCall = () => fn();
             Result<R> result = doCall.Try();
             return result;
+        }
+
+        public static Some<R> Map<T, R>(this Some<T> some, Func<T, R> map)
+        {
+            return map(some.Value);
         }
     }
 }

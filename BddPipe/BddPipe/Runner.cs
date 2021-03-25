@@ -19,7 +19,7 @@ namespace BddPipe
                     .TryRun()
                     .Match<Pipe<R>>(
                         r => tValue.ToCtn(r,  title.ToStepOutcome(Outcome.Pass)),
-                        ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex).ToOutcome()))),
+                        ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))),
                 err => 
                     err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun))
             );
@@ -46,10 +46,10 @@ namespace BddPipe
                 ctnValue => new BddPipeResult<T>(ctnValue.Content, result),
                 ctnError =>
                 {
-                    var exception = ctnError.Content;
+                    var exceptionDispatchInfo = ctnError.Content;
 
-                    exception.TryPreserveStackTrace();
-                    throw exception;
+                    exceptionDispatchInfo.Throw();
+                    throw new Exception("Could not throw exception dispatch info", exceptionDispatchInfo.SourceException);
                 });
         }
 

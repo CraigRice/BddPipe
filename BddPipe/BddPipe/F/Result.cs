@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 
 namespace BddPipe
 {
@@ -6,19 +7,19 @@ namespace BddPipe
     {
         internal readonly bool Successful;
         internal readonly A Value;
-        internal Exception Exception;
+        internal ExceptionDispatchInfo ExceptionDispatchInfo;
 
         public Result(A value)
         {
             Successful = true;
             Value = value;
-            Exception = (Exception)null;
+            ExceptionDispatchInfo = null;
         }
 
-        public Result(Exception e)
+        public Result(ExceptionDispatchInfo e)
         {
             Successful = false;
-            Exception = e;
+            ExceptionDispatchInfo = e;
             Value = default(A);
         }
 
@@ -31,7 +32,7 @@ namespace BddPipe
 
         public bool IsSuccess => Successful;
 
-        public TResult Match<TResult>(Func<A, TResult> value, Func<Exception, TResult> error) =>
-            Successful ? value(Value) : error(Exception);
+        public TResult Match<TResult>(Func<A, TResult> value, Func<ExceptionDispatchInfo, TResult> error) =>
+            Successful ? value(Value) : error(ExceptionDispatchInfo);
     }
 }

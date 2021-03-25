@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace BddPipe.Model
@@ -23,14 +24,14 @@ namespace BddPipe.Model
     /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
     public struct Pipe<T>
     {
-        private readonly Ctn<Exception> _containerOfError;
+        private readonly Ctn<ExceptionDispatchInfo> _containerOfError;
         private readonly Ctn<T> _containerOfValue;
 
         private bool IsRight { get; }
         private bool IsLeft => !IsRight;
         private readonly bool _isInitialized;
 
-        internal Pipe(Ctn<Exception> containerOfError)
+        internal Pipe(Ctn<ExceptionDispatchInfo> containerOfError)
         {
             if (containerOfError == null) throw new ArgumentNullException(nameof(containerOfError));
 
@@ -46,7 +47,7 @@ namespace BddPipe.Model
 
             IsRight = true;
             _containerOfValue = containerOfValue;
-            _containerOfError = default(Ctn<Exception>);
+            _containerOfError = default(Ctn<ExceptionDispatchInfo>);
             _isInitialized = true;
         }
 
@@ -54,7 +55,7 @@ namespace BddPipe.Model
         /// Lift a <see cref="Ctn{Exception}"/> into an instance of <see cref="Pipe{T}"/>
         /// </summary>
         /// <param name="containerOfError">The container instance.</param>
-        public static implicit operator Pipe<T>(Ctn<Exception> containerOfError) => new Pipe<T>(containerOfError);
+        public static implicit operator Pipe<T>(Ctn<ExceptionDispatchInfo> containerOfError) => new Pipe<T>(containerOfError);
 
         /// <summary>
         /// Lift a <see cref="Ctn{T}"/> into an instance of <see cref="Pipe{T}"/>
@@ -69,7 +70,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
-        public TResult Match<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<Exception>, TResult> containerOfError)
+        public TResult Match<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (!_isInitialized)
             {
@@ -84,7 +85,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns>An instance of Unit.</returns>
-        public Unit Match(Action<Ctn<T>> containerOfValue, Action<Ctn<Exception>> containerOfError)
+        public Unit Match(Action<Ctn<T>> containerOfValue, Action<Ctn<ExceptionDispatchInfo>> containerOfError)
             => Match(containerOfValue.ToFunc(), containerOfError.ToFunc());
 
         /// <summary>

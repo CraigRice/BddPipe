@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
 
@@ -42,9 +43,9 @@ namespace BddPipe
                     .TryRun()
                     .Match<Pipe<R>>(
                         ctnR => ctnR,
-                        ex => new Ctn<Exception>(
+                        ex => new Ctn<ExceptionDispatchInfo>(
                             ex,
-                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex).ToOutcome()),
+                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
                             ctnValue.ScenarioTitle
                         )
                     );
@@ -76,7 +77,7 @@ namespace BddPipe
         public static Pipe<R> BiBind<T, R>(
                 this Pipe<T> pipe,
                 Func<Ctn<T>, Pipe<R>> bindContainerOfValue,
-                Func<Ctn<Exception>, Pipe<R>> bindContainerOfError
+                Func<Ctn<ExceptionDispatchInfo>, Pipe<R>> bindContainerOfError
             ) => pipe.Match(bindContainerOfValue, bindContainerOfError);
     }
 }

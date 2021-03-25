@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using BddPipe.Model;
 using NUnit.Framework;
 
@@ -18,7 +19,7 @@ namespace BddPipe.UnitTests.Asserts
                 });
         }
 
-        public static void ShouldBeError<TResponse>(this Pipe<TResponse> pipe, Action<Ctn<Exception>> onError = null)
+        public static void ShouldBeError<TResponse>(this Pipe<TResponse> pipe, Action<Ctn<ExceptionDispatchInfo>> onError = null)
         {
             pipe.Match(response =>
                 {
