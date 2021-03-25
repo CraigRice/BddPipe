@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
@@ -16,12 +17,13 @@ namespace BddPipe.UnitTests.Model
         public void CtorCtnException_WithCtnException_IsInErrorState()
         {
             var ex = new ApplicationException("test message");
-            Ctn<Exception> value = new Ctn<Exception>(ex, None);
+            var exInfo = ExceptionDispatchInfo.Capture(ex);
+            Ctn<ExceptionDispatchInfo> value = new Ctn<ExceptionDispatchInfo>(exInfo, None);
             var pipe = new Pipe<int>(value);
 
             pipe.ShouldBeError(error =>
             {
-                error.Content.Should().Be(ex);
+                error.Content.Should().Be(exInfo);
             });
         }
 
@@ -41,12 +43,13 @@ namespace BddPipe.UnitTests.Model
         public void CtorCtnException_WithCtnExceptionViaImplicit_IsInErrorState()
         {
             var ex = new ApplicationException("test message");
-            Ctn<Exception> value = new Ctn<Exception>(ex, None);
+            var exInfo = ExceptionDispatchInfo.Capture(ex);
+            Ctn<ExceptionDispatchInfo> value = new Ctn<ExceptionDispatchInfo>(exInfo, None);
             Pipe<int> pipe = value; // lift via implicit operator
 
             pipe.ShouldBeError(error =>
             {
-                error.Content.Should().Be(ex);
+                error.Content.Should().Be(exInfo);
             });
         }
 
@@ -65,7 +68,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void CtorCtnException_NullCtn_ThrowsArgumentNullException()
         {
-            Ctn<Exception> value = null;
+            Ctn<ExceptionDispatchInfo> value = null;
             Action go = () => new Pipe<int>(value);
 
             go.Should().ThrowExactly<ArgumentNullException>().WithMessage($"Value cannot be null.{Environment.NewLine}Parameter name: containerOfError");
@@ -83,7 +86,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void CtorCtnException_NullCtnViaImplicit_ThrowsArgumentNullException()
         {
-            Ctn<Exception> value = null;
+            Ctn<ExceptionDispatchInfo> value = null;
             Action go = () =>
             {
                 Pipe<int> pipe = value;
@@ -126,9 +129,10 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void ToString_WithCtnError_ReturnsCorrectString()
         {
-            Pipe<int> pipe = new Ctn<Exception>(new ApplicationException("test error"), None);
+            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
+            Pipe<int> pipe = new Ctn<ExceptionDispatchInfo>(exInfo, None);
             var result = pipe.ToString();
-            result.Should().Be("Container of (BddPipe.Ctn`1[System.Exception])");
+            result.Should().Be("Container of (BddPipe.Ctn`1[System.Runtime.ExceptionServices.ExceptionDispatchInfo])");
         }
     }
 }

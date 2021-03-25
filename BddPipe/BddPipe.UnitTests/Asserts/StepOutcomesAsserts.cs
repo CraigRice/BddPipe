@@ -61,7 +61,7 @@ namespace BddPipe.UnitTests.Asserts
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
-                ctn.Content.Should().Be(expectedException);
+                ctn.Content.SourceException.Should().Be(expectedException);
                 ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, givenTitle, Step.Given, 0);
                 ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Fail, expectedTitle, stepType, 1);
                 ctn.StepOutcomes.Count.Should().Be(2);

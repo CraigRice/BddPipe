@@ -192,7 +192,7 @@ namespace BddPipe.UnitTests.Recipe
         }
 
         [Test]
-        public void Map_ProjectPipeRecipeValueInErrorState_MappedValueIsUsed()
+        public void Map_ProjectPipeRecipeValueInErrorState_RecipeStepInErrorState()
         {
             var exToThrow = new ApplicationException("test exception message");
 
