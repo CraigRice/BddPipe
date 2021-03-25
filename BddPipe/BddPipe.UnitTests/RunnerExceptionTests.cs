@@ -106,7 +106,7 @@ namespace BddPipe.UnitTests
             Action run = () => pipeRaisingEx.Run(result => { /*mute*/ });
             run.Should().ThrowExactly<NullReferenceException>()
                 .Which
-                .StackTrace.Should().StartWith(GetStackTraceUntilPreviousLocationMarker(expected));
+                .StackTrace.Should().StartWith(expected);
         }
     }
 }
