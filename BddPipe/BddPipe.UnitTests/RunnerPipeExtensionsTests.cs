@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
@@ -20,7 +21,8 @@ namespace BddPipe.UnitTests
         private Pipe<int> GetPipeInErrorState()
         {
             var ex = new ApplicationException("test message");
-            return new Ctn<Exception>(ex, None);
+            var exInfo = ExceptionDispatchInfo.Capture(ex);
+            return new Ctn<ExceptionDispatchInfo>(exInfo, None);
         }
 
         private Pipe<T> GetPipeInSuccessState<T>(T withThisValue)
@@ -37,12 +39,13 @@ namespace BddPipe.UnitTests
             ctnValue.StepOutcomes.Should().BeEmpty();
         }
 
-        private void CtnExceptionShouldHaveErrorState(Ctn<Exception> ctnEx)
+        private void CtnExceptionShouldHaveErrorState(Ctn<ExceptionDispatchInfo> ctnEx)
         {
             ctnEx.Should().NotBeNull();
             ctnEx.Content.Should().NotBeNull();
-            ctnEx.Content.GetType().Should().Be<ApplicationException>();
-            ctnEx.Content.Message.Should().Be(ErrorMessage);
+            ctnEx.Content.SourceException.Should().NotBeNull();
+            ctnEx.Content.SourceException.GetType().Should().Be<ApplicationException>();
+            ctnEx.Content.SourceException.Message.Should().Be(ErrorMessage);
             ctnEx.Should().NotBeNull();
             ctnEx.ScenarioTitle.ShouldBeNone();
             ctnEx.StepOutcomes.Should().BeEmpty();
@@ -52,7 +55,7 @@ namespace BddPipe.UnitTests
         public void Map_NullArgument_ThrowsArgumentNullException()
         {
             var pipe = GetPipeInSuccessState(NewValue);
-            Action map = () => { pipe.Map((Func<int, string>) null); };
+            Action map = () => { pipe.Map((Func<int, string>)null); };
             map.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");
@@ -203,7 +206,9 @@ namespace BddPipe.UnitTests
             result.ShouldBeError(ctnError =>
             {
                 ctnError.ScenarioTitle.ShouldBeSome(title => title.Should().Be(scenarioTitle));
-                ctnError.Content.Should().BeOfType<DivideByZeroException>();
+                ctnError.Content.Should().NotBeNull();
+                ctnError.Content.SourceException.Should().NotBeNull();
+                ctnError.Content.SourceException.Should().BeOfType<DivideByZeroException>();
                 ctnError.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, givenStepText, Step.Given);
             });
         }
@@ -235,7 +240,9 @@ namespace BddPipe.UnitTests
             result.ShouldBeError(ctnError =>
             {
                 ctnError.ScenarioTitle.ShouldBeSome(title => title.Should().Be(scenarioTitle));
-                ctnError.Content.Should().BeOfType<InconclusiveException>();
+                ctnError.Content.Should().NotBeNull();
+                ctnError.Content.SourceException.Should().NotBeNull();
+                ctnError.Content.SourceException.Should().BeOfType<InconclusiveException>();
                 ctnError.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, givenStepText, Step.Given);
             });
         }
@@ -287,14 +294,14 @@ namespace BddPipe.UnitTests
             var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
             fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInErrorState());
 
-            var fnForErrorState = Substitute.For<Func<Ctn<Exception>, Pipe<int>>>();
-            fnForErrorState(Arg.Any<Ctn<Exception>>()).Returns(GetPipeInSuccessState(InitialValue));
+            var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
+            fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInSuccessState(InitialValue));
 
             // act
             var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
 
             fnForSuccessState.Received()(Arg.Any<Ctn<int>>());
-            fnForErrorState.DidNotReceive()(Arg.Any<Ctn<Exception>>());
+            fnForErrorState.DidNotReceive()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
 
             result.ShouldBeError(CtnExceptionShouldHaveErrorState);
         }
@@ -307,14 +314,14 @@ namespace BddPipe.UnitTests
             var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
             fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInSuccessState(NewValue));
 
-            var fnForErrorState = Substitute.For<Func<Ctn<Exception>, Pipe<int>>>();
-            fnForErrorState(Arg.Any<Ctn<Exception>>()).Returns(GetPipeInErrorState());
+            var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
+            fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInErrorState());
 
             // act
             var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
 
             fnForSuccessState.Received()(Arg.Any<Ctn<int>>());
-            fnForErrorState.DidNotReceive()(Arg.Any<Ctn<Exception>>());
+            fnForErrorState.DidNotReceive()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
 
             result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
         }
@@ -327,14 +334,14 @@ namespace BddPipe.UnitTests
             var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
             fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInSuccessState(InitialValue));
 
-            var fnForErrorState = Substitute.For<Func<Ctn<Exception>, Pipe<int>>>();
-            fnForErrorState(Arg.Any<Ctn<Exception>>()).Returns(GetPipeInErrorState());
+            var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
+            fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInErrorState());
 
             // act
             var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
 
             fnForSuccessState.DidNotReceive()(Arg.Any<Ctn<int>>());
-            fnForErrorState.Received()(Arg.Any<Ctn<Exception>>());
+            fnForErrorState.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
 
             result.ShouldBeError(CtnExceptionShouldHaveErrorState);
         }
@@ -347,14 +354,14 @@ namespace BddPipe.UnitTests
             var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
             fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInErrorState());
 
-            var fnForErrorState = Substitute.For<Func<Ctn<Exception>, Pipe<int>>>();
-            fnForErrorState(Arg.Any<Ctn<Exception>>()).Returns(GetPipeInSuccessState(NewValue));
+            var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
+            fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInSuccessState(NewValue));
 
             // act
             var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
 
             fnForSuccessState.DidNotReceive()(Arg.Any<Ctn<int>>());
-            fnForErrorState.Received()(Arg.Any<Ctn<Exception>>());
+            fnForErrorState.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
 
             result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
         }
