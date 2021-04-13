@@ -32,7 +32,10 @@ namespace BddPipe
             try
             {
                 if (self == null)
+                {
                     throw new ArgumentNullException(nameof(self));
+                }
+
                 return self();
             }
             catch (Exception ex)

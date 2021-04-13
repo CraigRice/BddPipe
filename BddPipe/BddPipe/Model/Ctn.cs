@@ -20,7 +20,7 @@ namespace BddPipe
         internal Ctn(T content, Option<string> scenarioTitle) : this(content, new StepOutcome[0], scenarioTitle) {}
         internal Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
         {
-            if (stepOutcomes == null) throw new ArgumentNullException(nameof(stepOutcomes));
+            if (stepOutcomes == null) { throw new ArgumentNullException(nameof(stepOutcomes)); }
 
             StepOutcomes = stepOutcomes;
             Content = content;
@@ -40,7 +40,7 @@ namespace BddPipe
         /// <returns>A new <see cref="Ctn{T}"/> instance of the destination type</returns>
         public static Ctn<R> Map<T, R>(this Ctn<T> ctn, Func<T, R> map)
         {
-            if (map == null) throw new ArgumentNullException(nameof(map));
+            if (map == null) { throw new ArgumentNullException(nameof(map)); }
 
             return new Ctn<R>(map(ctn.Content), ctn.StepOutcomes, ctn.ScenarioTitle);
         }

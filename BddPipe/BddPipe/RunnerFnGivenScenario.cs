@@ -10,48 +10,48 @@ namespace BddPipe
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<R> Given<R>(this Scenario scenario, string title, Func<Scenario, R> step) =>
-            RunStep(new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title)), title.ToTitle(StepGiven), step);
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<R> Given<R>(this Scenario scenario, string title, Func<Scenario, Task<R>> step) =>
-            RunStep(new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title)), title.ToTitle(StepGiven), step);
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<R> Given<R>(this Scenario scenario, string title, Func<R> step) =>
-            RunStep(new Pipe<Unit>(new Ctn<Unit>(new Unit(), scenario.Title)), title.ToTitle(StepGiven), unit => step());
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<R> Given<R>(this Scenario scenario, string title, Func<Task<R>> step) =>
-            RunStep(new Pipe<Unit>(new Ctn<Unit>(new Unit(), scenario.Title)), title.ToTitle(StepGiven), step.PipeFunc<Unit, R>());
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<Scenario> Given(this Scenario scenario, string title, Func<Scenario, Task> step) =>
-            RunStep(new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title)), title.ToTitle(StepGiven), step.PipeFunc());
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<Scenario> Given(this Scenario scenario, string title, Func<Task> step) =>
-            RunStep(new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title)), title.ToTitle(StepGiven), step.PipeFunc<Scenario>());
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<Scenario> Given(this Scenario scenario, string title, Action<Scenario> step) =>
-            RunStep(new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title)), title.ToTitle(StepGiven), step.PipeFunc());
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
 
         /// <summary>
         /// Specify the Given step implementation following the Scenario
         /// </summary>
         public static Pipe<Scenario> Given(this Scenario scenario, string title, Action step) =>
-            RunStep(new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title)), title.ToTitle(StepGiven), step.PipeFunc<Scenario>());
+            RunPipe(CreatePipe(scenario), StepGiven, title, step);
     }
 }

@@ -18,7 +18,10 @@ namespace BddPipe
         private Option(T value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException();
+            }
+
             _isSome = true;
             _value = value;
         }
@@ -43,7 +46,10 @@ namespace BddPipe
 
         public IEnumerable<T> AsEnumerable()
         {
-            if (_isSome) yield return _value;
+            if (_isSome)
+            {
+                yield return _value;
+            }
         }
 
         public bool Equals(Option<T> other)
@@ -67,7 +73,9 @@ namespace BddPipe
         public override bool Equals(object obj)
         {
             if (obj is Option<T> other)
+            {
                 return Equals(other);
+            }
 
             return false;
         }

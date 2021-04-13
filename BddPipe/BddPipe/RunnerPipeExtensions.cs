@@ -33,7 +33,7 @@ namespace BddPipe
         /// <returns>A new <see cref="Pipe{T}"/> instance of the destination type</returns>
         public static Pipe<R> Map<T, R>(this Pipe<T> pipe, Func<T, R> map)
         {
-            if (map == null) throw new ArgumentNullException(nameof(map));
+            if (map == null) { throw new ArgumentNullException(nameof(map)); }
 
             return pipe.Bind(ctnValue =>
             {
