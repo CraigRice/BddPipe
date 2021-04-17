@@ -20,7 +20,7 @@ namespace BddPipe
         {
             Successful = false;
             ExceptionDispatchInfo = e;
-            Value = default(A);
+            Value = default;
         }
 
         public static implicit operator Result<A>(A value)
@@ -32,7 +32,12 @@ namespace BddPipe
 
         public bool IsSuccess => Successful;
 
-        public TResult Match<TResult>(Func<A, TResult> value, Func<ExceptionDispatchInfo, TResult> error) =>
-            Successful ? value(Value) : error(ExceptionDispatchInfo);
+        public TResult Match<TResult>(Func<A, TResult> value, Func<ExceptionDispatchInfo, TResult> error)
+        {
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
+            if (error == null) { throw new ArgumentNullException(nameof(error)); }
+
+            return Successful ? value(Value) : error(ExceptionDispatchInfo);
+        }
     }
 }
