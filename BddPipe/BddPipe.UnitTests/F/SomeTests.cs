@@ -160,5 +160,23 @@ namespace BddPipe.UnitTests.F
             Func<bool> call = () => someA.Equals(someB);
             call.Should().ThrowExactly<NotInitializedException>();
         }
+
+        [Test]
+        public void Map_ConvertSome_ReturnsNewValue()
+        {
+            Some<int> someA = 5;
+            var mapped = someA.Map(val => val.ToString());
+            mapped.Value.Should().Be("5");
+        }
+
+        [Test]
+        public void Map_MapFnNull_ThrowArgNullException()
+        {
+            Some<int> someA = 5;
+            Action call = () => someA.Map((Func<int, string>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("map");
+        }
     }
 }

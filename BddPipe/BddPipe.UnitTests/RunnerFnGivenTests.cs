@@ -21,6 +21,15 @@ namespace BddPipe.UnitTests
             new InconclusiveException("test inconclusive message");
 
         [Test]
+        public void Given_FuncUnitRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Func<Unit, int>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void Given_FuncUnitR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Unit, R> step";
@@ -83,6 +92,15 @@ namespace BddPipe.UnitTests
                 ctn.ScenarioTitle.ShouldBeNone();
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
+        }
+
+        [Test]
+        public void Given_FuncUnitTaskRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Func<Unit, Task<int>>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]
@@ -151,6 +169,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Func<int>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void Given_FuncR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<R> step";
@@ -213,6 +240,15 @@ namespace BddPipe.UnitTests
                 ctn.ScenarioTitle.ShouldBeNone();
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
+        }
+
+        [Test]
+        public void Given_FuncTaskRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Func<Task<int>>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]
@@ -281,6 +317,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncUnitTaskStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Func<Unit, Task>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void Given_FuncUnitTask_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Unit, Task> step";
@@ -343,6 +388,15 @@ namespace BddPipe.UnitTests
                 ctn.ScenarioTitle.ShouldBeNone();
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
+        }
+
+        [Test]
+        public void Given_FuncTaskStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Func<Task>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]
@@ -411,6 +465,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_ActionUnitStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Action<Unit>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void Given_ActionUnit_ReceivedCallWithExpectedContext()
         {
             const string title = "Action<Unit> step";
@@ -468,6 +531,15 @@ namespace BddPipe.UnitTests
                 ctn.ScenarioTitle.ShouldBeNone();
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
             });
+        }
+
+        [Test]
+        public void Given_ActionStepNull_ThrowsArgNullException()
+        {
+            Action call = () => Given("title", (Action)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]

@@ -54,6 +54,7 @@ namespace BddPipe
 
         public static Some<R> Map<T, R>(this Some<T> some, Func<T, R> map)
         {
+            if (map == null) { throw new ArgumentNullException(nameof(map)); }
             return map(some.Value);
         }
     }
