@@ -18,7 +18,6 @@ namespace BddPipe.UnitTests.F
         {
             var result = new Result<int>(DefaultValue);
             result.IsSuccess.Should().BeTrue();
-            result.IsFaulted.Should().BeFalse();
         }
 
         [Test]
@@ -26,7 +25,6 @@ namespace BddPipe.UnitTests.F
         {
             Result<int> result = DefaultValue;
             result.IsSuccess.Should().BeTrue();
-            result.IsFaulted.Should().BeFalse();
         }
 
         [Test]
@@ -34,7 +32,6 @@ namespace BddPipe.UnitTests.F
         {
             var result = new Result<int>(GetError());
             result.IsSuccess.Should().BeFalse();
-            result.IsFaulted.Should().BeTrue();
         }
 
         [Test]
