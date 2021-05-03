@@ -39,7 +39,9 @@ namespace BddPipe.UnitTests.Recipe
         public const string StringArgValueTwo = "arg-two";
         public const string GivenStepTitle = "given-step-text";
         public const string AndStepTitle = "the same type is returned as scenario info";
+        public const string ButStepTitle = "the same type is returned as scenario info";
         public const string AndStepTitleAlternate = "a different type is returned as scenario info";
+        public const string ButStepTitleAlternate = "a different type is returned as scenario info";
         public const string ThenStepTitle = "test values are equal";
 
         public static Func<Scenario, Pipe<ScenarioInfo>> SetupScenarioWithGivenStep() =>
@@ -62,10 +64,24 @@ namespace BddPipe.UnitTests.Recipe
                     scenarioInfo => new ScenarioInfo(scenarioInfo.TestValueOne, StringArgValueTwo)
                 );
 
+        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> AddToScenarioWithButStep() =>
+            pipe =>
+                pipe.But(
+                    ButStepTitle,
+                    scenarioInfo => new ScenarioInfo(scenarioInfo.TestValueOne, StringArgValueTwo)
+                );
+
         public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfoAlternate>> AddToScenarioWithAndStepAlternate() =>
             pipe =>
                 pipe.And(
                     AndStepTitleAlternate,
+                    scenarioInfo => new ScenarioInfoAlternate(scenarioInfo.TestValueOne, StringArgValueTwo)
+                );
+
+        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfoAlternate>> AddToScenarioWithButStepAlternate() =>
+            pipe =>
+                pipe.But(
+                    ButStepTitleAlternate,
                     scenarioInfo => new ScenarioInfoAlternate(scenarioInfo.TestValueOne, StringArgValueTwo)
                 );
 
@@ -290,6 +306,46 @@ namespace BddPipe.UnitTests.Recipe
                 ctn.StepOutcomes.Count.Should().Be(2);
                 ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, Recipe.GivenStepTitle, Step.Given, 0);
                 ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, Recipe.AndStepTitleAlternate, Step.And, 1);
+            });
+        }
+
+        [Test]
+        public void ButRecipe_AddToScenarioWithAndStep_AppliesAndStep()
+        {
+            var scenarioSetup = Scenario(ScenarioText)
+                .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
+                .ButRecipe(Recipe.AddToScenarioWithButStep());
+
+            scenarioSetup.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(Recipe.StringArgValueTwo);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.Count.Should().Be(2);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, Recipe.GivenStepTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, Recipe.ButStepTitle, Step.But, 1);
+            });
+        }
+
+        [Test]
+        public void ButRecipe_AddToScenarioWithAndStepAlternate_AppliesAndStep()
+        {
+            var scenarioSetup = Scenario(ScenarioText)
+                .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
+                .ButRecipe(Recipe.AddToScenarioWithButStepAlternate());
+
+            scenarioSetup.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.TestValueOne.Should().Be(Recipe.StringArgValueOne);
+                ctn.Content.TestValueTwo.Should().Be(Recipe.StringArgValueTwo);
+                ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
+                ctn.StepOutcomes.Count.Should().Be(2);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, Recipe.GivenStepTitle, Step.Given, 0);
+                ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, Recipe.ButStepTitleAlternate, Step.But, 1);
             });
         }
 
