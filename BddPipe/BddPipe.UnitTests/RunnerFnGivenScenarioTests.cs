@@ -10,17 +10,8 @@ using static BddPipe.Runner;
 namespace BddPipe.UnitTests
 {
     [TestFixture]
-    public class RunnerFnGivenScenarioTests
+    public class RunnerFnGivenScenarioTests : RunnerFnTestBase
     {
-        private const string AnyStringArg = "any-arg";
-        private const string ScenarioText = "scenario-text";
-
-        private Exception GetTestException() =>
-            new ApplicationException("test exception message");
-
-        private Exception GetInconclusiveException() =>
-            new InconclusiveException("test inconclusive message");
-
         [Test]
         public void GivenScenario_FuncScenarioRStepNull_ThrowsArgNullException()
         {

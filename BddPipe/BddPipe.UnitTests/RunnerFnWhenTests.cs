@@ -1,32 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
-using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests
 {
     [TestFixture]
-    public class RunnerFnWhenTests
+    public class RunnerFnWhenTests : RunnerFnTestBase
     {
-        private const string StringValue = "string-value";
-        private const string ScenarioText = "scenario-text";
-        private const string GivenTitle = "given-text";
-        private const int GivenValue = 12;
-
-        private Exception GetTestException() =>
-            new ApplicationException("test exception message");
-
-        private Exception GetInconclusiveException() =>
-            new InconclusiveException("test inconclusive message");
-
-        private Pipe<int> RunnerWithGivenStep() =>
-            Scenario(ScenarioText).Given(GivenTitle, () => GivenValue);
-
         [Test]
         public void When_FuncTR_ReceivedCallWithExpectedContext()
         {

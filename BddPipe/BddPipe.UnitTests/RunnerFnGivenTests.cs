@@ -10,16 +10,8 @@ using static BddPipe.Runner;
 namespace BddPipe.UnitTests
 {
     [TestFixture]
-    public class RunnerFnGivenTests
+    public class RunnerFnGivenTests : RunnerFnTestBase
     {
-        private const string AnyStringArg = "any-arg";
-
-        private Exception GetTestException() =>
-            new ApplicationException("test exception message");
-
-        private Exception GetInconclusiveException() =>
-            new InconclusiveException("test inconclusive message");
-
         [Test]
         public void Given_FuncUnitRStepNull_ThrowsArgNullException()
         {
