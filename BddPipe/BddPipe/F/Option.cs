@@ -65,8 +65,8 @@ namespace BddPipe
 
         public override int GetHashCode()
         {
-            return _isSome 
-                ? _value.GetHashCode() 
+            return _isSome
+                ? _value.GetHashCode()
                 : 0;
         }
 
