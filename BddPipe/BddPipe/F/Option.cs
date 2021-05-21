@@ -79,6 +79,9 @@ namespace BddPipe
 
             return false;
         }
+
+        public T IfNone(T valueIfNone) =>
+            Match(t => t, () => valueIfNone);
     }
 
     internal static class OptionExt
@@ -94,9 +97,6 @@ namespace BddPipe
             => optT.Match(
                 (t) => f(t),
                 () => None);
-
-        public static T IfNone<T>(this Option<T> option, T valueIfNone) =>
-            option.Match(t => t, () => valueIfNone);
 
         public static int CompareTo<T>(this Option<T> optT, Option<T> optCompareTo, IComparer<T> comparer)
             => optT.Match(

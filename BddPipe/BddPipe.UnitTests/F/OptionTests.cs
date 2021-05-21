@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
 using static BddPipe.F;
@@ -370,6 +371,47 @@ namespace BddPipe.UnitTests.F
             Option<string> option = None;
             var result = option.ToString();
             result.Should().Be("None");
+        }
+
+        [Test]
+        public void IfNone_OptionOfSome_ReturnsSomeValue()
+        {
+            const string valueIfNone = "value if none";
+            Option<string> option = SomeValue;
+            var result = option.IfNone(valueIfNone);
+            result.Should().Be(SomeValue);
+        }
+
+        [Test]
+        public void IfNone_OptionOfNone_ReturnsSuppliedValue()
+        {
+            const string valueIfNone = "value if none";
+            Option<string> option = None;
+            var result = option.IfNone(valueIfNone);
+            result.Should().Be(valueIfNone);
+        }
+
+        [Test]
+        public void Map_OptionOfSomeToChangedInstance_ReturnsNewInstance()
+        {
+            Option<string> option = SomeValue;
+            var result = option.Map(o => o.Length);
+
+            result.IsSome.Should().BeTrue();
+            result.ShouldBeSome(val =>
+            {
+                val.Should().Be(SomeValue.Length);
+            });
+        }
+
+        [Test]
+        public void Map_OptionOfNoneToChangedInstance_ReturnsNone()
+        {
+            Option<string> option = None;
+            var result = option.Map(o => o.Length);
+
+            result.IsSome.Should().BeFalse();
+            result.ShouldBeNone();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace BddPipe.UnitTests.Asserts
                 });
         }
 
-        public static void ShouldBeNone<T>(this Option<T> option, Action onError = null)
+        public static void ShouldBeNone<T>(this Option<T> option, Action onNone = null)
         {
             option.Match(response =>
                 {
@@ -28,7 +28,7 @@ namespace BddPipe.UnitTests.Asserts
                 },
                 () =>
                 {
-                    onError?.Invoke();
+                    onNone?.Invoke();
                     return new Unit();
                 });
         }
