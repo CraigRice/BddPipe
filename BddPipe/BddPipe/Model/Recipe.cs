@@ -28,7 +28,6 @@ namespace BddPipe.Model
         /// <returns>A new <see cref="Recipe{T2, R}"/> instance of the destination type</returns>
         public Recipe<T2, R> Map<T2>(Func<T, T2> map)
         {
-            // todo: test a map failure before the first step... all steps should be in fail state
             return new Recipe<T2, R>(_pipe.Map(map), _step);
         }
 

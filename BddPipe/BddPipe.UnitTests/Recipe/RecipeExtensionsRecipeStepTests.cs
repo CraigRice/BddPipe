@@ -7,11 +7,6 @@ using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests.Recipe
 {
-    [TestFixture]
-    public class RecipeExtensionsRecipeStepTests
-    {
-    }
-
    // public class ScenarioInfo { }
 
     public static class Usage
@@ -56,6 +51,11 @@ namespace BddPipe.UnitTests.Recipe
                 .Given("", () => { })
                 .AndRecipe(StepUnitToInt())
                 .AndRecipe(StepUnitToInt2())
+                .AndRecipe(recipe => recipe.Step("", v => v.ToString()))
+                .AndRecipe(pipe =>
+                {
+                    return pipe.And("", x => x.ToString());
+                })
                 .Run();
         }
 
