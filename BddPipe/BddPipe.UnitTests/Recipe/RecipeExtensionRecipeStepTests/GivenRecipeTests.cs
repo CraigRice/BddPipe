@@ -50,6 +50,46 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         }
 
         [Test]
+        public void GivenRecipe_OfScenarioMapArgumentNull_ThrowsArgNullException()
+        {
+            Action call = () => Scenario().GivenRecipe(RecipeStepMapArgumentNull<Scenario, int>());
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("map");
+        }
+
+        [Test]
+        public void GivenRecipe_OfUnitMapArgumentNull_ThrowsArgNullException()
+        {
+            Action call = () => GivenRecipe(RecipeStepMapArgumentNull<Unit, int>());
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("map");
+        }
+
+        [Test]
+        public void GivenRecipe_OfScenarioStepArgumentNull_ThrowsArgNullException()
+        {
+            Action call = () => Scenario().GivenRecipe(RecipeStepStepArgumentNull<Scenario, int>());
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
+        public void GivenRecipe_OfUnitStepArgumentNull_ThrowsArgNullException()
+        {
+            Action call = () => GivenRecipe(RecipeStepStepArgumentNull<Unit, int>());
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void GivenRecipe_OfScenarioMapImplementationThrowsException_ShouldBeErrorStepInconclusive()
         {
             var ex = new Exception("test ex");
@@ -82,10 +122,32 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
             });
         }
 
-        // next..
-        // map arg null
-        // map actually maps
-        // recipe actually changes pipe state and value
+        [Test]
+        public void GivenRecipe_OfScenarioRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
+        {
+            var step = Scenario().GivenRecipe(RecipeStepReturns<Scenario, int>(StepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, NewValue);
+        }
 
+        [Test]
+        public void GivenRecipe_OfUnitRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
+        {
+            var step = GivenRecipe(RecipeStepReturns<Unit, int>(StepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, NewValue);
+        }
+
+        [Test]
+        public void GivenRecipe_OfScenarioMapThenRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
+        {
+            var step = Scenario().GivenRecipe(RecipeStepMapsThenReturns<Scenario, int>(StepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, MapThenRecipeResult);
+        }
+
+        [Test]
+        public void GivenRecipe_OfUnitMapThenRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
+        {
+            var step = GivenRecipe(RecipeStepMapsThenReturns<Unit, int>(StepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, MapThenRecipeResult);
+        }
     }
 }
