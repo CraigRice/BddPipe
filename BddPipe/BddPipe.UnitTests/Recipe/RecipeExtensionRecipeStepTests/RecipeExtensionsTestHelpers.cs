@@ -1,15 +1,22 @@
 ﻿using System;
 using BddPipe.Model;
+using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
 {
     public static class RecipeExtensionsTestHelpers
     {
-        public const string StepTitle = "a step title";
+        public const string GivenStepTitle = "a given step title";
+        public const string NextStepTitle = "with the next step";
         public const string ScenarioText = "ScenarioText";
         public const int NewValue = 3434;
+        public const int NextValue = 987;
         public const string MapToStringResult = "map result";
         public const string MapThenRecipeResult = "map result then 3434";
+
+        public static Pipe<int> GetPipeAfterGiven() =>
+            Scenario(ScenarioText)
+                .Given(GivenStepTitle, u => NewValue);
 
         public static Exception GetTestException() =>
             new ApplicationException("test exception message");
@@ -28,13 +35,13 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         {
             return recipe => recipe
                 .Map<T>(null)
-                .Step(StepTitle, t => default(T));
+                .Step(GivenStepTitle, t => default(T));
         }
 
         public static RecipeStep<TSource, T> RecipeStepStepArgumentNull<TSource, T>()
         {
             return recipe => recipe
-                .Step(StepTitle, (Func<TSource, T>)null);
+                .Step(GivenStepTitle, (Func<TSource, T>)null);
         }
 
         public static RecipeStep<TSource, T> RecipeStepReturnsDefault<TSource, T>(

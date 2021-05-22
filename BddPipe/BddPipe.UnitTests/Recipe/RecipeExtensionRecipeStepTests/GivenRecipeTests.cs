@@ -30,7 +30,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
             RecipeStep<Scenario, int> stepFunc = null;
             Scenario scenario = null;
 
-            Action call = () => scenario.GivenRecipe(RecipeStepReturnsDefault<Scenario, int>(StepTitle));
+            Action call = () => scenario.GivenRecipe(RecipeStepReturnsDefault<Scenario, int>(GivenStepTitle));
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
@@ -95,14 +95,14 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
             var ex = new Exception("test ex");
 
             var step = Scenario(ScenarioText)
-                .GivenRecipe(RecipeStepMapThrowsException<Scenario, int>(StepTitle, ex));
+                .GivenRecipe(RecipeStepMapThrowsException<Scenario, int>(GivenStepTitle, ex));
 
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
-                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.NotRun, StepTitle, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.NotRun, GivenStepTitle, Step.Given);
             });
         }
 
@@ -111,43 +111,43 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         {
             var ex = new Exception("test ex");
 
-            var step = GivenRecipe(RecipeStepMapThrowsException<Unit, int>(StepTitle, ex));
+            var step = GivenRecipe(RecipeStepMapThrowsException<Unit, int>(GivenStepTitle, ex));
 
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
-                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.NotRun, StepTitle, Step.Given);
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.NotRun, GivenStepTitle, Step.Given);
             });
         }
 
         [Test]
         public void GivenRecipe_OfScenarioRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
         {
-            var step = Scenario().GivenRecipe(RecipeStepReturns<Scenario, int>(StepTitle, NewValue));
-            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, NewValue);
+            var step = Scenario().GivenRecipe(RecipeStepReturns<Scenario, int>(GivenStepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(GivenStepTitle, NewValue);
         }
 
         [Test]
         public void GivenRecipe_OfUnitRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
         {
-            var step = GivenRecipe(RecipeStepReturns<Unit, int>(StepTitle, NewValue));
-            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, NewValue);
+            var step = GivenRecipe(RecipeStepReturns<Unit, int>(GivenStepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(GivenStepTitle, NewValue);
         }
 
         [Test]
         public void GivenRecipe_OfScenarioMapThenRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
         {
-            var step = Scenario().GivenRecipe(RecipeStepMapsThenReturns<Scenario, int>(StepTitle, NewValue));
-            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, MapThenRecipeResult);
+            var step = Scenario().GivenRecipe(RecipeStepMapsThenReturns<Scenario, int>(GivenStepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(GivenStepTitle, MapThenRecipeResult);
         }
 
         [Test]
         public void GivenRecipe_OfUnitMapThenRecipeStepReturnsValue_ShouldBeSuccessWithNewValue()
         {
-            var step = GivenRecipe(RecipeStepMapsThenReturns<Unit, int>(StepTitle, NewValue));
-            step.ShouldBeSuccessfulGivenStepWithValue(StepTitle, MapThenRecipeResult);
+            var step = GivenRecipe(RecipeStepMapsThenReturns<Unit, int>(GivenStepTitle, NewValue));
+            step.ShouldBeSuccessfulGivenStepWithValue(GivenStepTitle, MapThenRecipeResult);
         }
     }
 }
