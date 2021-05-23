@@ -16,7 +16,7 @@ namespace BddPipe
         }
     }
 
-    internal struct Some<T>
+    internal readonly struct Some<T>
     {
         private readonly T _value;
         private readonly bool _initialized;
@@ -25,14 +25,14 @@ namespace BddPipe
         {
             if (value == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), "Value can not be null");
+                throw new ArgumentNullException(nameof(value), "Value can not be null");
             }
 
             _initialized = true;
             _value = value;
         }
 
-        private static T Raise<T>(Exception ex)
+        private static T Raise(Exception ex)
         {
             throw ex;
         }
@@ -40,7 +40,7 @@ namespace BddPipe
         public T Value =>
             _initialized
                 ? _value
-                : Raise<T>(new NotInitializedException($"Some {typeof(T).Name} has not been initialized"));
+                : Raise(new NotInitializedException($"Some {typeof(T).Name} has not been initialized"));
 
         public static bool operator ==(Some<T> a, Some<T> b) => a.Value.Equals(b.Value);
         public static bool operator !=(Some<T> a, Some<T> b) => a.Value.Equals(b.Value) == false;

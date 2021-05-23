@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
 
 namespace BddPipe.Model
 {
@@ -33,7 +32,7 @@ namespace BddPipe.Model
 
         internal Pipe(Ctn<ExceptionDispatchInfo> containerOfError)
         {
-            if (containerOfError == null) throw new ArgumentNullException(nameof(containerOfError));
+            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
 
             IsRight = false;
             _containerOfError = containerOfError;
@@ -43,7 +42,7 @@ namespace BddPipe.Model
 
         internal Pipe(Ctn<T> containerOfValue)
         {
-            if (containerOfValue == null) throw new ArgumentNullException(nameof(containerOfValue));
+            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
 
             IsRight = true;
             _containerOfValue = containerOfValue;
@@ -72,10 +71,14 @@ namespace BddPipe.Model
         /// <returns></returns>
         public TResult Match<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
+            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
+            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+
             if (!_isInitialized)
             {
                 throw new PipeNotInitializedException();
             }
+
             return IsLeft ? containerOfError(_containerOfError) : containerOfValue(_containerOfValue);
         }
 
@@ -86,7 +89,12 @@ namespace BddPipe.Model
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns>An instance of Unit.</returns>
         public Unit Match(Action<Ctn<T>> containerOfValue, Action<Ctn<ExceptionDispatchInfo>> containerOfError)
-            => Match(containerOfValue.ToFunc(), containerOfError.ToFunc());
+        {
+            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
+            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+
+            return Match(containerOfValue.ToFunc(), containerOfError.ToFunc());
+        }
 
         /// <summary>
         /// Returns a string representation of <see cref="Pipe{T}"/>

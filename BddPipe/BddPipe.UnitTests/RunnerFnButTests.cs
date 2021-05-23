@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
+using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
-using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests
 {
     [TestFixture]
-    public class RunnerFnButTests
+    public class RunnerFnButTests : RunnerFnTestBase
     {
-        private const string StringValue = "string-value";
-        private const string ScenarioText = "scenario-text";
-        private const string GivenTitle = "given-text";
-        private const int GivenValue = 12;
-
-        private Exception GetTestException() =>
-            new ApplicationException("test exception message");
-
-        private Exception GetInconclusiveException() =>
-            new InconclusiveException("test inconclusive message");
-
-        private Pipe<int> RunnerWithGivenStep() =>
-            Scenario(ScenarioText).Given(GivenTitle, () => GivenValue);
+        [Test]
+        public void But_FuncTRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<int, int>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
 
         [Test]
         public void But_FuncTR_ReceivedCallWithExpectedContext()
@@ -74,6 +68,15 @@ namespace BddPipe.UnitTests
 
             fn.Received()(GivenValue);
             step.ShouldBeInconclusiveSecondStepWithException(Step.But, GivenTitle, title, ex);
+        }
+
+        [Test]
+        public void But_FuncTTaskRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<int, Task<int>>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]
@@ -127,6 +130,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void But_FuncRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<int>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void But_FuncR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<R> step";
@@ -174,6 +186,15 @@ namespace BddPipe.UnitTests
 
             fn.Received()();
             step.ShouldBeInconclusiveSecondStepWithException(Step.But, GivenTitle, title, ex);
+        }
+
+        [Test]
+        public void But_FuncTaskRStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<Task<int>>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]
@@ -227,6 +248,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void But_FuncTTaskStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<int, Task>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void But_FuncTTask_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<T, Task> step";
@@ -274,6 +304,15 @@ namespace BddPipe.UnitTests
 
             fn.Received()(GivenValue);
             step.ShouldBeInconclusiveSecondStepWithException(Step.But, GivenTitle, title, ex);
+        }
+
+        [Test]
+        public void But_FuncTaskStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<Task>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]
@@ -327,6 +366,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void But_ActionTStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<Action<int>>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
+        }
+
+        [Test]
         public void But_ActionT_ReceivedCallWithExpectedContext()
         {
             const string title = "Action<T> step";
@@ -369,6 +417,15 @@ namespace BddPipe.UnitTests
             var step = runner.But(title, fn);
 
             step.ShouldBeInconclusiveSecondStepWithException(Step.But, GivenTitle, title, ex);
+        }
+
+        [Test]
+        public void But_ActionStepNull_ThrowsArgNullException()
+        {
+            Action call = () => RunnerWithGivenStep().But("title", (Func<Action>)null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("step");
         }
 
         [Test]

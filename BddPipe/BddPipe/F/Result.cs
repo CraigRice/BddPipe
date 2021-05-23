@@ -5,22 +5,22 @@ namespace BddPipe
 {
     internal struct Result<A>
     {
-        internal readonly bool Successful;
-        internal readonly A Value;
-        internal ExceptionDispatchInfo ExceptionDispatchInfo;
+        private readonly bool _successful;
+        private readonly A _value;
+        private ExceptionDispatchInfo _exceptionDispatchInfo;
 
         public Result(A value)
         {
-            Successful = true;
-            Value = value;
-            ExceptionDispatchInfo = null;
+            _successful = true;
+            _value = value;
+            _exceptionDispatchInfo = null;
         }
 
         public Result(ExceptionDispatchInfo e)
         {
-            Successful = false;
-            ExceptionDispatchInfo = e;
-            Value = default(A);
+            _successful = false;
+            _exceptionDispatchInfo = e;
+            _value = default;
         }
 
         public static implicit operator Result<A>(A value)
@@ -28,11 +28,14 @@ namespace BddPipe
             return new Result<A>(value);
         }
 
-        public bool IsFaulted => !Successful;
+        public bool IsSuccess => _successful;
 
-        public bool IsSuccess => Successful;
+        public TResult Match<TResult>(Func<A, TResult> value, Func<ExceptionDispatchInfo, TResult> error)
+        {
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
+            if (error == null) { throw new ArgumentNullException(nameof(error)); }
 
-        public TResult Match<TResult>(Func<A, TResult> value, Func<ExceptionDispatchInfo, TResult> error) =>
-            Successful ? value(Value) : error(ExceptionDispatchInfo);
+            return _successful ? value(_value) : error(_exceptionDispatchInfo);
+        }
     }
 }

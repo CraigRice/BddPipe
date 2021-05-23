@@ -9,27 +9,27 @@ namespace BddPipe
         private const Step StepAnd = Step.And;
 
         public static Pipe<R> And<T, R>(this Pipe<T> pipe, string title, Func<T, R> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step);
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<R> And<T, R>(this Pipe<T> pipe, string title, Func<T, Task<R>> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step);
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<R> And<T, R>(this Pipe<T> pipe, string title, Func<R> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step.PipeFunc<T, R>());
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<R> And<T, R>(this Pipe<T> pipe, string title, Func<Task<R>> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step.PipeFunc<T, R>());
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<T> And<T>(this Pipe<T> pipe, string title, Func<T, Task> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step.PipeFunc());
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<T> And<T>(this Pipe<T> pipe, string title, Func<Task> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step.PipeFunc<T>());
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<T> And<T>(this Pipe<T> pipe, string title, Action<T> step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step.PipeFunc());
+            RunPipe(pipe, StepAnd, title, step);
 
         public static Pipe<T> And<T>(this Pipe<T> pipe, string title, Action step) =>
-            RunStep(pipe, title.ToTitle(StepAnd), step.PipeFunc<T>());
+            RunPipe(pipe, StepAnd, title, step);
     }
 }

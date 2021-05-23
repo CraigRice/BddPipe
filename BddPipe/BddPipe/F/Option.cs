@@ -18,7 +18,10 @@ namespace BddPipe
         private Option(T value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException();
+            }
+
             _isSome = true;
             _value = value;
         }
@@ -43,7 +46,10 @@ namespace BddPipe
 
         public IEnumerable<T> AsEnumerable()
         {
-            if (_isSome) yield return _value;
+            if (_isSome)
+            {
+                yield return _value;
+            }
         }
 
         public bool Equals(Option<T> other)
@@ -59,18 +65,23 @@ namespace BddPipe
 
         public override int GetHashCode()
         {
-            return _isSome 
-                ? _value.GetHashCode() 
+            return _isSome
+                ? _value.GetHashCode()
                 : 0;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is Option<T> other)
+            {
                 return Equals(other);
+            }
 
             return false;
         }
+
+        public T IfNone(T valueIfNone) =>
+            Match(t => t, () => valueIfNone);
     }
 
     internal static class OptionExt
@@ -86,9 +97,6 @@ namespace BddPipe
             => optT.Match(
                 (t) => f(t),
                 () => None);
-
-        public static T IfNone<T>(this Option<T> option, T valueIfNone) =>
-            option.Match(t => t, () => valueIfNone);
 
         public static int CompareTo<T>(this Option<T> optT, Option<T> optCompareTo, IComparer<T> comparer)
             => optT.Match(
