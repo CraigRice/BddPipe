@@ -68,5 +68,19 @@ namespace BddPipe.Recipe
 
             return recipeStepFunc(new Recipe<T, T>(pipe, Step.Then));
         }
+
+        public static Pipe<R> WhenRecipe<T, R>(this Pipe<T> pipe, RecipeStep<T, R> recipeStepFunc)
+        {
+            if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
+
+            return recipeStepFunc(new Recipe<T, R>(pipe, Step.When));
+        }
+
+        public static Pipe<T> WhenRecipe<T>(this Pipe<T> pipe, RecipeStep<T> recipeStepFunc)
+        {
+            if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
+
+            return recipeStepFunc(new Recipe<T, T>(pipe, Step.When));
+        }
     }
 }
