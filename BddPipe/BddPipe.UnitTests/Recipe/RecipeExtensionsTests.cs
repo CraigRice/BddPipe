@@ -45,12 +45,12 @@ namespace BddPipe.UnitTests.Recipe
         public const string ButStepTitleAlternate = "but a different type is returned as scenario info";
         public const string ThenStepTitle = "test values are equal";
 
-        public static Func<Scenario, Pipe<ScenarioInfo>> SetupScenarioWithGivenStep() =>
+        public static Func<Pipe<Scenario>, Pipe<ScenarioInfo>> SetupScenarioWithGivenStep() =>
             scenario =>
                 scenario.Given(GivenStepTitle, () => new ScenarioInfo(StringArgValueOne, null));
 
 
-        public static Func<Scenario, Pipe<ScenarioInfo>> SetupScenarioWithGivenStepInErrorState() =>
+        public static Func<Pipe<Scenario>, Pipe<ScenarioInfo>> SetupScenarioWithGivenStepInErrorState() =>
             scenario =>
                 scenario.Given(GivenStepTitle, () =>
                 {
@@ -104,7 +104,7 @@ namespace BddPipe.UnitTests.Recipe
                     }
                 );
 
-        public static Func<Scenario, Pipe<ScenarioInfo>> CombinedRecipe() =>
+        public static Func<Pipe<Scenario>, Pipe<ScenarioInfo>> CombinedRecipe() =>
             scenario =>
                 scenario
                     .GivenRecipe(SetupScenarioWithGivenStep())
@@ -140,7 +140,7 @@ namespace BddPipe.UnitTests.Recipe
         [Test]
         public void Map_MapScenarioFunctionNull_ThrowsArgNullException()
         {
-            Func<Scenario, Pipe<ScenarioInfo>> recipeFunc = Recipe.SetupScenarioWithGivenStep();
+            Func<Pipe<Scenario>, Pipe<ScenarioInfo>> recipeFunc = Recipe.SetupScenarioWithGivenStep();
             Func<ScenarioInfo, string> mapFunc = null;
 
             Action call = () => recipeFunc.Map(mapFunc);
@@ -336,23 +336,11 @@ namespace BddPipe.UnitTests.Recipe
         {
             var scenario = Scenario();
 
-            Action call = () => scenario.GivenRecipe((Func<Scenario, Pipe<int>>)null);
+            Action call = () => scenario.GivenRecipe((Func<Pipe<Scenario>, Pipe<int>>)null);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("recipeFunction");
-        }
-
-        [Test]
-        public void GivenRecipe_ScenarioNull_ThrowArgNullException()
-        {
-            Scenario scenario = null;
-
-            Action call = () => scenario.GivenRecipe(Recipe.SetupScenarioWithGivenStep());
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
         }
 
         [Test]

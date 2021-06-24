@@ -15,9 +15,8 @@ namespace BddPipe.Recipe
         /// <param name="scenario">Current <see cref="Scenario"/> instance to add step(s) to.</param>
         /// <param name="recipeFunction">Function describing the step(s) added to the <see cref="Scenario"/></param>
         /// <returns>A <see cref="Pipe{R}"/> with recipe steps applied via the supplied function.</returns>
-        public static Pipe<R> GivenRecipe<R>(this Scenario scenario, Func<Scenario, Pipe<R>> recipeFunction)
+        public static Pipe<R> GivenRecipe<R>(this Pipe<Scenario> scenario, Func<Pipe<Scenario>, Pipe<R>> recipeFunction)
         {
-            if (scenario == null) { throw new ArgumentNullException(nameof(scenario)); }
             if (recipeFunction == null) { throw new ArgumentNullException(nameof(recipeFunction)); }
 
             return recipeFunction(scenario);

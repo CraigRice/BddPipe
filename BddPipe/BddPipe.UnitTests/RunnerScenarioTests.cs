@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using BddPipe.UnitTests.Asserts;
+using FluentAssertions;
 using NUnit.Framework;
 using static BddPipe.Runner;
 
@@ -13,7 +14,15 @@ namespace BddPipe.UnitTests
             var scenario = Scenario();
 
             scenario.Should().NotBeNull();
-            scenario.Title.Should().Be(nameof(Scenario_NoTitle_UsesMethodName));
+            scenario.ShouldBeSuccessful(ctn =>
+            {
+                ctn.ScenarioTitle.ShouldBeSome(title =>
+                    title.Should().Be(nameof(Scenario_NoTitle_UsesMethodName))
+                );
+                ctn.StepOutcomes.Should().BeEmpty();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.Title.Should().Be(nameof(Scenario_NoTitle_UsesMethodName));
+            });
         }
 
         [Test]
@@ -22,7 +31,13 @@ namespace BddPipe.UnitTests
             var scenario = Scenario(null, null);
 
             scenario.Should().NotBeNull();
-            scenario.Title.Should().Be(null);
+            scenario.ShouldBeSuccessful(ctn =>
+            {
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.Should().BeEmpty();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.Title.Should().Be(null);
+            });
         }
 
         [Test]
@@ -32,7 +47,15 @@ namespace BddPipe.UnitTests
             var scenario = Scenario(scenarioTitle);
 
             scenario.Should().NotBeNull();
-            scenario.Title.Should().Be(scenarioTitle);
+            scenario.ShouldBeSuccessful(ctn =>
+            {
+                ctn.ScenarioTitle.ShouldBeSome(title =>
+                    title.Should().Be(scenarioTitle)
+                );
+                ctn.StepOutcomes.Should().BeEmpty();
+                ctn.Content.Should().NotBeNull();
+                ctn.Content.Title.Should().Be(scenarioTitle);
+            });
         }
     }
 }

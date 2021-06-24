@@ -17,14 +17,11 @@ namespace BddPipe.Recipe
             return recipeStepFunc(new Recipe<Unit, R>(pipe, Step.Given));
         }
 
-        public static Pipe<R> GivenRecipe<R>(this Scenario scenario, RecipeStep<Scenario, R> recipeStepFunc)
+        public static Pipe<R> GivenRecipe<R>(this Pipe<Scenario> scenario, RecipeStep<Scenario, R> recipeStepFunc)
         {
-            if (scenario == null) { throw new ArgumentNullException(nameof(scenario)); }
             if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
 
-            var pipe = Runner.CreatePipe(scenario);
-
-            return recipeStepFunc(new Recipe<Scenario, R>(pipe, Step.Given));
+            return recipeStepFunc(new Recipe<Scenario, R>(scenario, Step.Given));
         }
 
         public static Pipe<R> AndRecipe<T, R>(this Pipe<T> pipe, RecipeStep<T, R> recipeStepFunc)

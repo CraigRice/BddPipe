@@ -25,19 +25,6 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         }
 
         [Test]
-        public void GivenRecipe_OfScenarioScenarioNull_ThrowsArgNullException()
-        {
-            RecipeStep<Scenario, int> stepFunc = null;
-            Scenario scenario = null;
-
-            Action call = () => scenario.GivenRecipe(RecipeStepReturnsDefault<Scenario, int>(GivenStepTitle));
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
-        }
-
-        [Test]
         public void GivenRecipe_OfUnitRecipeStepFuncNull_ThrowsArgNullException()
         {
             RecipeStep<Unit, int> stepFunc = null;

@@ -22,19 +22,6 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void GivenScenario_FuncScenarioRScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Func<Scenario, R> step";
-            var fn = Substitute.For<Func<Scenario, string>>();
-            fn(Arg.Any<Scenario>()).Returns(AnyStringArg);
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
-        }
-
-        [Test]
         public void GivenScenario_FuncScenarioR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Scenario, R> step";
@@ -106,19 +93,6 @@ namespace BddPipe.UnitTests
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
-        }
-
-        [Test]
-        public void GivenScenario_FuncScenarioTaskRScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Func<Scenario, Task<R>> step";
-            var fn = Substitute.For<Func<Scenario, Task<string>>>();
-            fn(Arg.Any<Scenario>()).Returns(AnyStringArg);
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
         }
 
         [Test]
@@ -196,19 +170,6 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void GivenScenario_FuncRScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Func<R> step";
-            var fn = Substitute.For<Func<string>>();
-            fn().Returns(AnyStringArg);
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
-        }
-
-        [Test]
         public void GivenScenario_FuncR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<R> step";
@@ -283,19 +244,6 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void GivenScenario_FuncTaskRScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Func<Task<R>> step";
-            var fn = Substitute.For<Func<Task<string>>>();
-            fn().Returns(Task.FromResult(AnyStringArg));
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
-        }
-
-        [Test]
         public void GivenScenario_FuncTaskR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Task<R>> step";
@@ -367,19 +315,6 @@ namespace BddPipe.UnitTests
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
-        }
-
-        [Test]
-        public void GivenScenario_FuncScenarioTaskScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Func<Scenario, Task> step";
-            var fn = Substitute.For<Func<Scenario, Task>>();
-            fn(Arg.Any<Scenario>()).Returns(Task.CompletedTask);
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
         }
 
         [Test]
@@ -458,19 +393,6 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void GivenScenario_FuncTaskScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Func<Task> step";
-            var fn = Substitute.For<Func<Task>>();
-            fn().Returns(Task.CompletedTask);
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
-        }
-
-        [Test]
         public void GivenScenario_FuncTask_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Task> step";
@@ -546,18 +468,6 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
-        public void GivenScenario_ActionScenarioScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Action<Scenario> step";
-            var fn = Substitute.For<Action<Scenario>>();
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
-        }
-
-        [Test]
         public void GivenScenario_ActionScenario_ReceivedCallWithExpectedContext()
         {
             const string title = "Action<Scenario> step";
@@ -623,18 +533,6 @@ namespace BddPipe.UnitTests
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
-        }
-
-        [Test]
-        public void GivenScenario_ActionScenarioNull_ThrowsArgNullException()
-        {
-            const string title = "Action step";
-            var fn = Substitute.For<Action>();
-
-            Action call = () => ((Scenario)null).Given(title, fn);
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("scenario");
         }
 
         [Test]
