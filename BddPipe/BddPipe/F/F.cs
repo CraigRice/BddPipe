@@ -5,7 +5,9 @@ namespace BddPipe
 {
     internal static class F
     {
-        public static Func<R> Apply<T1, R>(this Func<T1, R> fn, T1 t1) => () => fn(t1);
+        public static Func<R> Apply<T1, R>(this Func<T1, R> fn, T1 t1) =>
+            () => fn(t1);
+
         public static Action<T1> ApplyLast<T1, T2>(this Action<T1, T2> a, T2 t2) => t1 => a(t1, t2);
 
         public static Func<T, Unit> ToFunc<T>(this Action<T> action)

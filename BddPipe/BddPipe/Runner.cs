@@ -10,20 +10,50 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
-        private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, Task<R>> step) =>
-            RunStep(pipe, title, TaskFunctions.Run(step));
 
-        private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, R> step) =>
-            pipe.BiBind(
+        private static void Go<T, R>(Either<Func<T, Task<R>>, Func<T, R>> step)
+        {
+
+        }
+
+        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ProcessStep<T, R>(
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source, Some<Title> title, Func<T, R> step)
+        {
+            return source.BiBind(
                 tValue =>
                     step.Apply(tValue.Content)
-                    .TryRun()
-                    .Match<Pipe<R>>(
-                        r => tValue.ToCtn(r,  title.ToStepOutcome(Outcome.Pass)),
-                        ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))),
-                err => 
+                        .TryRun()
+                        .Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
+                            r => tValue.ToCtn(r, title.ToStepOutcome(Outcome.Pass)),
+                            ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))
+                        ),
+                err =>
                     err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun))
-            );
+                );
+        }
+
+        //private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, Task<R>> step) =>
+        //    RunStep(pipe, title, TaskFunctions.Run(step));
+
+        //private static Pipe<R> RunStep<T, R>(this Pipe<T> pipe, Some<Title> title, Func<T, R> step) =>
+        //    pipe.Content.Match(
+        //        eitherCtnErrCtnT => null,
+        //        taskEitherCtnErrCtnT => null)
+
+
+
+
+
+        //    pipe.BiBind(
+        //        tValue =>
+        //            step.Apply(tValue.Content)
+        //            .TryRun()
+        //            .Match<Pipe<R>>(
+        //                r => tValue.ToCtn(r, title.ToStepOutcome(Outcome.Pass)),
+        //                ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))),
+        //        err => 
+        //            err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun))
+        //    );
 
         /// <summary>
         /// The last call to evaluate the result of calls made.
@@ -34,14 +64,28 @@ namespace BddPipe
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
         public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
         {
-            var scenarioResult = pipe.ToScenarioResult();
+            var container = pipe.ToContainerSync();
+            return ProcessRun(container, writeScenarioResult);
+        }
 
+        /// <summary>
+        /// The last call to evaluate the result of calls made.
+        /// </summary>
+        /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
+        /// <param name="pipe">The state so far, containing the original exception or last returned result.</param>
+        /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
+        /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
+        public static async Task<BddPipeResult<T>> RunAsync<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
+        {
+            var container = await pipe.ToContainer();
+            return ProcessRun(container, writeScenarioResult);
+        }
+
+        private static BddPipeResult<T> ProcessRun<T>(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> container, Action<ScenarioResult> writeScenarioResult = null)
+        {
+            var scenarioResult = container.ToScenarioResult();
             LogResult(scenarioResult, writeScenarioResult);
-
-            var content = pipe.Match<Either<ExceptionDispatchInfo, T>>(
-                ctnValue => ctnValue.Content,
-                ctnError => ctnError.Content);
-
+            var content = container.ToContent();
             return AsBddPipeResult(content, scenarioResult);
         }
 

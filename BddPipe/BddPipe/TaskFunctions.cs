@@ -9,5 +9,8 @@ namespace BddPipe
             tArg => Task.Run(() => fn(tArg))
                 .GetAwaiter()
                 .GetResult();
+
+        public static R RunAndWait<R>(Task<R> fn) =>
+            Task.Run(() => fn).GetAwaiter().GetResult();
     }
 }
