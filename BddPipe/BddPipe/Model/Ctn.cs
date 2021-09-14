@@ -51,7 +51,7 @@ namespace BddPipe
             return new Ctn<R>(newContent, outcomes, ctn.ScenarioTitle);
         }
 
-        public static ScenarioResult ToResult<T>(this Ctn<T> ctn) =>
+        public static Some<ScenarioResult> ToResult<T>(this Ctn<T> ctn) =>
             new ScenarioResult(
                 title: ctn.ScenarioTitle.IfNone(null),
                 description: ctn.ScenarioTitle.WithPrefix("Scenario:"),

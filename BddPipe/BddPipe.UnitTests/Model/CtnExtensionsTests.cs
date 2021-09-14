@@ -212,8 +212,8 @@ namespace BddPipe.UnitTests.Model
         public void ToResult_ScenarioTitleNone_TitleIsNullDescriptionIsPrefix()
         {
             var ctn = new Ctn<int>(DefaultValue, None);
-            var scenarioResult = ctn.ToResult();
-            scenarioResult.Should().NotBeNull();
+            var scenarioResult = ctn.ToResult().Value;
+
             scenarioResult.StepResults.Should().NotBeNull();
             scenarioResult.Title.Should().BeNull();
             scenarioResult.Description.Should().Be("Scenario:");
@@ -223,8 +223,8 @@ namespace BddPipe.UnitTests.Model
         public void ToResult_ScenarioTitleSet_TitleIsSetDescriptionIsSet()
         {
             var ctn = new Ctn<int>(DefaultValue, ScenarioTitle);
-            var scenarioResult = ctn.ToResult();
-            scenarioResult.Should().NotBeNull();
+            var scenarioResult = ctn.ToResult().Value;
+
             scenarioResult.StepResults.Should().NotBeNull();
             scenarioResult.Title.Should().Be(ScenarioTitle);
             scenarioResult.Description.Should().Be($"Scenario: {ScenarioTitle}");
@@ -234,9 +234,8 @@ namespace BddPipe.UnitTests.Model
         public void ToResult_StepOutcomesEmpty_StepResultsEmpty()
         {
             var ctn = new Ctn<int>(DefaultValue, None);
-            var scenarioResult = ctn.ToResult();
+            var scenarioResult = ctn.ToResult().Value;
 
-            scenarioResult.Should().NotBeNull();
             scenarioResult.StepResults.Should().NotBeNull();
             scenarioResult.StepResults.Should().BeEmpty();
         }
@@ -252,9 +251,8 @@ namespace BddPipe.UnitTests.Model
             };
 
             var ctn = new Ctn<int>(DefaultValue, stepOutcomes, None);
-            var scenarioResult = ctn.ToResult();
+            var scenarioResult = ctn.ToResult().Value;
 
-            scenarioResult.Should().NotBeNull();
             scenarioResult.StepResults.Should().NotBeNull();
             scenarioResult.StepResults.Count.Should().Be(3);
 

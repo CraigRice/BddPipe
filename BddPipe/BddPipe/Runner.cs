@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
 
@@ -33,24 +34,32 @@ namespace BddPipe
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
         public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
         {
-            var result = pipe.Match(
-                ctnValue => ctnValue.ToResult(),
-                ctnError => ctnError.ToResult()
-            );
+            var scenarioResult = pipe.ToScenarioResult();
 
-            var logResult = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
+            LogResult(scenarioResult, writeScenarioResult);
 
-            logResult(result);
+            var content = pipe.Match<Either<ExceptionDispatchInfo, T>>(
+                ctnValue => ctnValue.Content,
+                ctnError => ctnError.Content);
 
-            return pipe.Match(
-                ctnValue => new BddPipeResult<T>(ctnValue.Content, result),
-                ctnError =>
+            return AsBddPipeResult(content, scenarioResult);
+        }
+
+        private static BddPipeResult<T> AsBddPipeResult<T>(Either<ExceptionDispatchInfo, T> content, Some<ScenarioResult> scenarioResult) =>
+            content.Match(
+                t => new BddPipeResult<T>(t, scenarioResult),
+                exceptionDispatchInfo =>
                 {
-                    var exceptionDispatchInfo = ctnError.Content;
-
                     exceptionDispatchInfo.Throw();
                     throw new Exception("Could not throw exception dispatch info", exceptionDispatchInfo.SourceException);
-                });
+                }
+            );
+
+        private static void LogResult(Some<ScenarioResult> scenarioResult, Action<ScenarioResult> writeScenarioResult = null)
+        {
+            var logResult = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
+
+            logResult(scenarioResult.Value);
         }
 
         private static Action<ScenarioResult, Action<string>> WriteOutput => (scenarioResult, writeLine) =>

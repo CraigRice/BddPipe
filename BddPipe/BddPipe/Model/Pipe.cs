@@ -102,4 +102,13 @@ namespace BddPipe.Model
         /// <returns>The string returned indicates the contained type</returns>
         public override string ToString() => Match(payload => $"Container of ({payload})", error => $"Container of ({error})");
     }
+
+    internal static class PipeExtensions
+    {
+        public static Some<ScenarioResult> ToScenarioResult<T>(this Pipe<T> pipe) =>
+            pipe.Match(
+                ctnValue => ctnValue.ToResult(),
+                ctnError => ctnError.ToResult()
+            );
+    }
 }

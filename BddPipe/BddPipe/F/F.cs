@@ -20,12 +20,6 @@ namespace BddPipe
         public static OptionNone None => OptionNone.Default;
         public static Some<T> Some<T>(T value) => new Some<T>(value);
 
-        public static Either<L, R2> Bind<L, R, R2>(this Either<L, R> either, Func<R, Either<L, R2>> f) =>
-            either.Match(r => f(r), l => l);
-
-        public static Either<L, R2> BiBind<L, R, R2>(this Either<L, R> either, Func<R, Either<L, R2>> bindRight, Func<L, Either<L, R2>> bindLeft) =>
-            either.Match(bindRight, bindLeft);
-
         public static Result<T> Try<T>(this Try<T> fn)
         {
             if (fn == null) { throw new ArgumentNullException(nameof(fn)); }
