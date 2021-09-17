@@ -17,6 +17,35 @@ namespace BddPipe.Model
         }
     }
 
+    internal sealed class PipeState<T>
+    {
+        private readonly Ctn<ExceptionDispatchInfo> _ctnError;
+        private readonly Ctn<T> _ctnPayload;
+        private readonly bool _isPayload;
+
+        public PipeState(Ctn<ExceptionDispatchInfo> ctnError)
+        {
+            _ctnError = ctnError;
+            _isPayload = false;
+        }
+
+        public PipeState(Ctn<T> ctnPayload)
+        {
+            _ctnPayload = ctnPayload;
+            _isPayload = true;
+        }
+
+        public TResult Match<TResult>(Func<Ctn<T>, TResult> right, Func<Ctn<ExceptionDispatchInfo>, TResult> left)
+        {
+            if (right == null) { throw new ArgumentNullException(nameof(right)); }
+            if (left == null) { throw new ArgumentNullException(nameof(left)); }
+
+            return _isPayload
+                ? right(_ctnPayload)
+                : left(_ctnError);
+        }
+    }
+
     /// <summary>
     /// Represents either a successful outcome with the intended value or otherwise any type of Exception.
     /// <remarks>A custom Either to better represent state and make its declaration succinct compared to its full Either equivalent.</remarks>
@@ -24,36 +53,43 @@ namespace BddPipe.Model
     /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
     public struct Pipe<T>
     {
-        public Either<
-            Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>,
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>
-        > Content { get; }
-        //private readonly Ctn<ExceptionDispatchInfo> _containerOfError;
-        //private readonly Ctn<T> _containerOfValue;
 
-        //private bool IsRight { get; }
-        //private bool IsLeft => !IsRight;
-        //private readonly bool _isInitialized;
+        private readonly Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> _syncResult;
+        private readonly Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> _result;
+        private readonly bool _isSync;
+        private readonly bool _isInitialised;
 
-        //internal Pipe(Ctn<ExceptionDispatchInfo> containerOfError)
-        //{
-        //    if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+        internal Pipe(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
+        {
+            _syncResult = result;
+            _result = default;
+            _isInitialised = true;
+            _isSync = true;
+        }
 
-        //    IsRight = false;
-        //    _containerOfError = containerOfError;
-        //    _containerOfValue = default(Ctn<T>);
-        //    _isInitialized = true;
-        //}
+        internal Pipe(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> result)
+        {
+            _syncResult = default;
+            _result = result;
+            _isInitialised = true;
+            _isSync = false;
+        }
 
-        //internal Pipe(Ctn<T> containerOfValue)
-        //{
-        //    if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
+        /// <summary>
+        /// Returns the value based on the function implementation of each state.
+        /// </summary>
+        public TResult Match<TResult>(Func<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>, TResult> right,
+            Func<Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>, TResult> left)
+        {
+            if (right == null) { throw new ArgumentNullException(nameof(right)); }
+            if (left == null) { throw new ArgumentNullException(nameof(left)); }
 
-        //    IsRight = true;
-        //    _containerOfValue = containerOfValue;
-        //    _containerOfError = default(Ctn<ExceptionDispatchInfo>);
-        //    _isInitialized = true;
-        //}
+            if (!_isInitialised) { throw new PipeNotInitializedException(); }
+
+            return _isSync
+                ? right(_syncResult)
+                : left(_result);
+        }
 
         ///// <summary>
         ///// Lift a <see cref="Ctn{Exception}"/> into an instance of <see cref="Pipe{T}"/>
@@ -105,7 +141,7 @@ namespace BddPipe.Model
         /// Returns a string representation of <see cref="Pipe{T}"/>
         /// </summary>
         /// <returns>The string returned indicates the contained type</returns>
-       // public override string ToString() => Match(payload => $"Container of ({payload})", error => $"Container of ({error})");
+        // public override string ToString() => Match(payload => $"Container of ({payload})", error => $"Container of ({error})");
     }
 
     internal static class PipeExtensions
@@ -123,13 +159,13 @@ namespace BddPipe.Model
             );
 
         public static Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ToContainerSync<T>(this Pipe<T> pipe) =>
-            pipe.Content.Match(
+            pipe.Match(
                 pipeData => pipeData,
                 TaskFunctions.RunAndWait
             );
 
         public static Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> ToContainer<T>(this Pipe<T> pipe) =>
-            pipe.Content.Match(
+            pipe.Match(
                 Task.FromResult,
                 taskPipeData => taskPipeData
             );

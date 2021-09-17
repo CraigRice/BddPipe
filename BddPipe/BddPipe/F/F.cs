@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 
 namespace BddPipe
 {
@@ -37,13 +38,36 @@ namespace BddPipe
             }
         }
 
+        public static async Task<Result<T>> Try<T>(this TryAsync<T> fn)
+        {
+            if (fn == null) { throw new ArgumentNullException(nameof(fn)); }
+
+            try
+            {
+                return await fn();
+            }
+            catch (Exception ex)
+            {
+                var exceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
+                return new Result<T>(exceptionDispatchInfo);
+            }
+        }
+
         public static Result<R> TryRun<R>(this Func<R> fn)
         {
             if (fn == null) { throw new ArgumentNullException(nameof(fn)); }
 
             Try<R> doCall = () => fn();
-            var result = doCall.Try();
-            return result;
+            return doCall.Try();
+        }
+
+        public static async Task<Result<R>> TryRun<R>(this Func<Task<R>> fn)
+        {
+            if (fn == null) { throw new ArgumentNullException(nameof(fn)); }
+
+            TryAsync<R> doCall = async () => await fn();
+
+            return await doCall.Try();
         }
 
         public static Some<R> Map<T, R>(this Some<T> some, Func<T, R> map)
