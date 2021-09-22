@@ -16,28 +16,12 @@ namespace BddPipe
             pipe.MatchInternal(
                 eitherCtnErrorCtnT =>
                     stepFunc.Match(
-                        fn =>
-                        {
-                            var result = ProcessStep(eitherCtnErrorCtnT, title, fn);
-                            return new Pipe<R>(result);
-                        },
-                        fnSync =>
-                        {
-                            var result = ProcessStep(eitherCtnErrorCtnT, title, fnSync);
-                            return new Pipe<R>(result);
-                        }),
-                taskPipeStateT =>
+                        fnAsync => new Pipe<R>(ProcessStep(eitherCtnErrorCtnT, title, fnAsync)),
+                        fnSync => new Pipe<R>(ProcessStep(eitherCtnErrorCtnT, title, fnSync))),
+                taskEitherCtnErrorCtnT =>
                     stepFunc.Match(
-                        fn =>
-                        {
-                            var result = ProcessStep(taskPipeStateT, title, fn);
-                            return new Pipe<R>(result);
-                        },
-                        fnSync =>
-                        {
-                            var result = ProcessStep(taskPipeStateT, title, fnSync);
-                            return new Pipe<R>(result);
-                        })
+                        fnAsync => new Pipe<R>(ProcessStep(taskEitherCtnErrorCtnT, title, fnAsync)),
+                        fnSync => new Pipe<R>(ProcessStep(taskEitherCtnErrorCtnT, title, fnSync)))
             );
 
         private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ProcessStep<T, R>(
