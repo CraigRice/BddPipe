@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Runtime.ExceptionServices;
-using BddPipe.Model;
 
 namespace BddPipe
 {
-    public sealed class EitherNotInitialzedException : Exception
+    internal sealed class EitherNotInitialzedException : Exception
     {
         public EitherNotInitialzedException() : base("Either has not been initialized")
         {
         }
     }
 
-    public struct Either<TLeft, TRight>
+    internal readonly struct Either<TLeft, TRight>
     {
         private TLeft Left { get; }
         private TRight Right { get; }

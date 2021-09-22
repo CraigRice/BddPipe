@@ -13,7 +13,7 @@ namespace BddPipe
         private static Pipe<R> RunStepCommon<T, R>(this Pipe<T> pipe,
                                                         Some<Title> title,
                                                         Either<Func<T, R>, Func<T, Task<R>>> stepFunc) =>
-            pipe.Match(
+            pipe.MatchInternal(
                 eitherCtnErrorCtnT =>
                     stepFunc.Match(
                         fn =>
@@ -62,8 +62,10 @@ namespace BddPipe
             return source.Match(
                 async tValue =>
                 {
-                    var result = await step.Apply(tValue.Content)
-                        .TryRun();
+                    var result = await step
+                                    .Apply(tValue.Content)
+                                    .TryRun()
+                                    .ConfigureAwait(false);
 
                     return result.Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
                         r => tValue.ToCtn(r, title.ToStepOutcome(Outcome.Pass)),
@@ -84,14 +86,14 @@ namespace BddPipe
         private static async Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessStep<T, R>(
             Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> source, Some<Title> title, Func<T, Task<R>> step)
         {
-            var sourceInstance = await source;
-            return await ProcessStep(sourceInstance, title, step);
+            var sourceInstance = await source.ConfigureAwait(false);
+            return await ProcessStep(sourceInstance, title, step).ConfigureAwait(false);
         }
 
         private static async Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessStep<T, R>(
             Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> source, Some<Title> title, Func<T, R> step)
         {
-            var sourceInstance = await source;
+            var sourceInstance = await source.ConfigureAwait(false);
             return ProcessStep(sourceInstance, title, step);
         }
 

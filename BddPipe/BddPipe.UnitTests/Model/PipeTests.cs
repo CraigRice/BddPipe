@@ -269,22 +269,5 @@ namespace BddPipe.UnitTests.Model
 
             fnCtnT.DidNotReceive();
         }
-
-        [Test]
-        public void ToString_WithCtnDefaultValue_ReturnsCorrectString()
-        {
-            Pipe<int> pipe = new Ctn<int>(DefaultValue, None);
-            var result = pipe.ToString();
-            result.Should().Be("Container of (BddPipe.Ctn`1[System.Int32])");
-        }
-
-        [Test]
-        public void ToString_WithCtnError_ReturnsCorrectString()
-        {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
-            Pipe<int> pipe = new Ctn<ExceptionDispatchInfo>(exInfo, None);
-            var result = pipe.ToString();
-            result.Should().Be("Container of (BddPipe.Ctn`1[System.Runtime.ExceptionServices.ExceptionDispatchInfo])");
-        }
     }
 }
