@@ -1,4 +1,5 @@
 ﻿using System;
+using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -8,7 +9,6 @@ namespace BddPipe.UnitTests.F
     public class EitherTests
     {
         private const int defaultLeft = 5;
-        private const int newLeft = 55;
         private const string defaultRight = "six";
         private const string expectedNotInitializedMessage = "Either has not been initialized";
         private class SomeInstance { }
@@ -171,84 +171,72 @@ namespace BddPipe.UnitTests.F
             either.ToString().Should().Be("right(six)");
         }
 
-        //[Test]
-        //public void BiBind_InSuccessStateFunctionBindsToErrorState_ResultIsNewErrorState()
-        //{
-        //    var pipe = GetPipeInSuccessState(InitialValue);
+        [Test]
+        public void BiBind_WhenRightBindToLeft_NewLeft()
+        {
+            const int newLeft = 100;
+            Func<int, Either<int, bool>> fnLeft = val => 1234;
+            Func<string, Either<int, bool>> fnRight = val => newLeft;
 
-        //    var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
-        //    fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInErrorState());
+            // act
+            Either<int, string> either = defaultRight;
+            var result = either.BiBind(fnRight, fnLeft);
 
-        //    var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
-        //    fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInSuccessState(InitialValue));
+            result.ShouldBeLeft(left =>
+            {
+                left.Should().Be(newLeft);
+            });
+        }
 
-        //    // act
-        //    var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
+        [Test]
+        public void BiBind_WhenRightBindToRight_NewRight()
+        {
+            const bool newRight = true;
+            Func<int, Either<int, bool>> fnLeft = val => false;
+            Func<string, Either<int, bool>> fnRight = val => newRight;
 
-        //    fnForSuccessState.Received()(Arg.Any<Ctn<int>>());
-        //    fnForErrorState.DidNotReceive()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
+            // act
+            Either<int, string> either = defaultRight;
+            var result = either.BiBind(fnRight, fnLeft);
 
-        //    result.ShouldBeError(CtnExceptionShouldHaveErrorState);
-        //}
+            result.ShouldBeRight(right =>
+            {
+                right.Should().Be(newRight);
+            });
+        }
 
-        //[Test]
-        //public void BiBind_InSuccessStateFunctionBindsToSuccessState_ResultIsNewSuccessState()
-        //{
-        //    var pipe = GetPipeInSuccessState(InitialValue);
+        [Test]
+        public void BiBind_WhenLeftBindToLeft_NewLeft()
+        {
+            const int newLeft = 100;
+            Func<int, Either<int, bool>> fnLeft = val => newLeft;
+            Func<string, Either<int, bool>> fnRight = val => 1234;
 
-        //    var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
-        //    fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInSuccessState(NewValue));
+            // act
+            Either<int, string> either = defaultLeft;
+            var result = either.BiBind(fnRight, fnLeft);
 
-        //    var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
-        //    fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInErrorState());
+            result.ShouldBeLeft(left =>
+            {
+                left.Should().Be(newLeft);
+            });
+        }
 
-        //    // act
-        //    var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
+        [Test]
+        public void BiBind_WhenLeftBindToRight_NewRight()
+        {
+            const bool newRight = true;
+            Func<int, Either<int, bool>> fnLeft = val => newRight;
+            Func<string, Either<int, bool>> fnRight = val => false;
 
-        //    fnForSuccessState.Received()(Arg.Any<Ctn<int>>());
-        //    fnForErrorState.DidNotReceive()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
+            // act
+            Either<int, string> either = defaultLeft;
+            var result = either.BiBind(fnRight, fnLeft);
 
-        //    result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
-        //}
-
-        //[Test]
-        //public void BiBind_InErrorStateFunctionBindsToErrorState_ResultIsNewErrorState()
-        //{
-        //    var pipe = GetPipeInErrorState();
-
-        //    var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
-        //    fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInSuccessState(InitialValue));
-
-        //    var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
-        //    fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInErrorState());
-
-        //    // act
-        //    var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
-
-        //    fnForSuccessState.DidNotReceive()(Arg.Any<Ctn<int>>());
-        //    fnForErrorState.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
-
-        //    result.ShouldBeError(CtnExceptionShouldHaveErrorState);
-        //}
-
-        //[Test]
-        //public void BiBind_InErrorStateFunctionBindsToSuccessState_ResultIsNewSuccessState()
-        //{
-        //    var pipe = GetPipeInErrorState();
-
-        //    var fnForSuccessState = Substitute.For<Func<Ctn<int>, Pipe<int>>>();
-        //    fnForSuccessState(Arg.Any<Ctn<int>>()).Returns(GetPipeInErrorState());
-
-        //    var fnForErrorState = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Pipe<int>>>();
-        //    fnForErrorState(Arg.Any<Ctn<ExceptionDispatchInfo>>()).Returns(GetPipeInSuccessState(NewValue));
-
-        //    // act
-        //    var result = pipe.BiBind(fnForSuccessState, fnForErrorState);
-
-        //    fnForSuccessState.DidNotReceive()(Arg.Any<Ctn<int>>());
-        //    fnForErrorState.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
-
-        //    result.ShouldBeSuccessful(ctnValue => CtnShouldHaveValueState(ctnValue, NewValue));
-        //}
+            result.ShouldBeRight(right =>
+            {
+                right.Should().Be(newRight);
+            });
+        }
     }
 }
