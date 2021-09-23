@@ -17,10 +17,7 @@ namespace BddPipe
 
         private Option(T value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException();
-            }
+            if (value == null) { throw new ArgumentNullException(); }
 
             _isSome = true;
             _value = value;

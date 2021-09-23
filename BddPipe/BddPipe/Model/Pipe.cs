@@ -27,13 +27,13 @@ namespace BddPipe.Model
         private readonly Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> _syncResult;
         private readonly Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> _result;
         private readonly bool _isSync;
-        private readonly bool _isInitialised;
+        private readonly bool _isInitialized;
 
         internal Pipe(Ctn<T> containerOfValue)
         {
             _syncResult = containerOfValue ?? throw new ArgumentNullException(nameof(containerOfValue));
             _result = default;
-            _isInitialised = true;
+            _isInitialized = true;
             _isSync = true;
         }
 
@@ -41,7 +41,7 @@ namespace BddPipe.Model
         {
             _syncResult = containerOfError ?? throw new ArgumentNullException(nameof(containerOfError));
             _result = default;
-            _isInitialised = true;
+            _isInitialized = true;
             _isSync = true;
         }
 
@@ -49,7 +49,7 @@ namespace BddPipe.Model
         {
             _syncResult = result;
             _result = default;
-            _isInitialised = true;
+            _isInitialized = true;
             _isSync = true;
         }
 
@@ -57,7 +57,7 @@ namespace BddPipe.Model
         {
             _syncResult = default;
             _result = result;
-            _isInitialised = true;
+            _isInitialized = true;
             _isSync = false;
         }
 
@@ -70,7 +70,7 @@ namespace BddPipe.Model
             if (right == null) { throw new ArgumentNullException(nameof(right)); }
             if (left == null) { throw new ArgumentNullException(nameof(left)); }
 
-            if (!_isInitialised) { throw new PipeNotInitializedException(); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             return _isSync
                 ? right(_syncResult)
@@ -102,7 +102,7 @@ namespace BddPipe.Model
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
-            if (!_isInitialised) { throw new PipeNotInitializedException(); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             var target = _isSync ? _syncResult : TaskFunctions.RunAndWait(_result);
             return target.Match(containerOfValue, containerOfError);
@@ -119,7 +119,7 @@ namespace BddPipe.Model
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
-            if (!_isInitialised) { throw new PipeNotInitializedException(); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             var target = _isSync ? _syncResult : await _result;
             return target.Match(containerOfValue, containerOfError);

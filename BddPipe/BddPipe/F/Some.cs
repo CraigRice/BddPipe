@@ -23,10 +23,7 @@ namespace BddPipe
 
         public Some(T value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value), "Value can not be null");
-            }
+            if (value == null) { throw new ArgumentNullException(nameof(value), "Value can not be null"); }
 
             _initialized = true;
             _value = value;

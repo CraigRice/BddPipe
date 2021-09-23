@@ -16,7 +16,7 @@ namespace BddPipe
 
         public bool IsRight { get; }
         public bool IsLeft => !IsRight;
-        private readonly bool _isInitialised;
+        private readonly bool _isInitialized;
 
         public Either(TLeft left)
         {
@@ -25,7 +25,7 @@ namespace BddPipe
             IsRight = false;
             Left = left;
             Right = default;
-            _isInitialised = true;
+            _isInitialized = true;
         }
 
         public Either(TRight right)
@@ -35,7 +35,7 @@ namespace BddPipe
             IsRight = true;
             Right = right;
             Left = default;
-            _isInitialised = true;
+            _isInitialized = true;
         }
 
         public static implicit operator Either<TLeft, TRight>(TLeft left)
@@ -52,7 +52,7 @@ namespace BddPipe
         {
             if (right == null) { throw new ArgumentNullException(nameof(right)); }
             if (left == null) { throw new ArgumentNullException(nameof(left)); }
-            if (!_isInitialised) { throw new EitherNotInitialzedException(); }
+            if (!_isInitialized) { throw new EitherNotInitialzedException(); }
 
             return IsLeft
                 ? left(Left)
