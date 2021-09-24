@@ -72,7 +72,9 @@ namespace BddPipe.UnitTests.Model
             Ctn<ExceptionDispatchInfo> value = null;
             Action go = () => new Pipe<int>(value);
 
-            go.Should().ThrowExactly<ArgumentNullException>().WithMessage($"Value cannot be null.{Environment.NewLine}Parameter name: containerOfError");
+            go.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("containerOfError");
         }
 
         [Test]
@@ -81,7 +83,9 @@ namespace BddPipe.UnitTests.Model
             Ctn<int> value = null;
             Action go = () => new Pipe<int>(value);
 
-            go.Should().ThrowExactly<ArgumentNullException>().WithMessage($"Value cannot be null.{Environment.NewLine}Parameter name: containerOfValue");
+            go.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("containerOfValue");
         }
 
         [Test]
@@ -93,7 +97,9 @@ namespace BddPipe.UnitTests.Model
                 Pipe<int> pipe = value;
             };
 
-            go.Should().ThrowExactly<ArgumentNullException>().WithMessage($"Value cannot be null.{Environment.NewLine}Parameter name: containerOfError");
+            go.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("containerOfError");
         }
 
         [Test]
@@ -105,7 +111,9 @@ namespace BddPipe.UnitTests.Model
                 Pipe<int> pipe = value;
             };
 
-            go.Should().ThrowExactly<ArgumentNullException>().WithMessage($"Value cannot be null.{Environment.NewLine}Parameter name: containerOfValue");
+            go.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("containerOfValue");
         }
 
         [Test]
@@ -116,7 +124,8 @@ namespace BddPipe.UnitTests.Model
                 default(Pipe<int>).Match(v => v.Content, e => DefaultValue);
             };
 
-            go.Should().ThrowExactly<PipeNotInitializedException>().WithMessage("Pipe has not been initialized");
+            go.Should().ThrowExactly<PipeNotInitializedException>()
+                .WithMessage("Pipe has not been initialized");
         }
 
         [Test]
