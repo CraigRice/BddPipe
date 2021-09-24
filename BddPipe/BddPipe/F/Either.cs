@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace BddPipe
 {
@@ -57,6 +58,26 @@ namespace BddPipe
             return IsLeft
                 ? left(Left)
                 : right(Right);
+        }
+
+        public Either<TLeft, TResult> Bind<TResult>(Func<TRight, Either<TLeft, TResult>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+
+            return Match(
+                bind,
+                left => left
+            );
+        }
+
+        public Task<Either<TLeft, TResult>> BindAsync<TResult>(Func<TRight, Task<Either<TLeft, TResult>>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+
+            return Match(
+                bind,
+                left => Task.FromResult<Either<TLeft, TResult>>(left)
+            );
         }
 
         public Either<TLeft, R> BiBind<R>(

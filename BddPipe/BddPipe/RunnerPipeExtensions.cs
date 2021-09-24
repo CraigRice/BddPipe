@@ -10,6 +10,80 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
+        private static Pipe<R> MapCommon<T, R>(this Pipe<T> pipe,
+            Either<Func<T, R>, Func<T, Task<R>>> mapFunc) =>
+            pipe.MatchInternal(
+                eitherCtnErrorCtnT =>
+                    mapFunc.Match(
+                        fnAsync => new Pipe<R>(ProcessMap(eitherCtnErrorCtnT, fnAsync)),
+                        fnSync => new Pipe<R>(ProcessMap(eitherCtnErrorCtnT, fnSync))),
+                taskEitherCtnErrorCtnT =>
+                    mapFunc.Match(
+                        fnAsync => new Pipe<R>(ProcessMap(taskEitherCtnErrorCtnT, fnAsync)),
+                        fnSync => new Pipe<R>(ProcessMap(taskEitherCtnErrorCtnT, fnSync)))
+            );
+
+        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ProcessMap<T, R>(
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
+            Func<T, R> mapFunc
+        )
+        {
+            return source.Bind(ctnValue =>
+            {
+                Func<Ctn<R>> mapFunction = () => ctnValue.Map(mapFunc);
+
+                return mapFunction
+                    .TryRun()
+                    .Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
+                        ctnR => ctnR,
+                        ex => new Ctn<ExceptionDispatchInfo>(
+                            ex,
+                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
+                            ctnValue.ScenarioTitle
+                        )
+                    );
+            });
+        }
+
+        private static Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessMap<T, R>(
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
+            Func<T, Task<R>> mapFunc
+        )
+        {
+            return source.BindAsync(async ctnValue =>
+            {
+                Func<Task<Ctn<R>>> mapFunction = () => ctnValue.MapAsync(mapFunc);
+
+                var result = await mapFunction
+                    .TryRun().ConfigureAwait(false);
+
+                return result.Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
+                        ctnR => ctnR,
+                        ex => new Ctn<ExceptionDispatchInfo>(
+                            ex,
+                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
+                            ctnValue.ScenarioTitle
+                        )
+                    );
+            });
+        }
+
+        private static async Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessMap<T, R>(
+            Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> source,
+            Func<T, Task<R>> mapFunc)
+        {
+            var sourceInstance = await source.ConfigureAwait(false);
+            return await ProcessMap(sourceInstance, mapFunc).ConfigureAwait(false);
+        }
+
+        private static async Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessMap<T, R>(
+            Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> source,
+            Func<T, R> mapFunc)
+        {
+            var sourceInstance = await source.ConfigureAwait(false);
+            return ProcessMap(sourceInstance, mapFunc);
+        }
+
         /// <summary>
         /// Projects from one value to another.
         /// <remarks>A failure to map will impact the current step as if this happened in the step itself.</remarks>
@@ -19,9 +93,11 @@ namespace BddPipe
         /// <param name="pipe">The <see cref="Pipe{T}"/> instance to perform this operation on.</param>
         /// <param name="map">A function to map the current value to its new value.</param>
         /// <returns>A new <see cref="Pipe{T}"/> instance of the destination type</returns>
-        public static Pipe<R> Map<T, R>(this Pipe<T> pipe, Func<T, Task<R>> map) =>
-            throw new NotImplementedException("todo");
-            //pipe.Map(TaskFunctions.Run(map));
+        public static Pipe<R> Map<T, R>(this Pipe<T> pipe, Func<T, Task<R>> map)
+        {
+            if (map == null) { throw new ArgumentNullException(nameof(map)); }
+            return MapCommon<T, R>(pipe, map);
+        }
 
         /// <summary>
         /// Projects from one value to another.
@@ -34,25 +110,8 @@ namespace BddPipe
         /// <returns>A new <see cref="Pipe{T}"/> instance of the destination type</returns>
         public static Pipe<R> Map<T, R>(this Pipe<T> pipe, Func<T, R> map)
         {
-            throw new NotImplementedException("todo");
             if (map == null) { throw new ArgumentNullException(nameof(map)); }
-
-            return new Pipe<R>(new Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>());
-            //return pipe.Bind(ctnValue =>
-            //{
-            //    Func<Ctn<R>> mapFunction = () => ctnValue.Map(map);
-
-            //    return mapFunction
-            //        .TryRun()
-            //        .Match<Pipe<R>>(
-            //            ctnR => ctnR,
-            //            ex => new Ctn<ExceptionDispatchInfo>(
-            //                ex,
-            //                ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
-            //                ctnValue.ScenarioTitle
-            //            )
-            //        );
-            //});
+            return MapCommon<T, R>(pipe, map);
         }
     }
 }
