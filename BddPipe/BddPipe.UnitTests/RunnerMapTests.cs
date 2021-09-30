@@ -12,7 +12,7 @@ using static BddPipe.F;
 namespace BddPipe.UnitTests
 {
     [TestFixture]
-    public class RunnerPipeExtensionsTests
+    public class RunnerMapTests
     {
         private const int InitialValue = 1;
         private const int NewValue = 2;
@@ -56,6 +56,16 @@ namespace BddPipe.UnitTests
         {
             var pipe = GetPipeInSuccessState(NewValue);
             Action map = () => { pipe.Map((Func<int, string>)null); };
+            map.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("map");
+        }
+
+        [Test]
+        public void MapAsync_NullArgument_ThrowsArgumentNullException()
+        {
+            var pipe = GetPipeInSuccessState(NewValue);
+            Action map = () => { pipe.Map((Func<int, Task<string>>)null); };
             map.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");

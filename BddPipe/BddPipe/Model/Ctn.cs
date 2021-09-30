@@ -50,7 +50,7 @@ namespace BddPipe
         {
             if (map == null) { throw new ArgumentNullException(nameof(map)); }
 
-            var content = await map(ctn.Content);
+            var content = await map(ctn.Content).ConfigureAwait(false);
 
             return new Ctn<R>(content, ctn.StepOutcomes, ctn.ScenarioTitle);
         }

@@ -121,7 +121,7 @@ namespace BddPipe.Model
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
-            var target = _isSync ? _syncResult : await _result;
+            var target = _isSync ? _syncResult : await _result.ConfigureAwait(false);
             return target.Match(containerOfValue, containerOfError);
         }
 

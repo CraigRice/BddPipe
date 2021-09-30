@@ -38,13 +38,13 @@ namespace BddPipe
             }
         }
 
-        public static async Task<Result<T>> Try<T>(this TryAsync<T> fn)
+        public static async Task<Result<T>> TryAsync<T>(this TryAsync<T> fn)
         {
             if (fn == null) { throw new ArgumentNullException(nameof(fn)); }
 
             try
             {
-                return await fn();
+                return await fn().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -61,13 +61,12 @@ namespace BddPipe
             return doCall.Try();
         }
 
-        public static async Task<Result<R>> TryRun<R>(this Func<Task<R>> fn)
+        public static async Task<Result<R>> TryRunAsync<R>(this Func<Task<R>> fn)
         {
             if (fn == null) { throw new ArgumentNullException(nameof(fn)); }
 
-            TryAsync<R> doCall = async () => await fn();
-
-            return await doCall.Try();
+            TryAsync<R> doCall = async () => await fn().ConfigureAwait(false);
+            return await doCall.TryAsync().ConfigureAwait(false);
         }
 
         public static Some<R> Map<T, R>(this Some<T> some, Func<T, R> map)
