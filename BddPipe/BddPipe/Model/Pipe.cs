@@ -64,7 +64,8 @@ namespace BddPipe.Model
         /// <summary>
         /// Returns the value based on the function implementation of each state.
         /// </summary>
-        internal TResult MatchInternal<TResult>(Func<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>, TResult> right,
+        internal TResult MatchInternal<TResult>(
+            Func<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>, TResult> right,
             Func<Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>, TResult> left)
         {
             if (right == null) { throw new ArgumentNullException(nameof(right)); }
