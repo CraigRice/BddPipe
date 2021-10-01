@@ -16,7 +16,7 @@ namespace BddPipe
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
         public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
         {
-            var container = pipe.ToContainerSync();
+            var container = pipe.ToContainer();
             return ProcessRun(container, writeScenarioResult);
         }
 
@@ -29,7 +29,7 @@ namespace BddPipe
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
         public static async Task<BddPipeResult<T>> RunAsync<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
         {
-            var container = await pipe.ToContainer().ConfigureAwait(false);
+            var container = await pipe.ToContainerAsync().ConfigureAwait(false);
             return ProcessRun(container, writeScenarioResult);
         }
 

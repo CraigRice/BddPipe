@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
@@ -56,6 +57,20 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_NullArgument_ThrowsArgumentNullException()
+        {
+            var initialCtn = GetInitialCtnWithSuccessfulGiven();
+            Func<Task> map = async () =>
+            {
+                await initialCtn.MapAsync<int, string>(null);
+            };
+
+            (await map.Should().ThrowExactlyAsync<ArgumentNullException>())
+                .Which
+                .ParamName.Should().Be("map");
+        }
+
+        [Test]
         public void Map_FromCtnIntToCtnBool_ChangesContent()
         {
             var fnMap = Substitute.For<Func<int, bool>>();
@@ -68,10 +83,31 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_FromCtnIntToCtnBool_ChangesContent()
+        {
+            var fnMap = Substitute.For<Func<int, Task<bool>>>();
+            fnMap(Arg.Any<int>()).Returns(Task.FromResult(true));
+
+            var newCtn = await new Ctn<int>(DefaultValue, None)
+                .MapAsync(fnMap);
+
+            newCtn.Content.Should().BeTrue();
+        }
+
+        [Test]
         public void Map_ScenarioTitleNone_ScenarioTitleRemainsAsNone()
         {
             var newCtn = new Ctn<int>(DefaultValue, None)
                 .Map(value => true);
+
+            newCtn.ScenarioTitle.ShouldBeNone();
+        }
+
+        [Test]
+        public async Task MapAsync_ScenarioTitleNone_ScenarioTitleRemainsAsNone()
+        {
+            var newCtn = await new Ctn<int>(DefaultValue, None)
+                .MapAsync(async value => true);
 
             newCtn.ScenarioTitle.ShouldBeNone();
         }
@@ -90,6 +126,19 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_ScenarioTitleSome_ScenarioTitleRemainsAsSome()
+        {
+            const string scenarioTitle = "scenario title value";
+
+            var newCtn = await new Ctn<int>(DefaultValue, scenarioTitle)
+                .MapAsync(async value => true);
+
+            newCtn.ScenarioTitle.ShouldBeSome(title =>
+                title.Should().Be(scenarioTitle)
+            );
+        }
+
+        [Test]
         public void Map_OutcomesEmptyViaDefaultCtor_OutcomesRemainsAsEmpty()
         {
             var newCtn = new Ctn<int>(DefaultValue, None)
@@ -100,10 +149,30 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_OutcomesEmptyViaDefaultCtor_OutcomesRemainsAsEmpty()
+        {
+            var newCtn = await new Ctn<int>(DefaultValue, None)
+                .MapAsync(async value => true);
+
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Should().BeEmpty();
+        }
+
+        [Test]
         public void Map_OutcomesEmptyViaExplicitCtor_OutcomesRemainsAsEmpty()
         {
             var newCtn = new Ctn<int>(DefaultValue, new List<StepOutcome>(), None)
                 .Map(value => true);
+
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task MapAsync_OutcomesEmptyViaExplicitCtor_OutcomesRemainsAsEmpty()
+        {
+            var newCtn = await new Ctn<int>(DefaultValue, new List<StepOutcome>(), None)
+                .MapAsync(async value => true);
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Should().BeEmpty();
@@ -127,6 +196,23 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_OutcomesExist_OutcomesRemain()
+        {
+            var newCtn = await new Ctn<int>(
+                    DefaultValue,
+                    new List<StepOutcome>
+                    {
+                        new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle)
+                    },
+                    None
+                )
+                .MapAsync(async value => true);
+
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, GivenStepTitle, Step.Given);
+        }
+
+        [Test]
         public void Map_FromCtn_MapFunctionIsCalled()
         {
             var fnMap = Substitute.For<Func<int, bool>>();
@@ -136,6 +222,18 @@ namespace BddPipe.UnitTests.Model
                 .Map(fnMap);
 
             fnMap.Received()(Arg.Any<int>());
+        }
+
+        [Test]
+        public async Task MapAsync_FromCtn_MapFunctionIsCalled()
+        {
+            var fnMap = Substitute.For<Func<int, Task<bool>>>();
+            fnMap(Arg.Any<int>()).Returns(Task.FromResult(true));
+
+            await new Ctn<int>(DefaultValue, None)
+                .MapAsync(fnMap);
+
+            await fnMap.Received()(Arg.Any<int>());
         }
 
         [Test]
@@ -152,12 +250,40 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_FromCtnWithNoStepOutcomes_MapsToNewCtnType()
+        {
+            var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
+            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => currentValue.ToString());
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(DefaultValue.ToString());
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
         public void Map_FromNull_MapsToNewCtnType()
         {
             var ctnWithValueOnly = new Ctn<string>(null, None);
 
-            decimal newValue = 12.45m;
+            var newValue = 12.45m;
             var newCtn = ctnWithValueOnly.Map(currentValue => newValue);
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(newValue);
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
+        public async Task MapAsync_FromNull_MapsToNewCtnType()
+        {
+            var ctnWithValueOnly = new Ctn<string>(null, None);
+
+            var newValue = 12.45m;
+            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => newValue);
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(newValue);
@@ -182,6 +308,21 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_ToNull_MapsToNewCtnType()
+        {
+            var ctnWithValueOnly = new Ctn<string>("initial value", None);
+
+            const string newValue = null;
+            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => newValue);
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(newValue);
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
         public void Map_FunctionToValueOfSameType_MapsCorrectly()
         {
             var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
@@ -195,10 +336,37 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
+        public async Task MapAsync_FunctionToValueOfSameType_MapsCorrectly()
+        {
+            var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
+            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => currentValue + 1);
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(DefaultValue + 1);
+            newCtn.ScenarioTitle.ShouldBeNone();
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(0);
+        }
+
+        [Test]
         public void Map_FunctionToValueOfDifferentType_MapsCorrectly()
         {
             var initialCtn = GetInitialCtnWithSuccessfulGiven();
             var newCtn = initialCtn.Map(currentValue => currentValue.ToString());
+
+            newCtn.Should().NotBeNull();
+            newCtn.Content.Should().Be(DefaultValue.ToString());
+            newCtn.ScenarioTitle.ShouldBeSome(title => title.Should().Be(ScenarioTitle));
+            newCtn.StepOutcomes.Should().NotBeNull();
+            newCtn.StepOutcomes.Count.Should().Be(1);
+            newCtn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Pass, GivenStepTitle, Step.Given, 0);
+        }
+
+        [Test]
+        public async Task MapAsync_FunctionToValueOfDifferentType_MapsCorrectly()
+        {
+            var initialCtn = GetInitialCtnWithSuccessfulGiven();
+            var newCtn = await initialCtn.MapAsync(async currentValue => currentValue.ToString());
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(DefaultValue.ToString());

@@ -125,65 +125,12 @@ namespace BddPipe.UnitTests.Recipe
         private const string ScenarioText = "scenario-text";
 
         [Test]
-        public void Map_ScenarioRecipeFunctionNull_ThrowsArgNullException()
-        {
-            Func<Scenario, Pipe<ScenarioInfo>> recipeFunc = null;
-            Func<ScenarioInfo, string> mapFunc = scenarioInfo => scenarioInfo.TestValueOne;
-
-            Action call = () => recipeFunc.Map(mapFunc);
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("recipeFunction");
-        }
-
-        [Test]
-        public void Map_MapScenarioFunctionNull_ThrowsArgNullException()
-        {
-            Func<Pipe<Scenario>, Pipe<ScenarioInfo>> recipeFunc = Recipe.SetupScenarioWithGivenStep();
-            Func<ScenarioInfo, string> mapFunc = null;
-
-            Action call = () => recipeFunc.Map(mapFunc);
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("map");
-        }
-
-        [Test]
-        public void Map_PipeRecipeFunctionNull_ThrowsArgNullException()
-        {
-            Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> recipeFunc = null;
-            Func<ScenarioInfo, string> mapFunc = scenarioInfo => scenarioInfo.TestValueOne;
-
-            Action call = () => recipeFunc.Map(mapFunc);
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("recipeFunction");
-        }
-
-        [Test]
-        public void Map_MapPipeFunctionNull_ThrowsArgNullException()
-        {
-            Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> recipeFunc = Recipe.AddToScenarioWithAndStep();
-            Func<ScenarioInfo, string> mapFunc = null;
-
-            Action call = () => recipeFunc.Map(mapFunc);
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("map");
-        }
-
-        [Test]
         public void Map_ProjectScenarioRecipeValueInSuccessState_MappedValueIsUsed()
         {
             var mapped = Scenario()
                 .GivenRecipe(
                     Recipe.SetupScenarioWithGivenStep()
-                        .Map(scenarioInfo => scenarioInfo.TestValueOne)
-                );
+                ).Map(scenarioInfo => scenarioInfo.TestValueOne);
 
             mapped.ShouldBeSuccessfulGivenStepWithValue(Recipe.GivenStepTitle, Recipe.StringArgValueOne);
         }
@@ -194,8 +141,7 @@ namespace BddPipe.UnitTests.Recipe
             var mapped = Scenario()
                 .GivenRecipe(
                     Recipe.SetupScenarioWithGivenStep()
-                        .Map(scenarioInfo => true)
-                );
+                ).Map(scenarioInfo => true);
 
             mapped.ShouldBeSuccessfulGivenStepWithValue(Recipe.GivenStepTitle, true);
         }
@@ -204,10 +150,8 @@ namespace BddPipe.UnitTests.Recipe
         public void Map_ProjectScenarioRecipeValueInErrorState_RemainsInErrorState()
         {
             var mapped = Scenario()
-                .GivenRecipe(
-                    Recipe.SetupScenarioWithGivenStepInErrorState()
-                        .Map(scenarioInfo => scenarioInfo.TestValueTwo)
-                );
+                .GivenRecipe(Recipe.SetupScenarioWithGivenStepInErrorState()
+                ).Map(scenarioInfo => scenarioInfo.TestValueTwo);
 
             mapped.ShouldBeError(ctnError =>
             {
@@ -224,8 +168,7 @@ namespace BddPipe.UnitTests.Recipe
             Scenario()
                 .GivenRecipe(
                     Recipe.SetupScenarioWithGivenStepInErrorState()
-                        .Map(fnMap)
-                );
+                ).Map(fnMap);
 
             fnMap.DidNotReceive()(Arg.Any<ScenarioInfo>());
         }
@@ -239,22 +182,9 @@ namespace BddPipe.UnitTests.Recipe
             Scenario()
                 .GivenRecipe(
                     Recipe.SetupScenarioWithGivenStep()
-                        .Map(fnMap)
-                );
+                ).Map(fnMap);
 
             fnMap.Received()(Arg.Any<ScenarioInfo>());
-        }
-
-        [Test]
-        public void Map_ProjectPipeRecipeValueInSuccessState_MappedValueIsUsed()
-        {
-            var mapped = Scenario()
-                .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
-                .AndRecipe(Recipe.AddToScenarioWithAndStep()
-                    .Map(scenarioInfo => scenarioInfo.TestValueOne)
-                );
-
-            mapped.ShouldBeSuccessfulSecondStepWithValue(Step.And, Recipe.GivenStepTitle, Recipe.AndStepTitle, Recipe.StringArgValueOne);
         }
 
         [Test]
@@ -262,9 +192,8 @@ namespace BddPipe.UnitTests.Recipe
         {
             var mapped = Scenario()
                 .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
-                .AndRecipe(Recipe.AddToScenarioWithAndStep()
-                    .Map(scenarioInfo => true)
-                );
+                .AndRecipe(Recipe.AddToScenarioWithAndStep())
+                .Map(scenarioInfo => true);
 
             mapped.ShouldBeSuccessfulSecondStepWithValue(Step.And, Recipe.GivenStepTitle, Recipe.AndStepTitle, true);
         }
@@ -277,8 +206,7 @@ namespace BddPipe.UnitTests.Recipe
             var mapped = Scenario()
                 .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
                 .AndRecipe(Recipe.AddToScenarioWithAndStepInErrorState(exToThrow)
-                    .Map(scenarioInfo => scenarioInfo.TestValueOne)
-                );
+                ).Map(scenarioInfo => scenarioInfo.TestValueOne);
 
             mapped.ShouldBeErrorSecondStepWithException(Step.And, Recipe.GivenStepTitle, Recipe.AndStepTitle, exToThrow);
         }
@@ -293,8 +221,7 @@ namespace BddPipe.UnitTests.Recipe
             Scenario()
                 .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
                 .AndRecipe(Recipe.AddToScenarioWithAndStepInErrorState(exToThrow)
-                        .Map(fnMap)
-                );
+                ).Map(fnMap);
 
             fnMap.DidNotReceive()(Arg.Any<ScenarioInfo>());
         }
@@ -308,8 +235,7 @@ namespace BddPipe.UnitTests.Recipe
             Scenario()
                 .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
                 .AndRecipe(Recipe.AddToScenarioWithAndStep()
-                        .Map(fnMap)
-                );
+                ).Map(fnMap);
 
             fnMap.Received()(Arg.Any<ScenarioInfo>());
         }

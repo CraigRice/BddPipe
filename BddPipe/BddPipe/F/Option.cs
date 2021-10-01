@@ -15,9 +15,9 @@ namespace BddPipe
         private readonly bool _isSome;
         private bool isNone => !_isSome;
 
-        private Option(T value)
+        public Option(T value)
         {
-            if (value == null) { throw new ArgumentNullException(); }
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
 
             _isSome = true;
             _value = value;
@@ -79,32 +79,5 @@ namespace BddPipe
 
         public T IfNone(T valueIfNone) =>
             Match(t => t, () => valueIfNone);
-    }
-
-    internal static class OptionExt
-    {
-        public static Option<R> Map<T, R>
-            (this Option<T> optT, Func<T, R> f)
-            => optT.Match<Option<R>>(
-                (t) => Some(f(t)),
-                () => None);
-
-        public static Option<R> Bind<T, R>
-            (this Option<T> optT, Func<T, Option<R>> f)
-            => optT.Match(
-                (t) => f(t),
-                () => None);
-
-        public static int CompareTo<T>(this Option<T> optT, Option<T> optCompareTo, IComparer<T> comparer)
-            => optT.Match(
-                t => optCompareTo.Match(
-                    oct => comparer.Compare(t, oct),
-                    () => 1
-                ),
-                () => optCompareTo.Match(
-                    oct => -1,
-                    () => 0
-                )
-            );
     }
 }

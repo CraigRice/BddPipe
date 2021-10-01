@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 
 namespace BddPipe.UnitTests.F
@@ -130,23 +129,23 @@ namespace BddPipe.UnitTests.F
             stringToString.Received()(defaultRight);
         }
 
-        //[Test]
-        //public void Bind_NotInitialized_ThrowsException()
-        //{
-        //    Either<int, string> either = default;
-        //    Action call = () => either.Bind<bool>(r => true);
-        //    call.Should().ThrowExactly<EitherNotInitialzedException>()
-        //        .Which.Message.Should().Be(expectedNotInitializedMessage);
-        //}
+        [Test]
+        public void Bind_NotInitialized_ThrowsException()
+        {
+            Either<int, string> either = default;
+            Action call = () => either.Bind<bool>(r => true);
+            call.Should().ThrowExactly<EitherNotInitialzedException>()
+                .Which.Message.Should().Be(expectedNotInitializedMessage);
+        }
 
-        //[Test]
-        //public void Bind_FnNull_ThrowsArgNullException()
-        //{
-        //    Either<int, string> either = defaultRight;
-        //    Action call = () => either.Bind<bool>(null);
-        //    call.Should().ThrowExactly<ArgumentNullException>()
-        //        .Which.ParamName.Should().Be("bind");
-        //}
+        [Test]
+        public void Bind_FnNull_ThrowsArgNullException()
+        {
+            Either<int, string> either = defaultRight;
+            Action call = () => either.Bind<bool>(null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which.ParamName.Should().Be("bind");
+        }
 
         //[Test]
         //public void Bind_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
@@ -184,30 +183,30 @@ namespace BddPipe.UnitTests.F
         //    fn.Received()(defaultRight);
         //}
 
-        //[Test]
-        //public async Task BindAsync_NotInitialized_ThrowsException()
-        //{
-        //    Either<int, string> either = default;
-        //    Func<Task<Either<int, bool>>> call = () => either.BindAsync(r =>
-        //    {
-        //        Either<int, bool> result = true;
-        //        return Task.FromResult(result);
-        //    });
+        [Test]
+        public async Task BindAsync_NotInitialized_ThrowsException()
+        {
+            Either<int, string> either = default;
+            Func<Task<Either<int, bool>>> call = () => either.BindAsync(r =>
+            {
+                Either<int, bool> result = true;
+                return Task.FromResult(result);
+            });
 
-        //    (await call.Should().ThrowExactlyAsync<EitherNotInitialzedException>())
-        //        .Which
-        //        .Message.Should().Be(expectedNotInitializedMessage);
-        //}
+            (await call.Should().ThrowExactlyAsync<EitherNotInitialzedException>())
+                .Which
+                .Message.Should().Be(expectedNotInitializedMessage);
+        }
 
-        //[Test]
-        //public async Task BindAsync_FnNull_ThrowsArgNullException()
-        //{
-        //    Either<int, string> either = defaultRight;
-        //    Func<Task<Either<int, bool>>> call = () => either.BindAsync<bool>(null);
-        //    (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
-        //        .Which
-        //        .ParamName.Should().Be("bind");
-        //}
+        [Test]
+        public async Task BindAsync_FnNull_ThrowsArgNullException()
+        {
+            Either<int, string> either = defaultRight;
+            Func<Task<Either<int, bool>>> call = () => either.BindAsync<bool>(null);
+            (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
+                .Which
+                .ParamName.Should().Be("bind");
+        }
 
         //[Test]
         //public async Task BindAsync_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
@@ -359,6 +358,34 @@ namespace BddPipe.UnitTests.F
         {
             Either<int, string> either = defaultRight;
             either.ToString().Should().Be("right(six)");
+        }
+
+        [Test]
+        public void BiBind_FnRightNull_ThrowsArgNullException()
+        {
+            Func<int, Either<int, bool>> fnLeft = val => 1234;
+
+            // act
+            Either<int, string> either = defaultRight;
+            Action call = () => either.BiBind(null, fnLeft);
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("right");
+        }
+
+        [Test]
+        public void BiBind_FnLeftNull_ThrowsArgNullException()
+        {
+            Func<string, Either<int, bool>> fnRight = val => newLeft;
+
+            // act
+            Either<int, string> either = defaultRight;
+            Action call = () => either.BiBind(fnRight, null);
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("left");
         }
 
         [Test]
