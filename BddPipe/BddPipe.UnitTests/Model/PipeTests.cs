@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
@@ -119,12 +120,24 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Match_DefaultPipe_ThrowsNotInitializedException()
         {
-            Action go = () =>
+            Action call = () =>
             {
                 default(Pipe<int>).Match(v => v.Content, e => DefaultValue);
             };
 
-            go.Should().ThrowExactly<PipeNotInitializedException>()
+            call.Should().ThrowExactly<PipeNotInitializedException>()
+                .WithMessage("Pipe has not been initialized");
+        }
+
+        [Test]
+        public async Task MatchAsync_DefaultPipe_ThrowsNotInitializedException()
+        {
+            Func<Task> call = async () =>
+            {
+                await default(Pipe<int>).MatchAsync(v => v.Content, e => DefaultValue);
+            };
+
+            (await call.Should().ThrowExactlyAsync<PipeNotInitializedException>())
                 .WithMessage("Pipe has not been initialized");
         }
 
