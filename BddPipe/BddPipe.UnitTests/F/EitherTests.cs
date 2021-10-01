@@ -147,41 +147,31 @@ namespace BddPipe.UnitTests.F
                 .Which.ParamName.Should().Be("bind");
         }
 
-        //[Test]
-        //public void Bind_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Either<int, bool>>>();
-        //    fn(defaultRight).Returns<Either<int, bool>>(true);
+        [Test]
+        public void Bind_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
+        {
+            Either<int, string> either = defaultLeft;
 
-        //    Either<int, string> either = defaultLeft;
+            var result = either.Bind<bool>(x => true);
 
-        //    var result = either.Bind(fn);
+            result.IsLeft.Should().BeTrue();
 
-        //    result.IsLeft.Should().BeTrue();
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(defaultLeft.ToString());
+        }
 
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(defaultLeft.ToString());
+        [Test]
+        public void Bind_AssignRightFunctionReturnsNewRight_CallsBindChangesType()
+        {
+            Either<int, string> either = defaultRight;
 
-        //    fn.DidNotReceive()(Arg.Any<string>());
-        //}
+            var result = either.Bind<bool>(x => true);
 
-        //[Test]
-        //public void Bind_AssignRightFunctionReturnsNewRight_CallsBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Either<int, bool>>>();
-        //    fn(defaultRight).Returns<Either<int, bool>>(true);
+            result.IsRight.Should().BeTrue();
 
-        //    Either<int, string> either = defaultRight;
-
-        //    var result = either.Bind(fn);
-
-        //    result.IsRight.Should().BeTrue();
-
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(true.ToString());
-
-        //    fn.Received()(defaultRight);
-        //}
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(true.ToString());
+        }
 
         [Test]
         public async Task BindAsync_NotInitialized_ThrowsException()
@@ -208,113 +198,83 @@ namespace BddPipe.UnitTests.F
                 .ParamName.Should().Be("bind");
         }
 
-        //[Test]
-        //public async Task BindAsync_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Task<Either<int, bool>>>>();
-        //    fn(defaultRight).Returns(Task.FromResult<Either<int, bool>>(true));
+        [Test]
+        public async Task BindAsync_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
+        {
+            Either<int, string> either = defaultLeft;
 
-        //    Either<int, string> either = defaultLeft;
+            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(true));
 
-        //    var result = await either.BindAsync(fn);
+            result.IsLeft.Should().BeTrue();
 
-        //    result.IsLeft.Should().BeTrue();
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(defaultLeft.ToString());
+        }
 
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(defaultLeft.ToString());
+        [Test]
+        public async Task BindAsync_AssignRightFunctionReturnsNewRight_CallsBindChangesType()
+        {
+            Either<int, string> either = defaultRight;
 
-        //    await fn.DidNotReceive()(Arg.Any<string>());
-        //}
+            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(true));
 
-        //[Test]
-        //public async Task BindAsync_AssignRightFunctionReturnsNewRight_CallsBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Task<Either<int, bool>>>>();
-        //    fn(defaultRight).Returns(Task.FromResult<Either<int, bool>>(true));
+            result.IsRight.Should().BeTrue();
 
-        //    Either<int, string> either = defaultRight;
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(true.ToString());
+        }
 
-        //    var result = await either.BindAsync(fn);
+        [Test]
+        public void Bind_AssignLeftFunctionReturnsNewLeft_DoesNotCallBindChangesType()
+        {
+            Either<int, string> either = defaultLeft;
 
-        //    result.IsRight.Should().BeTrue();
+            var result = either.Bind<bool>(x => newLeft);
 
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(true.ToString());
+            result.IsLeft.Should().BeTrue();
 
-        //    await fn.Received()(defaultRight);
-        //}
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(defaultLeft.ToString());
+        }
 
-        //[Test]
-        //public void Bind_AssignLeftFunctionReturnsNewLeft_DoesNotCallBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Either<int, bool>>>();
-        //    fn(defaultRight).Returns<Either<int, bool>>(newLeft);
+        [Test]
+        public void Bind_AssignRightFunctionReturnsNewLeft_CallsBindChangesType()
+        {
+            Either<int, string> either = defaultRight;
 
-        //    Either<int, string> either = defaultLeft;
+            var result = either.Bind<bool>(x => newLeft);
 
-        //    var result = either.Bind(fn);
+            result.IsLeft.Should().BeTrue();
 
-        //    result.IsLeft.Should().BeTrue();
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(newLeft.ToString());
+        }
 
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(defaultLeft.ToString());
+        [Test]
+        public async Task BindAsync_AssignLeftFunctionReturnsNewLeft_DoesNotCallBindChangesType()
+        {
+            Either<int, string> either = defaultLeft;
 
-        //    fn.DidNotReceive()(Arg.Any<string>());
-        //}
+            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(newLeft));
 
-        //[Test]
-        //public void Bind_AssignRightFunctionReturnsNewLeft_CallsBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Either<int, bool>>>();
-        //    fn(defaultRight).Returns<Either<int, bool>>(newLeft);
+            result.IsLeft.Should().BeTrue();
 
-        //    Either<int, string> either = defaultRight;
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(defaultLeft.ToString());
+        }
 
-        //    var result = either.Bind(fn);
+        [Test]
+        public async Task BindAsync_AssignRightFunctionReturnsNewLeft_CallsBindChangesType()
+        {
+            Either<int, string> either = defaultRight;
 
-        //    result.IsLeft.Should().BeTrue();
+            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(newLeft));
 
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(newLeft.ToString());
+            result.IsLeft.Should().BeTrue();
 
-        //    fn.Received()(defaultRight);
-        //}
-
-        //[Test]
-        //public async Task BindAsync_AssignLeftFunctionReturnsNewLeft_DoesNotCallBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Task<Either<int, bool>>>>();
-        //    fn(defaultRight).Returns(Task.FromResult<Either<int, bool>>(newLeft));
-
-        //    Either<int, string> either = defaultLeft;
-
-        //    var result = await either.BindAsync(fn);
-
-        //    result.IsLeft.Should().BeTrue();
-
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(defaultLeft.ToString());
-
-        //    await fn.DidNotReceive()(Arg.Any<string>());
-        //}
-
-        //[Test]
-        //public async Task BindAsync_AssignRightFunctionReturnsNewLeft_CallsBindChangesType()
-        //{
-        //    var fn = Substitute.For<Func<string, Task<Either<int, bool>>>>();
-        //    fn(defaultRight).Returns(Task.FromResult<Either<int, bool>>(newLeft));
-
-        //    Either<int, string> either = defaultRight;
-
-        //    var result = await either.BindAsync(fn);
-
-        //    result.IsLeft.Should().BeTrue();
-
-        //    var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-        //    matchToString.Should().Be(newLeft.ToString());
-
-        //    await fn.Received()(defaultRight);
-        //}
+            var matchToString = result.Match(r => r.ToString(), l => l.ToString());
+            matchToString.Should().Be(newLeft.ToString());
+        }
 
         [Test]
         public void IsLeft_NotInitialized_True()
