@@ -49,17 +49,17 @@ namespace BddPipe.Model
         /// Returns the value based on the function implementation of each state.
         /// </summary>
         internal TResult MatchInternal<TResult>(
-            Func<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>, TResult> right,
-            Func<Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>, TResult> left)
+            Func<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>, TResult> fnSyncState,
+            Func<Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>, TResult> fnAsyncState)
         {
-            if (right == null) { throw new ArgumentNullException(nameof(right)); }
-            if (left == null) { throw new ArgumentNullException(nameof(left)); }
+            if (fnSyncState == null) { throw new ArgumentNullException(nameof(fnSyncState)); }
+            if (fnAsyncState == null) { throw new ArgumentNullException(nameof(fnAsyncState)); }
 
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             return _isSync
-                ? right(_syncResult)
-                : left(_result);
+                ? fnSyncState(_syncResult)
+                : fnAsyncState(_result);
         }
 
         /// <summary>

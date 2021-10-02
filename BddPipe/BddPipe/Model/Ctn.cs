@@ -21,9 +21,7 @@ namespace BddPipe
         internal Ctn(T content, Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}
         internal Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
         {
-            if (stepOutcomes == null) { throw new ArgumentNullException(nameof(stepOutcomes)); }
-
-            StepOutcomes = stepOutcomes;
+            StepOutcomes = stepOutcomes ?? throw new ArgumentNullException(nameof(stepOutcomes));
             Content = content;
             ScenarioTitle = scenarioTitle;
         }
