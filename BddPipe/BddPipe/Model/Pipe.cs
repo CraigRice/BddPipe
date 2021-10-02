@@ -29,22 +29,6 @@ namespace BddPipe.Model
         private readonly bool _isSync;
         private readonly bool _isInitialized;
 
-        internal Pipe(Ctn<T> containerOfValue)
-        {
-            _syncResult = containerOfValue ?? throw new ArgumentNullException(nameof(containerOfValue));
-            _result = default;
-            _isInitialized = true;
-            _isSync = true;
-        }
-
-        internal Pipe(Ctn<ExceptionDispatchInfo> containerOfError)
-        {
-            _syncResult = containerOfError ?? throw new ArgumentNullException(nameof(containerOfError));
-            _result = default;
-            _isInitialized = true;
-            _isSync = true;
-        }
-
         internal Pipe(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
         {
             _syncResult = result;
@@ -79,20 +63,6 @@ namespace BddPipe.Model
         }
 
         /// <summary>
-        /// Lift a <see cref="Ctn{Exception}"/> into an instance of <see cref="Pipe{T}"/>
-        /// </summary>
-        /// <param name="containerOfError">The container instance.</param>
-        public static implicit operator Pipe<T>(Ctn<ExceptionDispatchInfo> containerOfError) =>
-            new Pipe<T>(containerOfError);
-
-        /// <summary>
-        /// Lift a <see cref="Ctn{T}"/> into an instance of <see cref="Pipe{T}"/>
-        /// </summary>
-        /// <param name="containerOfValue">The container instance.</param>
-        public static implicit operator Pipe<T>(Ctn<T> containerOfValue) =>
-            new Pipe<T>(containerOfValue);
-
-        /// <summary>
         /// Returns the value based on the function implementation of each state.
         /// </summary>
         /// <typeparam name="TResult">The target return result type to be returned by both supplied functions.</typeparam>
@@ -122,7 +92,10 @@ namespace BddPipe.Model
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
-            var target = _isSync ? _syncResult : await _result.ConfigureAwait(false);
+            var target = _isSync
+                ? _syncResult
+                : await _result.ConfigureAwait(false);
+
             return target.Match(containerOfValue, containerOfError);
         }
 

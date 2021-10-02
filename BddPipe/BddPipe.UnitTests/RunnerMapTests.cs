@@ -22,12 +22,12 @@ namespace BddPipe.UnitTests
         {
             var ex = new ApplicationException("test message");
             var exInfo = ExceptionDispatchInfo.Capture(ex);
-            return new Ctn<ExceptionDispatchInfo>(exInfo, None);
+            return new Pipe<int>(new Ctn<ExceptionDispatchInfo>(exInfo, None));
         }
 
         private Pipe<T> GetPipeInSuccessState<T>(T withThisValue)
         {
-            return new Ctn<T>(withThisValue, None);
+            return new Pipe<T>(new Ctn<T>(withThisValue, None));
         }
 
         private void CtnShouldHaveValueState<T>(Ctn<T> ctnValue, T expectedValue)
@@ -171,10 +171,10 @@ namespace BddPipe.UnitTests
             const string scenarioTitle = "scenario-title";
             const string givenStepText = "given-step";
 
-            Pipe<string> pipe = new Ctn<string>(initalValue, new[]
+            var pipe = new Pipe<string>(new Ctn<string>(initalValue, new[]
             {
                 new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
-            }, scenarioTitle);
+            }, scenarioTitle));
 
             var result = pipe.Map(async value =>
             {
@@ -198,10 +198,10 @@ namespace BddPipe.UnitTests
             const string scenarioTitle = "scenario-title";
             const string givenStepText = "given-step";
 
-            Pipe<string> pipe = new Ctn<string>(initalValue, new[]
+            var pipe = new Pipe<string>(new Ctn<string>(initalValue, new[]
             {
                 new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
-            }, scenarioTitle);
+            }, scenarioTitle));
 
             Pipe<int> result;
             if (isAsync)
@@ -231,10 +231,10 @@ namespace BddPipe.UnitTests
             const string scenarioTitle = "scenario-title";
             const string givenStepText = "given-step";
 
-            Pipe<string> pipe = new Ctn<string>(initalValue, new[]
+            var pipe = new Pipe<string>(new Ctn<string>(initalValue, new[]
             {
                 new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
-            }, scenarioTitle);
+            }, scenarioTitle));
 
             Pipe<int> result;
 
