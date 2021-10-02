@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -13,7 +14,7 @@ namespace BddPipe.UnitTests.XUnit
             Runner.WriteLogsToConsole(result);
 
             return
-                (result.Title == null ? new string[0] : new[] { result.Description })
+                (result.Title == null ? Array.Empty<string>() : new[] { result.Description })
                 .Concat(result.StepResults
                     .Select(l => l.Description))
                 .ToList();
