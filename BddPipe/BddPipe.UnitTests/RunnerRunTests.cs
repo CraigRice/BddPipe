@@ -25,6 +25,15 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void WriteLogsToConsole_ResultNull_ThrowsArgNullException()
+        {
+            Action call = () => Runner.WriteLogsToConsole(null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("result");
+        }
+
+        [Test]
         public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
             IReadOnlyList<string> logLines = new List<string>();
@@ -81,6 +90,31 @@ namespace BddPipe.UnitTests
             .Then("Result is correct", () => result.Should().Be(26))
             .And("Result is not zero", () => result.Should().NotBe(0))
             .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Given Two numbers [Passed]");
+            logLines[1].Should().Be("When Numbers are summed [Passed]");
+            logLines[2].Should().Be("Then Result is correct [Passed]");
+            logLines[3].Should().Be("  And Result is not zero [Passed]");
+        }
+
+        [Test]
+        public async Task RunAsync_GivenWhenThenAndAsActions_Success()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            int a = 0, b = 0;
+            int result = 0;
+
+            await Given("Two numbers", () =>
+                {
+                    a = 6;
+                    b = 20;
+                })
+                .When("Numbers are summed", () => result = a + b)
+                .Then("Result is correct", () => result.Should().Be(26))
+                .And("Result is not zero", () => result.Should().NotBe(0))
+                .RunAsync(logs => logLines = WriteLogsToConsole(logs));
 
             logLines.Count.Should().Be(4);
             logLines[0].Should().Be("Given Two numbers [Passed]");
@@ -287,6 +321,23 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public async Task RunAsync_FuncTaskAsyncCallThrowsException_RaisesThrownExNotAggregateException()
+        {
+            Func<Task> runTest = async () =>
+            {
+                await Given("Async step throws exception", async () =>
+                    {
+                        await Task.Delay(1);
+                        throw new ApplicationException("test exception");
+                    })
+                    .RunAsync();
+            };
+
+            (await runTest.Should().ThrowExactlyAsync<ApplicationException>())
+                .WithMessage("test exception");
+        }
+
+        [Test]
         public void Run_FuncTaskOfTAsyncCallThrowsException_RaisesThrownExNotAggregateException()
         {
             Action runTest = () =>
@@ -317,6 +368,446 @@ namespace BddPipe.UnitTests
             bddPipeResult.Result.StepResults.Should().NotBeNull();
             bddPipeResult.Result.StepResults.Count.Should().Be(1);
             bddPipeResult.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, title, $"Given {title} [Passed]", Step.Given, 0);
+        }
+
+        private static void ShouldHaveExpectedResultFromAsyncSyncComparisonTest(BddPipeResult<bool> bddPipeResult)
+        {
+            bddPipeResult.Should().NotBeNull();
+            bddPipeResult.Output.Should().BeTrue();
+            bddPipeResult.Result.Should().NotBeNull();
+            bddPipeResult.Result.Title.Should().NotBeNull();
+            bddPipeResult.Result.Description.Should().NotBeNull();
+            bddPipeResult.Result.StepResults.Should().NotBeNull();
+            bddPipeResult.Result.StepResults.Count.Should().Be(2);
+            bddPipeResult.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "false", "  Given false [Passed]", Step.Given, 0);
+            bddPipeResult.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "not false", "  When not false [Passed]", Step.When, 1);
+        }
+
+        private static void ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(IReadOnlyList<string> logLines)
+        {
+            logLines.Should().NotBeNull();
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: test");
+            logLines[1].Should().Be("  Given false [Passed]");
+            logLines[2].Should().Be("  When Step throws exception [Failed]");
+            logLines[3].Should().Be("  Then final step [not run]");
+        }
+
+
+        /// <summary>
+        /// Given - async
+        /// When - sync
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenAsyncWhenSync_HasCorrectResult()
+        {
+            var bddPipeResult = await Scenario()
+                .Given("false", async scenario =>
+                {
+                    await Task.Delay(1);
+                    return false;
+                })
+                .When("not false", falseValue => !falseValue)
+                .RunAsync();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - sync
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenAsyncWhenSync_HasCorrectResult()
+        {
+            var bddPipeResult = Scenario()
+                .Given("false", async scenario =>
+                {
+                    await Task.Delay(1);
+                    return false;
+                })
+                .When("not false", falseValue => !falseValue)
+                .Run();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - sync THROWS
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenAsyncWhenSyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Func<Task> runTest = async () =>
+            {
+                await Scenario("test")
+                    .Given("false", async scenario =>
+                    {
+                        await Task.Delay(1);
+                        return false;
+                    })
+                    .When("Step throws exception", () => throw new ApplicationException("test exception"))
+                    .Then("final step", val => !val)
+                    .RunAsync(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            (await runTest.Should().ThrowExactlyAsync<ApplicationException>())
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - sync THROWS
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenAsyncWhenSyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Action runTest = () =>
+            {
+                Scenario("test")
+                    .Given("false", async scenario =>
+                    {
+                        await Task.Delay(1);
+                        return false;
+                    })
+                    .When("Step throws exception", () => throw new ApplicationException("test exception"))
+                    .Then("final step", val => !val)
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>()
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - sync THROWS
+        /// </summary>
+        /// <remarks>Run - the Then step is following an a step in a failed state and is async</remarks>
+        [Test]
+        public void Run_AsyncStepFollowsWhenInFailedAsyncMode_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Action runTest = () =>
+            {
+                Scenario("test")
+                    .Given("false", async scenario =>
+                    {
+                        await Task.Delay(1);
+                        return false;
+                    })
+                    .When("Step throws exception", () => throw new ApplicationException("test exception"))
+                    .Then("final step", async val =>
+                    {
+                        await Task.Delay(1);
+                        return false;
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>()
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - async
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenAsyncWhenAsync_HasCorrectResult()
+        {
+            var bddPipeResult = await Scenario()
+                .Given("false", async scenario =>
+                {
+                    await Task.Delay(1);
+                    return false;
+                })
+                .When("not false", async falseValue =>
+                {
+                    await Task.Delay(1);
+                    return !falseValue;
+                })
+                .RunAsync();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - async
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenAsyncWhenAsync_HasCorrectResult()
+        {
+            var bddPipeResult = Scenario()
+                .Given("false", async scenario =>
+                {
+                    await Task.Delay(1);
+                    return false;
+                })
+                .When("not false", async falseValue =>
+                {
+                    await Task.Delay(1);
+                    return !falseValue;
+                })
+                .Run();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - async THROWS
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenAsyncWhenAsyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Func<Task> runTest = async () =>
+            {
+                await Scenario("test")
+                    .Given("false", async scenario =>
+                    {
+                        await Task.Delay(1);
+                        return false;
+                    })
+                    .When("Step throws exception", async () =>
+                    {
+                        await Task.Delay(1);
+                        throw new ApplicationException("test exception");
+                    })
+                    .Then("final step", val => !val)
+                    .RunAsync(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            (await runTest.Should().ThrowExactlyAsync<ApplicationException>())
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - async
+        /// When - async THROWS
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenAsyncWhenAsyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Action runTest = () =>
+            {
+                Scenario("test")
+                    .Given("false", async scenario =>
+                    {
+                        await Task.Delay(1);
+                        return false;
+                    })
+                    .When("Step throws exception", async () =>
+                    {
+                        await Task.Delay(1);
+                        throw new ApplicationException("test exception");
+                    })
+                    .Then("final step", val => !val)
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>()
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - sync
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenSyncWhenSync_HasCorrectResult()
+        {
+            var bddPipeResult = await Scenario()
+                .Given("false", scenario => false)
+                .When("not false", falseValue => !falseValue)
+                .RunAsync();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - sync
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenSyncWhenSync_HasCorrectResult()
+        {
+            var bddPipeResult = Scenario()
+                .Given("false", scenario => false)
+                .When("not false", falseValue => !falseValue)
+                .Run();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - sync THROWS
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenSyncWhenSyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Func<Task> runTest = async () =>
+            {
+                await Scenario("test")
+                    .Given("false", scenario => false)
+                    .When("Step throws exception", () => throw new ApplicationException("test exception"))
+                    .Then("final step", val => !val)
+                    .RunAsync(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            (await runTest.Should().ThrowExactlyAsync<ApplicationException>())
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - sync THROWS
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenSyncWhenSyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Action runTest = () =>
+            {
+                Scenario("test")
+                    .Given("false", scenario => false)
+                    .When("Step throws exception", () => throw new ApplicationException("test exception"))
+                    .Then("final step", val => !val)
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>()
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - async
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenSyncWhenAsync_HasCorrectResult()
+        {
+            var bddPipeResult = await Scenario()
+                .Given("false", scenario => false)
+                .When("not false", async falseValue =>
+                {
+                    await Task.Delay(1);
+                    return !falseValue;
+                })
+                .RunAsync();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - async
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenSyncWhenAsync_HasCorrectResult()
+        {
+            var bddPipeResult = Scenario()
+                .Given("false", scenario => false)
+                .When("not false", async falseValue =>
+                {
+                    await Task.Delay(1);
+                    return !falseValue;
+                })
+                .Run();
+
+            ShouldHaveExpectedResultFromAsyncSyncComparisonTest(bddPipeResult);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - async THROWS
+        /// </summary>
+        /// <remarks>Run</remarks>
+        [Test]
+        public void Run_GivenSyncWhenAsyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Action runTest = () =>
+            {
+                Scenario("test")
+                    .Given("false", async scenario => false)
+                    .When("Step throws exception", async () =>
+                    {
+                        await Task.Delay(1);
+                        throw new ApplicationException("test exception");
+                    })
+                    .Then("final step", val => !val)
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            runTest.Should().ThrowExactly<ApplicationException>()
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
+        }
+
+        /// <summary>
+        /// Given - sync
+        /// When - async THROWS
+        /// </summary>
+        /// <remarks>RunAsync</remarks>
+        [Test]
+        public async Task RunAsync_GivenSyncWhenAsyncThrowsException_RaisesThrownExNotAggregateException()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+            Func<Task> runTest = async () =>
+            {
+                await Scenario("test")
+                    .Given("false", async scenario => false)
+                    .When("Step throws exception", async () =>
+                    {
+                        await Task.Delay(1);
+                        throw new ApplicationException("test exception");
+                    })
+                    .Then("final step", val => !val)
+                    .RunAsync(logs => logLines = WriteLogsToConsole(logs));
+            };
+
+            (await runTest.Should().ThrowExactlyAsync<ApplicationException>())
+                .WithMessage("test exception");
+
+            ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
         }
 
         [Test]
