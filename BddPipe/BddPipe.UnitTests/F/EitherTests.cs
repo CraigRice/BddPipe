@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -318,102 +317,6 @@ namespace BddPipe.UnitTests.F
         {
             Either<int, string> either = defaultRight;
             either.ToString().Should().Be("right(six)");
-        }
-
-        [Test]
-        public void BiBind_FnRightNull_ThrowsArgNullException()
-        {
-            Func<int, Either<int, bool>> fnLeft = val => 1234;
-
-            // act
-            Either<int, string> either = defaultRight;
-            Action call = () => either.BiBind(null, fnLeft);
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("right");
-        }
-
-        [Test]
-        public void BiBind_FnLeftNull_ThrowsArgNullException()
-        {
-            Func<string, Either<int, bool>> fnRight = val => newLeft;
-
-            // act
-            Either<int, string> either = defaultRight;
-            Action call = () => either.BiBind(fnRight, null);
-
-            call.Should().ThrowExactly<ArgumentNullException>()
-                .Which
-                .ParamName.Should().Be("left");
-        }
-
-        [Test]
-        public void BiBind_WhenRightBindToLeft_NewLeft()
-        {
-            const int newLeft = 100;
-            Func<int, Either<int, bool>> fnLeft = val => 1234;
-            Func<string, Either<int, bool>> fnRight = val => newLeft;
-
-            // act
-            Either<int, string> either = defaultRight;
-            var result = either.BiBind(fnRight, fnLeft);
-
-            result.ShouldBeLeft(left =>
-            {
-                left.Should().Be(newLeft);
-            });
-        }
-
-        [Test]
-        public void BiBind_WhenRightBindToRight_NewRight()
-        {
-            const bool newRight = true;
-            Func<int, Either<int, bool>> fnLeft = val => false;
-            Func<string, Either<int, bool>> fnRight = val => newRight;
-
-            // act
-            Either<int, string> either = defaultRight;
-            var result = either.BiBind(fnRight, fnLeft);
-
-            result.ShouldBeRight(right =>
-            {
-                right.Should().Be(newRight);
-            });
-        }
-
-        [Test]
-        public void BiBind_WhenLeftBindToLeft_NewLeft()
-        {
-            const int newLeft = 100;
-            Func<int, Either<int, bool>> fnLeft = val => newLeft;
-            Func<string, Either<int, bool>> fnRight = val => 1234;
-
-            // act
-            Either<int, string> either = defaultLeft;
-            var result = either.BiBind(fnRight, fnLeft);
-
-            result.ShouldBeLeft(left =>
-            {
-                left.Should().Be(newLeft);
-            });
-        }
-
-        [Test]
-        public void BiBind_WhenLeftBindToRight_NewRight()
-        {
-            const bool newRight = true;
-            Func<int, Either<int, bool>> fnLeft = val => newRight;
-            Func<string, Either<int, bool>> fnRight = val => false;
-
-            // act
-            Either<int, string> either = defaultLeft;
-            var result = either.BiBind(fnRight, fnLeft);
-
-            result.ShouldBeRight(right =>
-            {
-                right.Should().Be(newRight);
-            });
         }
     }
 }

@@ -7,6 +7,18 @@ namespace BddPipe
 {
     public static partial class Runner
     {
+        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> MapResult<T, R>(this Result<Ctn<R>> result, Ctn<T> ctnValue)
+        {
+            return result.Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
+                ctnR => ctnR,
+                ex => new Ctn<ExceptionDispatchInfo>(
+                    ex,
+                    ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
+                    ctnValue.ScenarioTitle
+                )
+            );
+        }
+
         private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ProcessMap<T, R>(
             Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
             Func<T, R> mapFunc)
@@ -17,14 +29,7 @@ namespace BddPipe
 
                 return mapFunction
                     .TryRun()
-                    .Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
-                        ctnR => ctnR,
-                        ex => new Ctn<ExceptionDispatchInfo>(
-                            ex,
-                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
-                            ctnValue.ScenarioTitle
-                        )
-                    );
+                    .MapResult(ctnValue);
             });
         }
 
@@ -36,16 +41,9 @@ namespace BddPipe
             {
                 Func<Task<Ctn<R>>> mapFunction = () => ctnValue.MapAsync(mapFunc);
 
-                var result = await mapFunction.TryRunAsync().ConfigureAwait(false);
-
-                return result.Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
-                        ctnR => ctnR,
-                        ex => new Ctn<ExceptionDispatchInfo>(
-                            ex,
-                            ctnValue.StepOutcomes.WithLatestStepOutcomeAs(new Some<Exception>(ex.SourceException).ToOutcome()),
-                            ctnValue.ScenarioTitle
-                        )
-                    );
+                return (await mapFunction
+                    .TryRunAsync().ConfigureAwait(false))
+                    .MapResult(ctnValue);
             });
         }
 

@@ -465,5 +465,213 @@ namespace BddPipe.UnitTests
             logLines[2].Should().Be("  When the text is altered [Failed]");
             logLines[3].Should().Be("  Then text length should be as expected [not run]");
         }
+
+        [Test]
+        public void Map_PipeIsAsyncWithAsyncMap_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(async text =>
+                    {
+                        await Task.Delay(10);
+                        return text.Length;
+                    })
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be(4);
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().NotThrow();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithAsyncMap_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Passed]");
+            logLines[3].Should().Be("  Then text length should be as expected [Passed]");
+        }
+
+        [Test]
+        public void Map_PipeIsAsyncWithSyncMap_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(text => text.Length)
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be(4);
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().NotThrow();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithSyncMap_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Passed]");
+            logLines[3].Should().Be("  Then text length should be as expected [Passed]");
+        }
+
+        [Test]
+        public void Map_PipeIsAsyncWithDoubleMap_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(text => text.Length)
+                    .Map(length => length.ToString())
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be("4");
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().NotThrow();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithDoubleMap_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Passed]");
+            logLines[3].Should().Be("  Then text length should be as expected [Passed]");
+        }
+
+        [Test]
+        public void Map_PipeIsAsyncWithAsyncMapThrowsInconclusiveException_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(PipeMapFunctions.MapAsyncRaiseInconclusiveEx())
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be(15);
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().Throw<InconclusiveException>();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithAsyncMapThrowsInconclusiveException_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Inconclusive]");
+            logLines[3].Should().Be("  Then text length should be as expected [not run]");
+        }
+
+        [Test]
+        public void Map_PipeIsAsyncWithSyncMapThrowsInconclusiveException_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(PipeMapFunctions.MapSyncRaiseInconclusiveEx())
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be(15);
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().Throw<InconclusiveException>();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithSyncMapThrowsInconclusiveException_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Inconclusive]");
+            logLines[3].Should().Be("  Then text length should be as expected [not run]");
+        }
+
+        [Test]
+        public void Map_PipeIsAsyncWithAsyncMapThrowsException_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(PipeMapFunctions.MapAsyncRaiseEx())
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be(15);
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().Throw<DivideByZeroException>();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithAsyncMapThrowsException_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Failed]");
+            logLines[3].Should().Be("  Then text length should be as expected [not run]");
+        }
+
+        [Test]
+        public void Map_PipeIsAsyncWithSyncMapThrowsException_OutputIsCorrect()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Action runTest = () =>
+                Scenario()
+                    .Given("some text", async () => // put pipe into async mode
+                    {
+                        await Task.Delay(1);
+                        return "some text";
+                    })
+                    .When("the text is altered", text => text.Substring(0, 4))
+                    .Map(PipeMapFunctions.MapSyncRaiseEx())
+                    .Then("text length should be as expected", arg =>
+                    {
+                        arg.Should().Be(15);
+                    })
+                    .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            runTest.Should().Throw<DivideByZeroException>();
+
+            logLines.Count.Should().Be(4);
+            logLines[0].Should().Be("Scenario: Map_PipeIsAsyncWithSyncMapThrowsException_OutputIsCorrect");
+            logLines[1].Should().Be("  Given some text [Passed]");
+            logLines[2].Should().Be("  When the text is altered [Failed]");
+            logLines[3].Should().Be("  Then text length should be as expected [not run]");
+        }
     }
 }

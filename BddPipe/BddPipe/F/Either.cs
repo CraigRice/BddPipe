@@ -80,17 +80,6 @@ namespace BddPipe
             );
         }
 
-        public Either<TLeft, R> BiBind<R>(
-            Func<TRight, Either<TLeft, R>> right,
-            Func<TLeft, Either<TLeft, R>> left
-        )
-        {
-            if (right == null) throw new ArgumentNullException(nameof(right));
-            if (left == null) throw new ArgumentNullException(nameof(left));
-
-            return Match(right, left);
-        }
-
         public override string ToString()
         {
             return Match(right => $"right({right})", left => $"left({left})");

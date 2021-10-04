@@ -22,22 +22,27 @@ namespace BddPipe
                 (source, fn) => ProcessStep(title, source, fn)
             );
 
+        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ToStepResult<T, R>(this Result<R> result, Ctn<T> tValue, Some<Title> title) =>
+            result.Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
+                r => tValue.ToCtn(r, title.ToStepOutcome(Outcome.Pass)),
+                ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))
+            );
+
+        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ToStepErrorState<R>(this Ctn<ExceptionDispatchInfo> err, Some<Title> title) =>
+            err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun));
+
         private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ProcessStep<T, R>(
             Some<Title> title,
             Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
             Func<T, R> step)
         {
-            return source.BiBind(
-                tValue =>
-                    step.Apply(tValue.Content)
-                        .TryRun()
-                        .Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
-                            r => tValue.ToCtn(r, title.ToStepOutcome(Outcome.Pass)),
-                            ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))
-                        ),
-                err =>
-                    err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun))
-                );
+            return source.Match(
+                tValue => step
+                    .Apply(tValue.Content)
+                    .TryRun()
+                    .ToStepResult(tValue, title),
+                err => err.ToStepErrorState<R>(title)
+            );
         }
 
         private static Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessStep<T, R>(
@@ -46,27 +51,11 @@ namespace BddPipe
             Func<T, Task<R>> step)
         {
             return source.Match(
-                async tValue =>
-                {
-                    var result = await step
-                                    .Apply(tValue.Content)
-                                    .TryRunAsync()
-                                    .ConfigureAwait(false);
-
-                    return result.Match<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>>(
-                        r => tValue.ToCtn(r, title.ToStepOutcome(Outcome.Pass)),
-                        ex => tValue.ToCtn(ex,
-                            title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))
-                    );
-                },
-                err =>
-                {
-                    Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> result =
-                        err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun));
-
-                    return Task.FromResult(result);
-                }
-            );
+                async tValue => (await step
+                        .Apply(tValue.Content)
+                        .TryRunAsync().ConfigureAwait(false))
+                        .ToStepResult(tValue, title),
+                err => Task.FromResult(err.ToStepErrorState<R>(title)));
         }
 
         private static async Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessStep<T, R>(
