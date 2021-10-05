@@ -31,7 +31,7 @@ namespace BddPipe.UnitTests
     public class RunnerExceptionTests
     {
         private const string ExpectedStacktraceStart = "   at ExceptionTestNamespace.TestClass.SetPropertyOfNullInstance()";
-        private const string StacktraceSectionMarker = "--- End of stack trace from previous location where exception was thrown ---";
+        private const string StacktraceSectionMarker = "--- End of stack trace from previous location ---";
 
         private static string GetStackTraceUntilPreviousLocationMarker(string stackTrace)
         {
@@ -94,19 +94,23 @@ namespace BddPipe.UnitTests
                     throw new Exception("Could not return stacktrace");
                 });
 
-            var expected = GetStackTraceUntilPreviousLocationMarker(raisedExceptionStackTrace);
-            expected.Should().StartWith(ExpectedStacktraceStart);
-            expected.Should().EndWith(StacktraceSectionMarker);
+            var exceptionStack = GetStackTraceUntilPreviousLocationMarker(raisedExceptionStackTrace);
 
             Console.WriteLine("===============");
             Console.WriteLine($"Expected stack trace to start with this initial stack trace:");
-            Console.WriteLine(expected);
+            Console.WriteLine(exceptionStack);
             Console.WriteLine("===============");
+
+            var exceptionStackLines = exceptionStack.Split(Environment.NewLine);
+            exceptionStackLines.Length.Should().BeGreaterThan(2);
+
+            exceptionStackLines[0].Should().StartWith(ExpectedStacktraceStart);
+            exceptionStackLines[^1].Should().Be(StacktraceSectionMarker);
 
             Action run = () => pipeRaisingEx.Run(result => { /*mute*/ });
             run.Should().ThrowExactly<NullReferenceException>()
                 .Which
-                .StackTrace.Should().StartWith(expected);
+                .StackTrace.Should().StartWith(exceptionStack);
         }
     }
 }

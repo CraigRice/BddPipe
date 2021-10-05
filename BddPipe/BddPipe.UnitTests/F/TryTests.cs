@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -22,16 +24,33 @@ namespace BddPipe.UnitTests.F
         }
 
         [Test]
+        public async Task TryAsync_TryAsyncDelegateNull_ThrowsArgNullException()
+        {
+            TryAsync<int> tryFunc = null;
+
+            Func<Task> call = () => tryFunc.TryAsync();
+
+            (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
+                .Which
+                .ParamName.Should().Be("fn");
+        }
+
+        [Test]
         public void Try_TryDelegateReturnsValue_ReturnsResultWithValue()
         {
             Try<int> tryFunc = () => DefaultValue;
 
             var result = tryFunc.Try();
+            result.ShouldBeSuccessful(val => { val.Should().Be(DefaultValue); });
+        }
 
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeTrue();
-            var resultValue = result.Match(val => val, err => 0);
-            resultValue.Should().Be(DefaultValue);
+        [Test]
+        public async Task TryAsync_TryDelegateReturnsValue_ReturnsResultWithValue()
+        {
+            TryAsync<int> tryFunc = async () => DefaultValue;
+
+            var result = await tryFunc.TryAsync();
+            result.ShouldBeSuccessful(val => { val.Should().Be(DefaultValue); });
         }
 
         [Test]
@@ -41,22 +60,28 @@ namespace BddPipe.UnitTests.F
             Try<int> tryFunc = () => throw new ApplicationException(exMessage);
 
             var result = tryFunc.Try();
+            result.ShouldBeError(
+                err =>
+                {
+                    err.SourceException.Should().BeOfType<ApplicationException>()
+                        .Which
+                        .Message.Should().Be(exMessage);
+                });
+        }
 
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
+        [Test]
+        public async Task TryAsync_TryDelegateThrowsException_ReturnsResultWithValue()
+        {
+            const string exMessage = "test ex message";
+            TryAsync<int> tryFunc = async () => throw new ApplicationException(exMessage);
 
-            result.Match(val =>
-            {
-                Assert.Fail($"Expecting ExceptionDispatchInfo but was '{val}'");
-                return new Unit();
-            }, err =>
-            {
-                err.Should().NotBeNull();
-                err.SourceException.Should().BeOfType<ApplicationException>()
-                    .Which
-                    .Message.Should().Be(exMessage);
-
-                return new Unit();
+            var result = await tryFunc.TryAsync();
+            result.ShouldBeError(
+                err =>
+                {
+                    err.SourceException.Should().BeOfType<ApplicationException>()
+                        .Which
+                        .Message.Should().Be(exMessage);
             });
         }
 
@@ -73,16 +98,33 @@ namespace BddPipe.UnitTests.F
         }
 
         [Test]
+        public async Task TryRunAsync_FuncRNull_ThrowsArgNullException()
+        {
+            Func<Task<int>> tryFunc = null;
+
+            Func<Task> call = () => tryFunc.TryRunAsync();
+
+            (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
+                .Which
+                .ParamName.Should().Be("fn");
+        }
+
+        [Test]
         public void TryRun_FuncRReturnsValue_ReturnsResultWithValue()
         {
             Func<int> tryFunc = () => DefaultValue;
 
             var result = tryFunc.TryRun();
+            result.ShouldBeSuccessful(val => { val.Should().Be(DefaultValue); });
+        }
 
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeTrue();
-            var resultValue = result.Match(val => val, err => 0);
-            resultValue.Should().Be(DefaultValue);
+        [Test]
+        public async Task TryRunAsync_FuncRReturnsValue_ReturnsResultWithValue()
+        {
+            Func<Task<int>> tryFunc = async () => DefaultValue;
+
+            var result = await tryFunc.TryRunAsync();
+            result.ShouldBeSuccessful(val => { val.Should().Be(DefaultValue); });
         }
 
         [Test]
@@ -92,22 +134,26 @@ namespace BddPipe.UnitTests.F
             Func<int> tryFunc = () => throw new ApplicationException(exMessage);
 
             var result = tryFunc.TryRun();
-
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-
-            result.Match(val =>
+            result.ShouldBeError(err =>
             {
-                Assert.Fail($"Expecting ExceptionDispatchInfo but was '{val}'");
-                return new Unit();
-            }, err =>
-            {
-                err.Should().NotBeNull();
                 err.SourceException.Should().BeOfType<ApplicationException>()
                     .Which
                     .Message.Should().Be(exMessage);
+            });
+        }
 
-                return new Unit();
+        [Test]
+        public async Task TryRunAsync_FuncRThrowsException_ReturnsResultWithValue()
+        {
+            const string exMessage = "test ex message";
+            Func<Task<int>> tryFunc = () => throw new ApplicationException(exMessage);
+
+            var result = await tryFunc.TryRunAsync();
+            result.ShouldBeError(err =>
+            {
+                err.SourceException.Should().BeOfType<ApplicationException>()
+                    .Which
+                    .Message.Should().Be(exMessage);
             });
         }
     }

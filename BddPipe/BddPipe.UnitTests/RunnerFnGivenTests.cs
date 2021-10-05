@@ -22,6 +22,27 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncUnitRReturnsNull_PipeHasNullContent()
+        {
+            const string title = "Func<Unit, R> step returns null";
+            var fn = Substitute.For<Func<Unit, string>>();
+            fn(Arg.Any<Unit>()).Returns((string)null);
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()(Arg.Any<Unit>());
+
+            step.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().BeNull();
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
+            });
+        }
+
+        [Test]
         public void Given_FuncUnitR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<Unit, R> step";
@@ -93,6 +114,27 @@ namespace BddPipe.UnitTests
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
+        }
+
+        [Test]
+        public void Given_FuncUnitTaskRReturnsNull_PipeHasNullContent()
+        {
+            const string title = "Func<Unit, Task<R>> step returns null";
+            var fn = Substitute.For<Func<Unit, Task<string>>>();
+            fn(Arg.Any<Unit>()).Returns(Task.FromResult((string)null));
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()(Arg.Any<Unit>());
+
+            step.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().BeNull();
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
+            });
         }
 
         [Test]
@@ -170,6 +212,27 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void Given_FuncRReturnsNull_PipeHasNullContent()
+        {
+            const string title = "Func<R> step returns null";
+            var fn = Substitute.For<Func<string>>();
+            fn().Returns((string)null);
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().BeNull();
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
+            });
+        }
+
+        [Test]
         public void Given_FuncR_ReceivedCallWithExpectedContext()
         {
             const string title = "Func<R> step";
@@ -241,6 +304,27 @@ namespace BddPipe.UnitTests
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
+        }
+
+        [Test]
+        public void Given_FuncTaskRReturnsNull_PipeHasNullContent()
+        {
+            const string title = "Func<Task<R>> step returns null";
+            var fn = Substitute.For<Func<Task<string>>>();
+            fn().Returns(Task.FromResult((string)null));
+
+            // act
+            var step = Given(title, fn);
+
+            fn.Received()();
+
+            step.ShouldBeSuccessful(ctn =>
+            {
+                ctn.Should().NotBeNull();
+                ctn.Content.Should().BeNull();
+                ctn.ScenarioTitle.ShouldBeNone();
+                ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, title, Step.Given);
+            });
         }
 
         [Test]

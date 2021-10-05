@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace BddPipe
 {
@@ -9,46 +10,79 @@ namespace BddPipe
         }
     }
 
-    internal struct Either<TLeft, TRight>
+    internal readonly struct Either<TLeft, TRight>
     {
-        internal TLeft Left { get; }
-        internal TRight Right { get; }
+        private TLeft Left { get; }
+        private TRight Right { get; }
 
         public bool IsRight { get; }
         public bool IsLeft => !IsRight;
-        private readonly bool _isInitialised;
+        private readonly bool _isInitialized;
 
-        internal Either(TLeft left)
+        public Either(TLeft left)
         {
+            if (left == null) { throw new ArgumentNullException(nameof(left)); }
+
             IsRight = false;
             Left = left;
-            Right = default(TRight);
-            _isInitialised = true;
+            Right = default;
+            _isInitialized = true;
         }
 
-        internal Either(TRight right)
+        public Either(TRight right)
         {
+            if (right == null) { throw new ArgumentNullException(nameof(right)); }
+
             IsRight = true;
             Right = right;
-            Left = default(TLeft);
-            _isInitialised = true;
+            Left = default;
+            _isInitialized = true;
         }
 
-        public static implicit operator Either<TLeft, TRight>(TLeft left) => new Either<TLeft, TRight>(left);
-        public static implicit operator Either<TLeft, TRight>(TRight right) => new Either<TLeft, TRight>(right);
+        public static implicit operator Either<TLeft, TRight>(TLeft left)
+        {
+            return new Either<TLeft, TRight>(left);
+        }
+
+        public static implicit operator Either<TLeft, TRight>(TRight right)
+        {
+            return new Either<TLeft, TRight>(right);
+        }
 
         public TResult Match<TResult>(Func<TRight, TResult> right, Func<TLeft, TResult> left)
         {
-            if (!_isInitialised)
-            {
-                throw new EitherNotInitialzedException();
-            }
-            return IsLeft ? left(Left) : right(Right);
+            if (right == null) { throw new ArgumentNullException(nameof(right)); }
+            if (left == null) { throw new ArgumentNullException(nameof(left)); }
+            if (!_isInitialized) { throw new EitherNotInitialzedException(); }
+
+            return IsLeft
+                ? left(Left)
+                : right(Right);
         }
 
-        public Unit Match(Action<TRight> right, Action<TLeft> left)
-            => Match(right.ToFunc(), left.ToFunc());
+        public Either<TLeft, TResult> Bind<TResult>(Func<TRight, Either<TLeft, TResult>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
 
-        public override string ToString() => Match(payload => $"Payload({payload})", error => $"Error({error})");
+            return Match(
+                bind,
+                left => left
+            );
+        }
+
+        public Task<Either<TLeft, TResult>> BindAsync<TResult>(Func<TRight, Task<Either<TLeft, TResult>>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+
+            return Match(
+                bind,
+                left => Task.FromResult<Either<TLeft, TResult>>(left)
+            );
+        }
+
+        public override string ToString()
+        {
+            return Match(right => $"right({right})", left => $"left({left})");
+        }
     }
 }

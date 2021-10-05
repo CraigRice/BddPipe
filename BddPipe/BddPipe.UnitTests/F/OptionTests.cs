@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
@@ -10,6 +11,22 @@ namespace BddPipe.UnitTests.F
     public class OptionTests
     {
         private const string SomeValue = "a value";
+
+        [Test]
+        public void Ctor_WithNull_ThrowsArgNullException()
+        {
+            Action call = () => new Option<string>(null);
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("value");
+        }
+
+        [Test]
+        public void IsSome_FromCtorOptionOfSomeT_True()
+        {
+            var option = new Option<string>(SomeValue);
+            option.IsSome.Should().BeTrue();
+        }
 
         [Test]
         public void IsSome_OptionOfSome_True()
@@ -389,29 +406,6 @@ namespace BddPipe.UnitTests.F
             Option<string> option = None;
             var result = option.IfNone(valueIfNone);
             result.Should().Be(valueIfNone);
-        }
-
-        [Test]
-        public void Map_OptionOfSomeToChangedInstance_ReturnsNewInstance()
-        {
-            Option<string> option = SomeValue;
-            var result = option.Map(o => o.Length);
-
-            result.IsSome.Should().BeTrue();
-            result.ShouldBeSome(val =>
-            {
-                val.Should().Be(SomeValue.Length);
-            });
-        }
-
-        [Test]
-        public void Map_OptionOfNoneToChangedInstance_ReturnsNone()
-        {
-            Option<string> option = None;
-            var result = option.Map(o => o.Length);
-
-            result.IsSome.Should().BeFalse();
-            result.ShouldBeNone();
         }
     }
 }

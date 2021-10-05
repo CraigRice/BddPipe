@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BddPipe
 {
@@ -17,12 +18,10 @@ namespace BddPipe
         /// </summary>
         public T Content { get; }
 
-        internal Ctn(T content, Option<string> scenarioTitle) : this(content, new StepOutcome[0], scenarioTitle) {}
+        internal Ctn(T content, Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}
         internal Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
         {
-            if (stepOutcomes == null) { throw new ArgumentNullException(nameof(stepOutcomes)); }
-
-            StepOutcomes = stepOutcomes;
+            StepOutcomes = stepOutcomes ?? throw new ArgumentNullException(nameof(stepOutcomes));
             Content = content;
             ScenarioTitle = scenarioTitle;
         }
@@ -43,6 +42,15 @@ namespace BddPipe
             if (map == null) { throw new ArgumentNullException(nameof(map)); }
 
             return new Ctn<R>(map(ctn.Content), ctn.StepOutcomes, ctn.ScenarioTitle);
+        }
+
+        public static async Task<Ctn<R>> MapAsync<T, R>(this Ctn<T> ctn, Func<T, Task<R>> map)
+        {
+            if (map == null) { throw new ArgumentNullException(nameof(map)); }
+
+            var content = await map(ctn.Content).ConfigureAwait(false);
+
+            return new Ctn<R>(content, ctn.StepOutcomes, ctn.ScenarioTitle);
         }
 
         public static Ctn<R> ToCtn<T, R>(this Ctn<T> ctn, R newContent, Some<StepOutcome> withStepOutcome)

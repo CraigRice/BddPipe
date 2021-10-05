@@ -15,7 +15,7 @@ namespace BddPipe.UnitTests.MsTest
             Runner.WriteLogsToConsole(result);
 
             return
-                (result.Title == null ? new string[0] : new[] { result.Description })
+                (result.Title == null ? Array.Empty<string>() : new[] { result.Description })
                 .Concat(result.StepResults
                 .Select(l => l.Description))
                 .ToList();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
@@ -81,10 +82,9 @@ namespace BddPipe.UnitTests.Model
                 var ctn = new Ctn<int>(DefaultValue, null, None);
             };
 
-            create
-                .Should()
-                .ThrowExactly<ArgumentNullException>()
-                .WithMessage($"Value cannot be null.{Environment.NewLine}Parameter name: stepOutcomes");
+            create.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("stepOutcomes");
         }
     }
 }

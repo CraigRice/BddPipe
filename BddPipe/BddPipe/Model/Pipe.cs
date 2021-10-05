@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 
 namespace BddPipe.Model
 {
@@ -23,44 +24,43 @@ namespace BddPipe.Model
     /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
     public struct Pipe<T>
     {
-        private readonly Ctn<ExceptionDispatchInfo> _containerOfError;
-        private readonly Ctn<T> _containerOfValue;
-
-        private bool IsRight { get; }
-        private bool IsLeft => !IsRight;
+        private readonly Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> _syncResult;
+        private readonly Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> _result;
+        private readonly bool _isSync;
         private readonly bool _isInitialized;
 
-        internal Pipe(Ctn<ExceptionDispatchInfo> containerOfError)
+        internal Pipe(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
         {
-            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
-
-            IsRight = false;
-            _containerOfError = containerOfError;
-            _containerOfValue = default(Ctn<T>);
+            _syncResult = result;
+            _result = default;
             _isInitialized = true;
+            _isSync = true;
         }
 
-        internal Pipe(Ctn<T> containerOfValue)
+        internal Pipe(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> result)
         {
-            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
-
-            IsRight = true;
-            _containerOfValue = containerOfValue;
-            _containerOfError = default(Ctn<ExceptionDispatchInfo>);
+            _syncResult = default;
+            _result = result;
             _isInitialized = true;
+            _isSync = false;
         }
 
         /// <summary>
-        /// Lift a <see cref="Ctn{Exception}"/> into an instance of <see cref="Pipe{T}"/>
+        /// Returns the value based on the function implementation of each state.
         /// </summary>
-        /// <param name="containerOfError">The container instance.</param>
-        public static implicit operator Pipe<T>(Ctn<ExceptionDispatchInfo> containerOfError) => new Pipe<T>(containerOfError);
+        internal TResult MatchInternal<TResult>(
+            Func<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>, TResult> fnSyncState,
+            Func<Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>, TResult> fnAsyncState)
+        {
+            if (fnSyncState == null) { throw new ArgumentNullException(nameof(fnSyncState)); }
+            if (fnAsyncState == null) { throw new ArgumentNullException(nameof(fnAsyncState)); }
 
-        /// <summary>
-        /// Lift a <see cref="Ctn{T}"/> into an instance of <see cref="Pipe{T}"/>
-        /// </summary>
-        /// <param name="containerOfValue">The container instance.</param>
-        public static implicit operator Pipe<T>(Ctn<T> containerOfValue) => new Pipe<T>(containerOfValue);
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
+
+            return _isSync
+                ? fnSyncState(_syncResult)
+                : fnAsyncState(_result);
+        }
 
         /// <summary>
         /// Returns the value based on the function implementation of each state.
@@ -73,13 +73,30 @@ namespace BddPipe.Model
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
-            if (!_isInitialized)
-            {
-                throw new PipeNotInitializedException();
-            }
+            var target = _isSync ? _syncResult : TaskFunctions.RunAndWait(_result);
+            return target.Match(containerOfValue, containerOfError);
+        }
 
-            return IsLeft ? containerOfError(_containerOfError) : containerOfValue(_containerOfValue);
+        /// <summary>
+        /// Returns the value based on the function implementation of each state.
+        /// </summary>
+        /// <typeparam name="TResult">The target return result type to be returned by both supplied functions.</typeparam>
+        /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+        /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
+        /// <returns></returns>
+        public async Task<TResult> MatchAsync<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        {
+            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
+            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
+
+            var target = _isSync
+                ? _syncResult
+                : await _result.ConfigureAwait(false);
+
+            return target.Match(containerOfValue, containerOfError);
         }
 
         /// <summary>
@@ -95,20 +112,5 @@ namespace BddPipe.Model
 
             return Match(containerOfValue.ToFunc(), containerOfError.ToFunc());
         }
-
-        /// <summary>
-        /// Returns a string representation of <see cref="Pipe{T}"/>
-        /// </summary>
-        /// <returns>The string returned indicates the contained type</returns>
-        public override string ToString() => Match(payload => $"Container of ({payload})", error => $"Container of ({error})");
-    }
-
-    internal static class PipeExtensions
-    {
-        public static Some<ScenarioResult> ToScenarioResult<T>(this Pipe<T> pipe) =>
-            pipe.Match(
-                ctnValue => ctnValue.ToResult(),
-                ctnError => ctnError.ToResult()
-            );
     }
 }
