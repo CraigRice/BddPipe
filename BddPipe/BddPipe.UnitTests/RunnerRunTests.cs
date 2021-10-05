@@ -808,5 +808,23 @@ namespace BddPipe.UnitTests
 
             ShouldHaveExpectedLogsFromAsyncSyncComparisonTest(logLines);
         }
+
+        [Test]
+        public void Run_WhenPipeContentNull_ReturnsResultWithNull()
+        {
+            var result = Given("content is null", () => (string)null).Run();
+
+            result.Output.Should().BeNull();
+            result.Result.Should().NotBeNull();
+        }
+
+        [Test]
+        public async Task RunAsync_WhenPipeContentNull_ReturnsResultWithNull()
+        {
+            var result = await Given("content is null", () => (string)null).RunAsync();
+
+            result.Output.Should().BeNull();
+            result.Result.Should().NotBeNull();
+        }
     }
 }
