@@ -11,12 +11,6 @@ namespace BddPipe.Model
                 ctnError => ctnError.ToResult()
             );
 
-        public static Either<ExceptionDispatchInfo, T> ToContent<T>(this Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ctnErrorOrCtnT) =>
-            ctnErrorOrCtnT.Match<Either<ExceptionDispatchInfo, T>>(
-                ctnT => ctnT.Content,
-                ctnError => ctnError.Content
-            );
-
         public static Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ToContainer<T>(this Pipe<T> pipe) =>
             pipe.MatchInternal(
                 pipeData => pipeData,

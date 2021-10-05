@@ -8,7 +8,7 @@ namespace BddPipe
     public sealed class ScenarioResult
     {
         /// <summary>
-        /// Original scenario title supplied
+        /// Original scenario title that was supplied
         /// </summary>
         public string Title { get; }
 

@@ -814,8 +814,14 @@ namespace BddPipe.UnitTests
         {
             var result = Given("content is null", () => (string)null).Run();
 
+            result.Should().NotBeNull();
             result.Output.Should().BeNull();
             result.Result.Should().NotBeNull();
+            result.Result.Title.Should().BeNull();
+            result.Result.Description.Should().NotBeNull();
+            result.Result.StepResults.Should().NotBeNull();
+            result.Result.StepResults.Count.Should().Be(1);
+            result.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "content is null", "Given content is null [Passed]", Step.Given, 0);
         }
 
         [Test]
@@ -823,8 +829,14 @@ namespace BddPipe.UnitTests
         {
             var result = await Given("content is null", () => (string)null).RunAsync();
 
+            result.Should().NotBeNull();
             result.Output.Should().BeNull();
             result.Result.Should().NotBeNull();
+            result.Result.Title.Should().BeNull();
+            result.Result.Description.Should().NotBeNull();
+            result.Result.StepResults.Should().NotBeNull();
+            result.Result.StepResults.Count.Should().Be(1);
+            result.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "content is null", "Given content is null [Passed]", Step.Given, 0);
         }
     }
 }

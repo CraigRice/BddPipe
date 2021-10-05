@@ -37,15 +37,16 @@ namespace BddPipe
         {
             var scenarioResult = container.ToScenarioResult();
             LogResult(scenarioResult, writeScenarioResult);
-            var content = container.ToContent();
-            return AsBddPipeResult(content, scenarioResult);
+            return AsBddPipeResult(container, scenarioResult);
         }
 
-        private static BddPipeResult<T> AsBddPipeResult<T>(Either<ExceptionDispatchInfo, T> content, Some<ScenarioResult> scenarioResult) =>
+        private static BddPipeResult<T> AsBddPipeResult<T>(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> content, Some<ScenarioResult> scenarioResult) =>
             content.Match(
-                t => new BddPipeResult<T>(t, scenarioResult),
-                exceptionDispatchInfo =>
+                ctnT => new BddPipeResult<T>(ctnT.Content, scenarioResult),
+                ctnExceptionDispatchInfo =>
                 {
+                    var exceptionDispatchInfo = ctnExceptionDispatchInfo.Content;
+
                     exceptionDispatchInfo.Throw();
                     throw new Exception("Could not throw exception dispatch info", exceptionDispatchInfo.SourceException);
                 }
