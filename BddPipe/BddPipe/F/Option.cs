@@ -4,12 +4,12 @@ using static BddPipe.F;
 
 namespace BddPipe
 {
-    internal struct OptionNone
+    internal readonly struct OptionNone
     {
         internal static readonly OptionNone Default = new OptionNone();
     }
 
-    internal struct Option<T> : IEquatable<OptionNone>, IEquatable<Option<T>>
+    internal readonly struct Option<T> : IEquatable<OptionNone>, IEquatable<Option<T>>
     {
         private readonly T _value;
         private readonly bool _isSome;

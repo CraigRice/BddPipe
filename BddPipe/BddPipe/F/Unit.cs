@@ -3,5 +3,5 @@
     /// <summary>
     /// Represents a singe value containing no information.
     /// </summary>
-    public struct Unit { }
+    public readonly struct Unit { }
 }

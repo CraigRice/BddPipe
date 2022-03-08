@@ -22,7 +22,7 @@ namespace BddPipe.Model
     /// <remarks>A custom Either to better represent state and make its declaration succinct compared to its full Either equivalent.</remarks>
     /// </summary>
     /// <typeparam name="T">Type of the value represented when in a successful state.</typeparam>
-    public struct Pipe<T>
+    public readonly struct Pipe<T>
     {
         private readonly Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> _syncResult;
         private readonly Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> _result;
