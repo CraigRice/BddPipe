@@ -69,6 +69,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
+        [return: MaybeNull]
         public TResult Match<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
@@ -86,6 +87,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
+        [return: NotNull]
         public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
