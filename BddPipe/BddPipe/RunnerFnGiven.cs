@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using BddPipe.Model;
 
@@ -12,56 +13,56 @@ namespace BddPipe
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<R> Given<R>(string title, Func<Unit, R> step) =>
+        public static Pipe<R> Given<R>([AllowNull] string title, [DisallowNull] Func<Unit, R> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<R> Given<R>(string title, Func<Unit, Task<R>> step) =>
+        public static Pipe<R> Given<R>([AllowNull] string title, [DisallowNull] Func<Unit, Task<R>> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<R> Given<R>(string title, Func<R> step) =>
+        public static Pipe<R> Given<R>([AllowNull] string title, [DisallowNull] Func<R> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<R> Given<R>(string title, Func<Task<R>> step) =>
+        public static Pipe<R> Given<R>([AllowNull] string title, [DisallowNull] Func<Task<R>> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<Unit> Given(string title, Func<Unit, Task> step) =>
+        public static Pipe<Unit> Given([AllowNull] string title, [DisallowNull] Func<Unit, Task> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<Unit> Given(string title, Func<Task> step) =>
+        public static Pipe<Unit> Given([AllowNull] string title, [DisallowNull] Func<Task> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<Unit> Given(string title, Action<Unit> step) =>
+        public static Pipe<Unit> Given([AllowNull] string title, [DisallowNull] Action<Unit> step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
 
         /// <summary>
         /// Starts the runner with a 'Given' step and no scenario
         /// <remarks>Start with a call to Scenario(...) if you wish to have a scenario in the output</remarks>
         /// </summary>
-        public static Pipe<Unit> Given(string title, Action step) =>
+        public static Pipe<Unit> Given([AllowNull] string title, [DisallowNull] Action step) =>
             RunPipe(CreatePipe(), StepGiven, title, step);
     }
 }

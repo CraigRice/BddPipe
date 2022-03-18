@@ -11,7 +11,7 @@ namespace BddPipe
         /// Create a new instance of <see cref="NotInitializedException"/>
         /// </summary>
         /// <param name="message">A message describing the issue</param>
-        public NotInitializedException(string message) : base(message)
+        internal NotInitializedException(string message) : base(message)
         {
         }
     }

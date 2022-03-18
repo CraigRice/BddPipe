@@ -43,6 +43,11 @@ namespace BddPipe
         private static Some<string> ToPrefix(this Step step) =>
             step.ToString();
 
+        public static Some<string> ToDescription(this StepResult stepResult) =>
+            new Option<string>().WithPrefix(stepResult.Step.ToPrefix())
+                .WithIndentation(stepResult.Step, hasScenario: false)
+                .WithOutcomeDescribed(stepResult.Outcome);
+
         private static Some<string> ToDescription(this StepOutcome stepOutcome, bool hasScenario) =>
             stepOutcome
                 .Text

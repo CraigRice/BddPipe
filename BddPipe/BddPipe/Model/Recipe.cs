@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace BddPipe.Model
@@ -26,8 +27,9 @@ namespace BddPipe.Model
         /// <typeparam name="T2">Type of the resulting value</typeparam>
         /// <param name="map">A function to map the current value to its new value.</param>
         /// <returns>A new <see cref="Recipe{T2, R}"/> instance of the destination type</returns>
-        public Recipe<T2, R> Map<T2>(Func<T, T2> map)
+        public Recipe<T2, R> Map<T2>([DisallowNull] Func<T, T2> map)
         {
+            if (map == null) { throw new ArgumentNullException(nameof(map)); }
             return new Recipe<T2, R>(_pipe.Map(map), _step);
         }
 
@@ -35,48 +37,48 @@ namespace BddPipe.Model
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<R> Step(string title, Func<T, R> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<R> Step([AllowNull] string title, [DisallowNull] Func<T, R> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<R> Step(string title, Func<T, Task<R>> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<R> Step([AllowNull] string title, [DisallowNull] Func<T, Task<R>> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<R> Step(string title, Func<R> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<R> Step([AllowNull] string title, [DisallowNull] Func<R> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<R> Step(string title, Func<Task<R>> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<R> Step([AllowNull] string title, [DisallowNull] Func<Task<R>> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<T> Step(string title, Func<T, Task> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<T> Step([AllowNull] string title, [DisallowNull] Func<T, Task> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<T> Step(string title, Func<Task> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<T> Step([AllowNull] string title, [DisallowNull] Func<Task> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<T> Step(string title, Action<T> step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<T> Step([AllowNull] string title, [DisallowNull] Action<T> step) => Runner.RunPipe(_pipe, _step, title, step);
 
         /// <summary>
         /// Run the step for the recipe.
         /// <remarks>The step type is already determined</remarks>
         /// </summary>
-        public Pipe<T> Step(string title, Action step) => Runner.RunPipe(_pipe, _step, title, step);
+        public Pipe<T> Step([AllowNull] string title, [DisallowNull] Action step) => Runner.RunPipe(_pipe, _step, title, step);
     }
 }

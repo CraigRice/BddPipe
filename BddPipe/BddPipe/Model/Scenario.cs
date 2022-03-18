@@ -1,4 +1,6 @@
-﻿namespace BddPipe
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace BddPipe
 {
     /// <summary>
     /// An optional starting piece for a run
@@ -14,7 +16,7 @@
         /// <summary>
         /// Create a new instance of <see cref="Scenario"/>
         /// </summary>
-        public Scenario(string title)
+        public Scenario([AllowNull] string title)
         {
             Title = title;
         }

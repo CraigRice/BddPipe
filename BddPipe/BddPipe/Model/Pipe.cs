@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
@@ -69,7 +70,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
-        public TResult Match<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        public TResult Match<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
@@ -86,7 +87,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
-        public async Task<TResult> MatchAsync<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
@@ -105,7 +106,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns>An instance of Unit.</returns>
-        public Unit Match(Action<Ctn<T>> containerOfValue, Action<Ctn<ExceptionDispatchInfo>> containerOfError)
+        public Unit Match([DisallowNull] Action<Ctn<T>> containerOfValue, [DisallowNull] Action<Ctn<ExceptionDispatchInfo>> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
