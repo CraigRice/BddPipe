@@ -27,6 +27,7 @@ namespace BddPipe.Model
         /// <typeparam name="T2">Type of the resulting value</typeparam>
         /// <param name="map">A function to map the current value to its new value.</param>
         /// <returns>A new <see cref="Recipe{T2, R}"/> instance of the destination type</returns>
+        [return: NotNull]
         public Recipe<T2, R> Map<T2>([DisallowNull] Func<T, T2> map)
         {
             if (map == null) { throw new ArgumentNullException(nameof(map)); }

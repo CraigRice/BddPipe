@@ -20,11 +20,13 @@ namespace BddPipe
         /// <summary>
         /// Original title for the step
         /// </summary>
+        [MaybeNull]
         public string Title { get; }
 
         /// <summary>
         /// Step description for output
         /// </summary>
+        [MaybeNull]
         public string Description { get; }
 
         /// <summary>

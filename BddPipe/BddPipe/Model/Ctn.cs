@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace BddPipe
@@ -16,6 +17,7 @@ namespace BddPipe
         /// <summary>
         /// Container payload instance
         /// </summary>
+        [MaybeNull]
         public T Content { get; }
 
         internal Ctn(T content, Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}

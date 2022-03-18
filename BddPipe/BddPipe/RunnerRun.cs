@@ -15,6 +15,7 @@ namespace BddPipe
         /// <param name="pipe">The state so far, containing the original exception or last returned result.</param>
         /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
+        [return: NotNull]
         public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, [AllowNull] Action<ScenarioResult> writeScenarioResult = null)
         {
             var container = pipe.ToContainer();
@@ -28,6 +29,7 @@ namespace BddPipe
         /// <param name="pipe">The state so far, containing the original exception or last returned result.</param>
         /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
+        [return: NotNull]
         public static async Task<BddPipeResult<T>> RunAsync<T>(this Pipe<T> pipe, [AllowNull] Action<ScenarioResult> writeScenarioResult = null)
         {
             var container = await pipe.ToContainerAsync().ConfigureAwait(false);

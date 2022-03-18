@@ -11,6 +11,7 @@ namespace BddPipe
         /// <summary>
         /// Title text will make part of the scenario description output
         /// </summary>
+        [MaybeNull]
         public string Title { get; }
 
         /// <summary>

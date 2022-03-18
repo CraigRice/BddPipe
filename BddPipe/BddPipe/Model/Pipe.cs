@@ -13,7 +13,7 @@ namespace BddPipe.Model
         /// <summary>
         /// Create a new instance of <see cref="PipeNotInitializedException"/>
         /// </summary>
-        public PipeNotInitializedException() : base("Pipe has not been initialized")
+        internal PipeNotInitializedException() : base("Pipe has not been initialized")
         {
         }
     }
@@ -55,7 +55,6 @@ namespace BddPipe.Model
         {
             if (fnSyncState == null) { throw new ArgumentNullException(nameof(fnSyncState)); }
             if (fnAsyncState == null) { throw new ArgumentNullException(nameof(fnAsyncState)); }
-
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             return _isSync
