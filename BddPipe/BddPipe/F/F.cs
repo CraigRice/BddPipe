@@ -69,7 +69,7 @@ namespace BddPipe
             return await doCall.TryAsync().ConfigureAwait(false);
         }
 
-        public static Some<R> Map<T, R>(this Some<T> some, Func<T, R> map)
+        public static Some<R> Map<T, R>(this in Some<T> some, Func<T, R> map)
         {
             if (map == null) { throw new ArgumentNullException(nameof(map)); }
 

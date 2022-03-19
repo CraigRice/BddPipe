@@ -20,7 +20,7 @@ namespace BddPipe
         [MaybeNull]
         public T Content { get; }
 
-        internal Ctn(T content, Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}
+        internal Ctn(T content, in Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}
         internal Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
         {
             StepOutcomes = stepOutcomes ?? throw new ArgumentNullException(nameof(stepOutcomes));
@@ -55,7 +55,7 @@ namespace BddPipe
             return new Ctn<R>(content, ctn.StepOutcomes, ctn.ScenarioTitle);
         }
 
-        public static Ctn<R> ToCtn<T, R>(this Ctn<T> ctn, R newContent, Some<StepOutcome> withStepOutcome)
+        public static Ctn<R> ToCtn<T, R>(this Ctn<T> ctn, R newContent, in Some<StepOutcome> withStepOutcome)
         {
             var outcomes = new List<StepOutcome>(ctn.StepOutcomes) { withStepOutcome.Value };
             return new Ctn<R>(newContent, outcomes, ctn.ScenarioTitle);

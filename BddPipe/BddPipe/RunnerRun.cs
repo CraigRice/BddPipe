@@ -36,14 +36,14 @@ namespace BddPipe
             return ProcessRun(container, writeScenarioResult);
         }
 
-        private static BddPipeResult<T> ProcessRun<T>(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> container, Action<ScenarioResult> writeScenarioResult)
+        private static BddPipeResult<T> ProcessRun<T>(in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> container, Action<ScenarioResult> writeScenarioResult)
         {
             var scenarioResult = container.ToScenarioResult();
             LogResult(scenarioResult, writeScenarioResult);
             return AsBddPipeResult(container, scenarioResult);
         }
 
-        private static BddPipeResult<T> AsBddPipeResult<T>(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> content, Some<ScenarioResult> scenarioResult) =>
+        private static BddPipeResult<T> AsBddPipeResult<T>(in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> content, Some<ScenarioResult> scenarioResult) =>
             content.Match(
                 ctnT => new BddPipeResult<T>(ctnT.Content, scenarioResult),
                 ctnExceptionDispatchInfo =>
@@ -55,7 +55,7 @@ namespace BddPipe
                 }
             );
 
-        private static void LogResult(Some<ScenarioResult> scenarioResult, Action<ScenarioResult> writeScenarioResult)
+        private static void LogResult(in Some<ScenarioResult> scenarioResult, Action<ScenarioResult> writeScenarioResult)
         {
             var logResult = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
 

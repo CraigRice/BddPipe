@@ -30,7 +30,7 @@ namespace BddPipe.Model
         private readonly bool _isSync;
         private readonly bool _isInitialized;
 
-        internal Pipe(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
+        internal Pipe(in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
         {
             _syncResult = result;
             _result = default;

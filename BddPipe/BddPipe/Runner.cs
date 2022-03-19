@@ -10,9 +10,9 @@ namespace BddPipe
     /// </summary>
     public static partial class Runner
     {
-        private static Pipe<R> RunStepCommon<T, R>(this Pipe<T> pipe,
+        private static Pipe<R> RunStepCommon<T, R>(this in Pipe<T> pipe,
                                                         Some<Title> title,
-                                                        Either<Func<T, R>, Func<T, Task<R>>> stepFunc) =>
+                                                        in Either<Func<T, R>, Func<T, Task<R>>> stepFunc) =>
             Execute(
                 pipe,
                 stepFunc,
@@ -28,12 +28,12 @@ namespace BddPipe
                 ex => tValue.ToCtn(ex, title.ToStepOutcome(new Some<Exception>(ex.SourceException).ToOutcome()))
             );
 
-        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ToStepErrorState<R>(this Ctn<ExceptionDispatchInfo> err, Some<Title> title) =>
+        private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ToStepErrorState<R>(this Ctn<ExceptionDispatchInfo> err, in Some<Title> title) =>
             err.ToCtn(err.Content, title.ToStepOutcome(Outcome.NotRun));
 
         private static Either<Ctn<ExceptionDispatchInfo>, Ctn<R>> ProcessStep<T, R>(
             Some<Title> title,
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
+            in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
             Func<T, R> step)
         {
             return source.Match(
@@ -47,7 +47,7 @@ namespace BddPipe
 
         private static Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<R>>> ProcessStep<T, R>(
             Some<Title> title,
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
+            in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> source,
             Func<T, Task<R>> step)
         {
             return source.Match(

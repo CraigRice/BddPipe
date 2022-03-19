@@ -14,7 +14,7 @@ namespace BddPipe.Model
         private readonly Pipe<T> _pipe;
         private readonly Step _step;
 
-        internal Recipe(Pipe<T> pipe, Step step)
+        internal Recipe(in Pipe<T> pipe, Step step)
         {
             _pipe = pipe;
             _step = step;

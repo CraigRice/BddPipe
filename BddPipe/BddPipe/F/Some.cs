@@ -39,10 +39,10 @@ namespace BddPipe
                 ? _value
                 : Raise(new NotInitializedException($"Some {typeof(T).Name} has not been initialized"));
 
-        public static bool operator ==(Some<T> a, Some<T> b) => a.Value.Equals(b.Value);
-        public static bool operator !=(Some<T> a, Some<T> b) => a.Value.Equals(b.Value) == false;
+        public static bool operator ==(in Some<T> a, in Some<T> b) => a.Value.Equals(b.Value);
+        public static bool operator !=(in Some<T> a, in Some<T> b) => a.Value.Equals(b.Value) == false;
         public static implicit operator Some<T>(T value) => new Some<T>(value);
-        public static implicit operator T(Some<T> value) => value.Value;
+        public static implicit operator T(in Some<T> value) => value.Value;
 
         public Type GetUnderlyingType() =>
             typeof(T);
