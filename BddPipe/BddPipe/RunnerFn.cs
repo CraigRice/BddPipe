@@ -18,49 +18,49 @@ namespace BddPipe
             return new Pipe<Scenario>(new Ctn<Scenario>(scenario, scenario.Title));
         }
 
-        internal static Pipe<R> RunPipe<T, R>(Pipe<T> pipe, Step stepType, string title, Func<T, R> step)
+        internal static Pipe<R> RunPipe<T, R>(in Pipe<T> pipe, Step stepType, string title, Func<T, R> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step);
         }
 
-        internal static Pipe<R> RunPipe<T, R>(Pipe<T> pipe, Step stepType, string title, Func<T, Task<R>> step)
+        internal static Pipe<R> RunPipe<T, R>(in Pipe<T> pipe, Step stepType, string title, Func<T, Task<R>> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step);
         }
 
-        internal static Pipe<R> RunPipe<T, R>(Pipe<T> pipe, Step stepType, string title, Func<R> step)
+        internal static Pipe<R> RunPipe<T, R>(in Pipe<T> pipe, Step stepType, string title, Func<R> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step.PipeFunc<T, R>());
         }
 
-        internal static Pipe<R> RunPipe<T, R>(Pipe<T> pipe, Step stepType, string title, Func<Task<R>> step)
+        internal static Pipe<R> RunPipe<T, R>(in Pipe<T> pipe, Step stepType, string title, Func<Task<R>> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step.PipeFunc<T, R>());
         }
 
-        internal static Pipe<T> RunPipe<T>(Pipe<T> pipe, Step stepType, string title, Func<T, Task> step)
+        internal static Pipe<T> RunPipe<T>(in Pipe<T> pipe, Step stepType, string title, Func<T, Task> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step.PipeFunc());
         }
 
-        internal static Pipe<T> RunPipe<T>(Pipe<T> pipe, Step stepType, string title, Func<Task> step)
+        internal static Pipe<T> RunPipe<T>(in Pipe<T> pipe, Step stepType, string title, Func<Task> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step.PipeFunc<T>());
         }
 
-        internal static Pipe<T> RunPipe<T>(Pipe<T> pipe, Step stepType, string title, Action<T> step)
+        internal static Pipe<T> RunPipe<T>(in Pipe<T> pipe, Step stepType, string title, Action<T> step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step.PipeFunc());
         }
 
-        internal static Pipe<T> RunPipe<T>(Pipe<T> pipe, Step stepType, string title, Action step)
+        internal static Pipe<T> RunPipe<T>(in Pipe<T> pipe, Step stepType, string title, Action step)
         {
             if (step == null) { throw new ArgumentNullException(nameof(step)); }
             return RunStep(pipe, title.ToTitle(stepType), step.PipeFunc<T>());

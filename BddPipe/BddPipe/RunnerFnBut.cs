@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using BddPipe.Model;
 
@@ -8,28 +9,52 @@ namespace BddPipe
     {
         private const Step StepBut = Step.But;
 
-        public static Pipe<R> But<T, R>(this Pipe<T> pipe, string title, Func<T, R> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<R> But<T, R>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Func<T, R> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<R> But<T, R>(this Pipe<T> pipe, string title, Func<T, Task<R>> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<R> But<T, R>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Func<T, Task<R>> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<R> But<T, R>(this Pipe<T> pipe, string title, Func<R> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<R> But<T, R>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Func<R> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<R> But<T, R>(this Pipe<T> pipe, string title, Func<Task<R>> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<R> But<T, R>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Func<Task<R>> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<T> But<T>(this Pipe<T> pipe, string title, Func<T, Task> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<T> But<T>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Func<T, Task> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<T> But<T>(this Pipe<T> pipe, string title, Func<Task> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<T> But<T>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Func<Task> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<T> But<T>(this Pipe<T> pipe, string title, Action<T> step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<T> But<T>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Action<T> step) =>
             RunPipe(pipe, StepBut, title, step);
 
-        public static Pipe<T> But<T>(this Pipe<T> pipe, string title, Action step) =>
+        /// <summary>
+        /// <see cref="Step.But"/>
+        /// </summary>
+        public static Pipe<T> But<T>(this Pipe<T> pipe, [AllowNull] string title, [DisallowNull] Action step) =>
             RunPipe(pipe, StepBut, title, step);
     }
 }

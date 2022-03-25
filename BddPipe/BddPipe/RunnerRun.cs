@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
@@ -14,7 +15,8 @@ namespace BddPipe
         /// <param name="pipe">The state so far, containing the original exception or last returned result.</param>
         /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
-        public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
+        [return: NotNull]
+        public static BddPipeResult<T> Run<T>(this Pipe<T> pipe, [AllowNull] Action<ScenarioResult> writeScenarioResult = null)
         {
             var container = pipe.ToContainer();
             return ProcessRun(container, writeScenarioResult);
@@ -27,20 +29,21 @@ namespace BddPipe
         /// <param name="pipe">The state so far, containing the original exception or last returned result.</param>
         /// <param name="writeScenarioResult">Will output the result to console unless this optional handling is supplied.</param>
         /// <returns>Last returned type is returned from this function in the successful case, otherwise the exception previously raised is thrown.</returns>
-        public static async Task<BddPipeResult<T>> RunAsync<T>(this Pipe<T> pipe, Action<ScenarioResult> writeScenarioResult = null)
+        [return: NotNull]
+        public static async Task<BddPipeResult<T>> RunAsync<T>(this Pipe<T> pipe, [AllowNull] Action<ScenarioResult> writeScenarioResult = null)
         {
             var container = await pipe.ToContainerAsync().ConfigureAwait(false);
             return ProcessRun(container, writeScenarioResult);
         }
 
-        private static BddPipeResult<T> ProcessRun<T>(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> container, Action<ScenarioResult> writeScenarioResult = null)
+        private static BddPipeResult<T> ProcessRun<T>(in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> container, Action<ScenarioResult> writeScenarioResult)
         {
             var scenarioResult = container.ToScenarioResult();
             LogResult(scenarioResult, writeScenarioResult);
             return AsBddPipeResult(container, scenarioResult);
         }
 
-        private static BddPipeResult<T> AsBddPipeResult<T>(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> content, Some<ScenarioResult> scenarioResult) =>
+        private static BddPipeResult<T> AsBddPipeResult<T>(in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> content, Some<ScenarioResult> scenarioResult) =>
             content.Match(
                 ctnT => new BddPipeResult<T>(ctnT.Content, scenarioResult),
                 ctnExceptionDispatchInfo =>
@@ -52,7 +55,7 @@ namespace BddPipe
                 }
             );
 
-        private static void LogResult(Some<ScenarioResult> scenarioResult, Action<ScenarioResult> writeScenarioResult = null)
+        private static void LogResult(in Some<ScenarioResult> scenarioResult, Action<ScenarioResult> writeScenarioResult)
         {
             var logResult = writeScenarioResult ?? WriteOutput.ApplyLast(Console.WriteLine);
 
@@ -68,7 +71,7 @@ namespace BddPipe
 
             foreach (var stepResult in scenarioResult.StepResults)
             {
-                writeLine(stepResult.Description);
+                writeLine(stepResult.Description ?? stepResult.ToDescription());
             }
         };
 
@@ -77,7 +80,7 @@ namespace BddPipe
         /// </summary>
         /// <param name="result">The scenario result gives a detailed output for each step outcome</param>
         /// <param name="writeLine">Optionally provide an implementation for each write line call</param>
-        public static void WriteLogsToConsole(ScenarioResult result, Action<string> writeLine = null)
+        public static void WriteLogsToConsole([DisallowNull] ScenarioResult result, [AllowNull] Action<string> writeLine = null)
         {
             if (result == null) { throw new ArgumentNullException(nameof(result)); }
 

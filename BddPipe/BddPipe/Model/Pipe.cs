@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace BddPipe.Model
         /// <summary>
         /// Create a new instance of <see cref="PipeNotInitializedException"/>
         /// </summary>
-        public PipeNotInitializedException() : base("Pipe has not been initialized")
+        internal PipeNotInitializedException() : base("Pipe has not been initialized")
         {
         }
     }
@@ -29,7 +30,7 @@ namespace BddPipe.Model
         private readonly bool _isSync;
         private readonly bool _isInitialized;
 
-        internal Pipe(Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
+        internal Pipe(in Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> result)
         {
             _syncResult = result;
             _result = default;
@@ -54,7 +55,6 @@ namespace BddPipe.Model
         {
             if (fnSyncState == null) { throw new ArgumentNullException(nameof(fnSyncState)); }
             if (fnAsyncState == null) { throw new ArgumentNullException(nameof(fnAsyncState)); }
-
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             return _isSync
@@ -69,7 +69,8 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
-        public TResult Match<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        [return: MaybeNull]
+        public TResult Match<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
@@ -86,7 +87,8 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
-        public async Task<TResult> MatchAsync<TResult>(Func<Ctn<T>, TResult> containerOfValue, Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        [return: NotNull]
+        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
@@ -105,7 +107,7 @@ namespace BddPipe.Model
         /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns>An instance of Unit.</returns>
-        public Unit Match(Action<Ctn<T>> containerOfValue, Action<Ctn<ExceptionDispatchInfo>> containerOfError)
+        public Unit Match([DisallowNull] Action<Ctn<T>> containerOfValue, [DisallowNull] Action<Ctn<ExceptionDispatchInfo>> containerOfError)
         {
             if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
             if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }

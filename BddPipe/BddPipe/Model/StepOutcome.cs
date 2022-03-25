@@ -6,7 +6,7 @@
         public Outcome Outcome { get; }
         public Option<string> Text { get; }
 
-        public StepOutcome(Step step, Outcome outcome, Option<string> text)
+        public StepOutcome(Step step, Outcome outcome, in Option<string> text)
         {
             Step = step;
             Outcome = outcome;

@@ -24,7 +24,7 @@ namespace BddPipe
         }
 
         public static implicit operator Option<T>(OptionNone _) => new Option<T>();
-        public static implicit operator Option<T>(Some<T> some) => new Option<T>(some.Value);
+        public static implicit operator Option<T>(in Some<T> some) => new Option<T>(some.Value);
 
         public static implicit operator Option<T>(T value)
         {
@@ -53,8 +53,8 @@ namespace BddPipe
             => _isSome == other._isSome
                && (isNone || _value.Equals(other._value));
 
-        public static bool operator ==(Option<T> @this, Option<T> other) => @this.Equals(other);
-        public static bool operator !=(Option<T> @this, Option<T> other) => !(@this == other);
+        public static bool operator ==(in Option<T> @this, in Option<T> other) => @this.Equals(other);
+        public static bool operator !=(in Option<T> @this, in Option<T> other) => !(@this == other);
 
         public bool Equals(OptionNone other) => isNone;
 

@@ -30,18 +30,23 @@ namespace BddPipe
                 ? DefaultIndentSize
                 : 0;
 
-        private static Some<string> WithIndentation(this Some<string> prefixedStep, Step step, bool hasScenario)
+        private static Some<string> WithIndentation(this in Some<string> prefixedStep, Step step, bool hasScenario)
         {
             var indentSize = hasScenario.ToIndentSizeStep() + step.ToIndentSizeStepAndBut();
             var indent = new string(' ', indentSize);
             return $"{indent}{prefixedStep.Value}";
         }
 
-        private static Some<string> WithOutcomeDescribed(this Some<string> prefixedStep, Outcome outcome) =>
+        private static Some<string> WithOutcomeDescribed(this in Some<string> prefixedStep, Outcome outcome) =>
             $"{prefixedStep.Value} [{outcome.ToOutcomeText()}]";
 
         private static Some<string> ToPrefix(this Step step) =>
             step.ToString();
+
+        public static Some<string> ToDescription(this StepResult stepResult) =>
+            new Option<string>().WithPrefix(stepResult.Step.ToPrefix())
+                .WithIndentation(stepResult.Step, hasScenario: false)
+                .WithOutcomeDescribed(stepResult.Outcome);
 
         private static Some<string> ToDescription(this StepOutcome stepOutcome, bool hasScenario) =>
             stepOutcome
@@ -71,21 +76,21 @@ namespace BddPipe
         private static StepOutcome ToStepOutcomeOfOutcome(this StepOutcome stepOutcome, Outcome outcome) =>
             new StepOutcome(stepOutcome.Step, outcome, stepOutcome.Text);
 
-        public static StepOutcome ToStepOutcome(this Some<Title> title, Outcome outcome) =>
+        public static StepOutcome ToStepOutcome(this in Some<Title> title, Outcome outcome) =>
             new StepOutcome(title.Value.Step, outcome, title.Value.Text);
 
         public static Some<Title> ToTitle(this string title, Step step) =>
             new Title(step, title);
 
-        private static bool ExceptionTypeNameIsInconclusive(this Some<string> exceptionTypeName) =>
+        private static bool ExceptionTypeNameIsInconclusive(this in Some<string> exceptionTypeName) =>
             string.Equals(exceptionTypeName, "InconclusiveException", StringComparison.InvariantCultureIgnoreCase) ||
             string.Equals(exceptionTypeName, "AssertInconclusiveException", StringComparison.InvariantCultureIgnoreCase) ||
             (exceptionTypeName.Value.StartsWith("Skippable") && exceptionTypeName.Value.EndsWith("Exception"));
 
-        private static bool ExceptionIsInconclusive(this Some<Exception> ex) =>
+        private static bool ExceptionIsInconclusive(this in Some<Exception> ex) =>
             ExceptionTypeNameIsInconclusive(ex.Value.GetType().Name);
 
-        public static Outcome ToOutcome(this Some<Exception> ex) =>
+        public static Outcome ToOutcome(this in Some<Exception> ex) =>
             ex.ExceptionIsInconclusive()
                 ? Outcome.Inconclusive
                 : Outcome.Fail;

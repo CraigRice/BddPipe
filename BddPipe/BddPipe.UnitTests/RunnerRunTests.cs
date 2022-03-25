@@ -33,6 +33,42 @@ namespace BddPipe.UnitTests
         }
 
         [Test]
+        public void WriteLogsToConsole_ScenarioResultContentsNull_DoesNotLog()
+        {
+            var logs = new List<string>();
+
+            Runner.WriteLogsToConsole(new ScenarioResult(
+                title: null,
+                description: null,
+                stepResults: Array.Empty<StepResult>()
+            ), logs.Add);
+
+            logs.Should().BeEmpty();
+        }
+
+        [TestCase(Step.Given, Outcome.Pass, "Given [Passed]")]
+        [TestCase(Step.Given, Outcome.Fail, "Given [Failed]")]
+        [TestCase(Step.Given, Outcome.Inconclusive, "Given [Inconclusive]")]
+        [TestCase(Step.Given, Outcome.NotRun, "Given [not run]")]
+        [TestCase(Step.When, Outcome.Pass, "When [Passed]")]
+        [TestCase(Step.When, Outcome.Fail, "When [Failed]")]
+        [TestCase(Step.When, Outcome.Inconclusive, "When [Inconclusive]")]
+        [TestCase(Step.When, Outcome.NotRun, "When [not run]")]
+        public void WriteLogsToConsole_ScenarioResultAndStepResultContentsNull_Log(Step step, Outcome outcome, string expected)
+        {
+            var logs = new List<string>();
+
+            Runner.WriteLogsToConsole(new ScenarioResult(
+                title: null,
+                description: null,
+                stepResults: new[] { new StepResult(step, outcome, null, null) }
+            ), logs.Add);
+
+            logs.Count.Should().Be(1);
+            logs[0].Should().Be(expected);
+        }
+
+        [Test]
         public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
             IReadOnlyList<string> logLines = new List<string>();

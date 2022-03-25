@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using BddPipe.Model;
 
 namespace BddPipe.Recipe
@@ -15,7 +16,7 @@ namespace BddPipe.Recipe
         /// <param name="scenario">Current <see cref="Scenario"/> instance to add step(s) to.</param>
         /// <param name="recipeFunction">Function describing the step(s) added to the <see cref="Scenario"/></param>
         /// <returns>A <see cref="Pipe{R}"/> with recipe steps applied via the supplied function.</returns>
-        public static Pipe<R> GivenRecipe<R>(this Pipe<Scenario> scenario, Func<Pipe<Scenario>, Pipe<R>> recipeFunction)
+        public static Pipe<R> GivenRecipe<R>(this Pipe<Scenario> scenario, [DisallowNull] Func<Pipe<Scenario>, Pipe<R>> recipeFunction)
         {
             if (recipeFunction == null) { throw new ArgumentNullException(nameof(recipeFunction)); }
 
@@ -30,7 +31,7 @@ namespace BddPipe.Recipe
         /// <param name="pipe">Current <see cref="Pipe{T}"/> instance to add step(s) to.</param>
         /// <param name="recipeFunction">Function describing the step(s) added to the <see cref="Pipe{T}"/></param>
         /// <returns>A <see cref="Pipe{R}"/> with recipe steps applied via the supplied function.</returns>
-        public static Pipe<R> AndRecipe<T, R>(this Pipe<T> pipe,  Func<Pipe<T>, Pipe<R>> recipeFunction)
+        public static Pipe<R> AndRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] Func<Pipe<T>, Pipe<R>> recipeFunction)
         {
             if (recipeFunction == null) { throw new ArgumentNullException(nameof(recipeFunction)); }
 
@@ -45,7 +46,7 @@ namespace BddPipe.Recipe
         /// <param name="pipe">Current <see cref="Pipe{T}"/> instance to add step(s) to.</param>
         /// <param name="recipeFunction">Function describing the step(s) added to the <see cref="Pipe{T}"/></param>
         /// <returns>A <see cref="Pipe{R}"/> instance as a result of the recipe function.</returns>
-        public static Pipe<R> ThenRecipe<T, R>(this Pipe<T> pipe, Func<Pipe<T>, Pipe<R>> recipeFunction)
+        public static Pipe<R> ThenRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] Func<Pipe<T>, Pipe<R>> recipeFunction)
         {
             if (recipeFunction == null) { throw new ArgumentNullException(nameof(recipeFunction)); }
 
@@ -60,7 +61,7 @@ namespace BddPipe.Recipe
         /// <param name="pipe">Current <see cref="Pipe{T}"/> instance to add step(s) to.</param>
         /// <param name="recipeFunction">Function describing the step(s) added to the <see cref="Pipe{T}"/></param>
         /// <returns>A <see cref="Pipe{R}"/> instance as a result of the recipe function.</returns>
-        public static Pipe<R> WhenRecipe<T, R>(this Pipe<T> pipe, Func<Pipe<T>, Pipe<R>> recipeFunction)
+        public static Pipe<R> WhenRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] Func<Pipe<T>, Pipe<R>> recipeFunction)
         {
             if (recipeFunction == null) { throw new ArgumentNullException(nameof(recipeFunction)); }
 
@@ -75,7 +76,7 @@ namespace BddPipe.Recipe
         /// <param name="pipe">Current <see cref="Pipe{T}"/> instance to add step(s) to.</param>
         /// <param name="recipeFunction">Function describing the step(s) added to the <see cref="Pipe{T}"/></param>
         /// <returns>A <see cref="Pipe{R}"/> with recipe steps applied via the supplied function.</returns>
-        public static Pipe<R> ButRecipe<T, R>(this Pipe<T> pipe, Func<Pipe<T>, Pipe<R>> recipeFunction)
+        public static Pipe<R> ButRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] Func<Pipe<T>, Pipe<R>> recipeFunction)
         {
             if (recipeFunction == null) { throw new ArgumentNullException(nameof(recipeFunction)); }
 
