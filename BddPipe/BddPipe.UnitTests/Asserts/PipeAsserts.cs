@@ -9,7 +9,7 @@ namespace BddPipe.UnitTests.Asserts
     {
         public static void ShouldBeSuccessful<TResponse>(this Pipe<TResponse> pipe, Action<Ctn<TResponse>> onSuccess = null)
         {
-            pipe.Match(response =>
+            pipe.MatchCtnInternal(response =>
                 {
                     onSuccess?.Invoke(response);
                 },
@@ -21,7 +21,7 @@ namespace BddPipe.UnitTests.Asserts
 
         public static void ShouldBeError<TResponse>(this Pipe<TResponse> pipe, Action<Ctn<ExceptionDispatchInfo>> onError = null)
         {
-            pipe.Match(response =>
+            pipe.MatchCtnInternal(response =>
                 {
                     Assert.Fail($"Expecting an error but was successful with response of type ({typeof(TResponse)})");
                 },

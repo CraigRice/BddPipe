@@ -46,7 +46,7 @@ namespace BddPipe.UnitTests.Model
         {
             Action call = () =>
             {
-                default(Pipe<int>).Match(v => v.Content, e => DefaultValue);
+                default(Pipe<int>).Match(v => v, e => DefaultValue);
             };
 
             call.Should().ThrowExactly<PipeNotInitializedException>()
@@ -58,7 +58,7 @@ namespace BddPipe.UnitTests.Model
         {
             Func<Task> call = async () =>
             {
-                await default(Pipe<int>).MatchAsync(v => v.Content, e => DefaultValue);
+                await default(Pipe<int>).MatchAsync(v => v, e => DefaultValue);
             };
 
             (await call.Should().ThrowExactlyAsync<PipeNotInitializedException>())
@@ -75,12 +75,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Action<Ctn<int>>>();
-            var fnCtnError = Substitute.For<Action<Ctn<ExceptionDispatchInfo>>>();
+            var fnCtnT = Substitute.For<Action<int>>();
+            var fnCtnError = Substitute.For<Action<ExceptionDispatchInfo>>();
 
             pipe.Match(fnCtnT, fnCtnError);
 
-            fnCtnT.Received()(Arg.Any<Ctn<int>>());
+            fnCtnT.Received()(Arg.Any<int>());
             fnCtnError.DidNotReceive();
         }
 
@@ -94,13 +94,13 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Action<Ctn<int>>>();
-            var fnCtnError = Substitute.For<Action<Ctn<ExceptionDispatchInfo>>>();
+            var fnCtnT = Substitute.For<Action<int>>();
+            var fnCtnError = Substitute.For<Action<ExceptionDispatchInfo>>();
 
             pipe.Match(fnCtnT, fnCtnError);
 
             fnCtnT.DidNotReceive();
-            fnCtnError.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
+            fnCtnError.Received()(Arg.Any<ExceptionDispatchInfo>());
         }
 
         [TestCase(true)]
@@ -112,12 +112,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnError = Substitute.For<Action<Ctn<ExceptionDispatchInfo>>>();
+            var fnCtnError = Substitute.For<Action<ExceptionDispatchInfo>>();
 
             Action call = () => pipe.Match(null, fnCtnError);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
-                .ParamName.Should().Be("containerOfValue");
+                .ParamName.Should().Be("value");
 
             fnCtnError.DidNotReceive();
         }
@@ -132,12 +132,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Action<Ctn<int>>>();
+            var fnCtnT = Substitute.For<Action<int>>();
 
             Action call = () => pipe.Match(fnCtnT, null);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
-                .ParamName.Should().Be("containerOfError");
+                .ParamName.Should().Be("error");
 
             fnCtnT.DidNotReceive();
         }
@@ -151,12 +151,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, Unit>>();
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Unit>>();
+            var fnCtnT = Substitute.For<Func<int, Unit>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, Unit>>();
 
             pipe.Match(fnCtnT, fnCtnError);
 
-            fnCtnT.Received()(Arg.Any<Ctn<int>>());
+            fnCtnT.Received()(Arg.Any<int>());
             fnCtnError.DidNotReceive();
         }
 
@@ -169,12 +169,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, Unit>>();
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Unit>>();
+            var fnCtnT = Substitute.For<Func<int, Unit>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, Unit>>();
 
             await pipe.MatchAsync(fnCtnT, fnCtnError);
 
-            fnCtnT.Received()(Arg.Any<Ctn<int>>());
+            fnCtnT.Received()(Arg.Any<int>());
             fnCtnError.DidNotReceive();
         }
 
@@ -188,13 +188,13 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, Unit>>();
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Unit>>();
+            var fnCtnT = Substitute.For<Func<int, Unit>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, Unit>>();
 
             pipe.Match(fnCtnT, fnCtnError);
 
             fnCtnT.DidNotReceive();
-            fnCtnError.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
+            fnCtnError.Received()(Arg.Any<ExceptionDispatchInfo>());
         }
 
         [TestCase(true)]
@@ -207,13 +207,13 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, Unit>>();
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Unit>>();
+            var fnCtnT = Substitute.For<Func<int, Unit>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, Unit>>();
 
             await pipe.MatchAsync(fnCtnT, fnCtnError);
 
             fnCtnT.DidNotReceive();
-            fnCtnError.Received()(Arg.Any<Ctn<ExceptionDispatchInfo>>());
+            fnCtnError.Received()(Arg.Any<ExceptionDispatchInfo>());
         }
 
         [TestCase(true)]
@@ -225,7 +225,7 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, string>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, string>>();
 
             const string resultText = "some result";
             var result = pipe.Match(ctnInt => resultText, fnCtnError);
@@ -244,7 +244,7 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, string>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, string>>();
 
             const string resultText = "some result";
             var result = await pipe.MatchAsync(ctnInt => resultText, fnCtnError);
@@ -261,7 +261,7 @@ namespace BddPipe.UnitTests.Model
             var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, string>>();
+            var fnCtnT = Substitute.For<Func<int, string>>();
             var pipe = async
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
@@ -284,7 +284,7 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, string>>();
+            var fnCtnT = Substitute.For<Func<int, string>>();
 
             const string resultText = "some result";
             var result = await pipe.MatchAsync(fnCtnT, ctnError => resultText);
@@ -303,12 +303,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Unit>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, Unit>>();
 
             Action call = () => pipe.Match(null, fnCtnError);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
-                .ParamName.Should().Be("containerOfValue");
+                .ParamName.Should().Be("value");
 
             fnCtnError.DidNotReceive();
         }
@@ -322,12 +322,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnError = Substitute.For<Func<Ctn<ExceptionDispatchInfo>, Unit>>();
+            var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, Unit>>();
 
             Func<Task> call = () => pipe.MatchAsync(null, fnCtnError);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
-                .ParamName.Should().Be("containerOfValue");
+                .ParamName.Should().Be("value");
 
             fnCtnError.DidNotReceive();
         }
@@ -342,12 +342,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, Unit>>();
+            var fnCtnT = Substitute.For<Func<int, Unit>>();
 
             Action call = () => pipe.Match(fnCtnT, null);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
-                .ParamName.Should().Be("containerOfError");
+                .ParamName.Should().Be("error");
 
             fnCtnT.DidNotReceive();
         }
@@ -362,12 +362,12 @@ namespace BddPipe.UnitTests.Model
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnCtnT = Substitute.For<Func<Ctn<int>, Unit>>();
+            var fnCtnT = Substitute.For<Func<int, Unit>>();
 
             Func<Task> call = () => pipe.MatchAsync(fnCtnT, null);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
-                .ParamName.Should().Be("containerOfError");
+                .ParamName.Should().Be("error");
 
             fnCtnT.DidNotReceive();
         }
