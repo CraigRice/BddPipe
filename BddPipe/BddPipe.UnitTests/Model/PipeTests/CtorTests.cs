@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using static BddPipe.F;
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
@@ -16,7 +17,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var ex = new ApplicationException("test message");
             var exInfo = ExceptionDispatchInfo.Capture(ex);
-            Ctn<ExceptionDispatchInfo> value = new Ctn<ExceptionDispatchInfo>(exInfo, None);
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> value = new Ctn<ExceptionDispatchInfo>(exInfo, None);
             var pipe = new Pipe<int>(value);
 
             pipe.ShouldBeError(error =>
@@ -29,9 +30,39 @@ namespace BddPipe.UnitTests.Model.PipeTests
         public void CtorCtnValue_WithCtnValue_IsInValueState()
         {
             const int defaultValue = 68;
-            Ctn<int> value = new Ctn<int>(defaultValue, None);
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> value = new Ctn<int>(defaultValue, None);
             var pipe = new Pipe<int>(value);
 
+            pipe.ShouldBeSuccessful(p =>
+            {
+                p.Content.Should().Be(defaultValue);
+            });
+        }
+
+        [Test]
+        public void CtorCtnException_WithTaskCtnException_IsInErrorState()
+        {
+            var ex = new ApplicationException("test message");
+            var exInfo = ExceptionDispatchInfo.Capture(ex);
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> value = new Ctn<ExceptionDispatchInfo>(exInfo, None);
+            var taskValue = Task.FromResult(value);
+
+            var pipe = new Pipe<int>(taskValue);
+
+            pipe.ShouldBeError(error =>
+            {
+                error.Content.Should().Be(exInfo);
+            });
+        }
+
+        [Test]
+        public void CtorCtnValue_WithTaskCtnValue_IsInValueState()
+        {
+            const int defaultValue = 68;
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> value = new Ctn<int>(defaultValue, None);
+            var taskValue = Task.FromResult(value);
+
+            var pipe = new Pipe<int>(taskValue);
             pipe.ShouldBeSuccessful(p =>
             {
                 p.Content.Should().Be(defaultValue);
