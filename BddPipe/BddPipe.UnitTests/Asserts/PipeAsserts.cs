@@ -12,10 +12,12 @@ namespace BddPipe.UnitTests.Asserts
             pipe.MatchCtnInternal(response =>
                 {
                     onSuccess?.Invoke(response);
+                    return new Unit();
                 },
                 exception =>
                 {
                     Assert.Fail($"Expecting a successful response of type ({typeof(TResponse)}) but was Exception {exception}");
+                    return new Unit();
                 });
         }
 
@@ -24,10 +26,12 @@ namespace BddPipe.UnitTests.Asserts
             pipe.MatchCtnInternal(response =>
                 {
                     Assert.Fail($"Expecting an error but was successful with response of type ({typeof(TResponse)})");
+                    return new Unit();
                 },
                 exception =>
                 {
                     onError?.Invoke(exception);
+                    return new Unit();
                 });
         }
     }

@@ -9,10 +9,10 @@ namespace BddPipe
     /// A container to represent progress and state so far
     /// </summary>
     /// <typeparam name="T">Container payload type</typeparam>
-    public sealed class Ctn<T>
+    internal sealed class Ctn<T>
     {
-        internal Option<string> ScenarioTitle { get; }
-        internal IReadOnlyList<StepOutcome> StepOutcomes { get; }
+        public Option<string> ScenarioTitle { get; }
+        public IReadOnlyList<StepOutcome> StepOutcomes { get; }
 
         /// <summary>
         /// Container payload instance
@@ -20,8 +20,8 @@ namespace BddPipe
         [MaybeNull]
         public T Content { get; }
 
-        internal Ctn(T content, in Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}
-        internal Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
+        public Ctn(T content, in Option<string> scenarioTitle) : this(content, Array.Empty<StepOutcome>(), scenarioTitle) {}
+        public Ctn(T content, IReadOnlyList<StepOutcome> stepOutcomes, Option<string> scenarioTitle)
         {
             StepOutcomes = stepOutcomes ?? throw new ArgumentNullException(nameof(stepOutcomes));
             Content = content;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
@@ -77,20 +76,6 @@ namespace BddPipe.Model
             );
         }
 
-        internal Unit MatchCtnInternal([DisallowNull] Action<Ctn<T>> containerOfValue, [DisallowNull] Action<Ctn<ExceptionDispatchInfo>> containerOfExceptionDispatchInfo)
-        {
-            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
-            if (containerOfExceptionDispatchInfo == null) { throw new ArgumentNullException(nameof(containerOfExceptionDispatchInfo)); }
-            if (!_isInitialized) { throw new PipeNotInitializedException(); }
-
-            var target = _isSync ? _syncResult : TaskFunctions.RunAndWait(_result);
-
-            return target.Match(
-                containerOfValue.ToFunc(),
-                containerOfExceptionDispatchInfo.ToFunc()
-            );
-        }
-
         /// <summary>
         /// Returns the value based on the function implementation of each state.
         /// </summary>
@@ -121,7 +106,7 @@ namespace BddPipe.Model
         /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
         [return: NotNull]
-        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<T, TResult> value, [DisallowNull] Func<ExceptionDispatchInfo, TResult> error)
+        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<T, Task<TResult>> value, [DisallowNull] Func<ExceptionDispatchInfo, Task<TResult>> error)
         {
             if (value == null) { throw new ArgumentNullException(nameof(value)); }
             if (error == null) { throw new ArgumentNullException(nameof(error)); }
@@ -131,10 +116,10 @@ namespace BddPipe.Model
                 ? _syncResult
                 : await _result.ConfigureAwait(false);
 
-            return target.Match(
+            return await target.Match(
                 containerOfValue => value(containerOfValue.Content),
                 containerOfExceptionDispatchInfo => error(containerOfExceptionDispatchInfo.Content)
-            );
+            ).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -149,6 +134,41 @@ namespace BddPipe.Model
             if (error == null) { throw new ArgumentNullException(nameof(error)); }
 
             return Match(value.ToFunc(), error.ToFunc());
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="bind"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<T, Pipe<TResult>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+
+            return MatchCtnInternal(
+                containerOfValue => bind(containerOfValue.Content),
+                containerOfExceptionDispatchInfo => new Pipe<TResult>(containerOfExceptionDispatchInfo)
+            );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="bind"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        [return: NotNull]
+        public async Task<Pipe<TResult>> BindAsync<TResult>([DisallowNull] Func<T, Task<Pipe<TResult>>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+
+            return await MatchCtnInternal(
+                containerOfValue => bind(containerOfValue.Content),
+                containerOfExceptionDispatchInfo => Task.FromResult(new Pipe<TResult>(containerOfExceptionDispatchInfo))
+            ).ConfigureAwait(false);
         }
     }
 }
