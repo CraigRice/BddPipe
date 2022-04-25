@@ -62,20 +62,6 @@ namespace BddPipe.Model
                 : fnAsyncState(_result);
         }
 
-        internal TResult MatchCtnInternal<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfExceptionDispatchInfo)
-        {
-            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
-            if (containerOfExceptionDispatchInfo == null) { throw new ArgumentNullException(nameof(containerOfExceptionDispatchInfo)); }
-            if (!_isInitialized) { throw new PipeNotInitializedException(); }
-
-            var target = _isSync ? _syncResult : TaskFunctions.RunAndWait(_result);
-
-            return target.Match(
-                containerOfValue,
-                containerOfExceptionDispatchInfo
-            );
-        }
-
         /// <summary>
         /// Returns the value based on the function implementation of each state.
         /// </summary>
@@ -90,11 +76,10 @@ namespace BddPipe.Model
             if (error == null) { throw new ArgumentNullException(nameof(error)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
-            var target = _isSync ? _syncResult : TaskFunctions.RunAndWait(_result);
-
-            return target.Match(
+            var container = this.ToContainer();
+            return container.Match(
                 containerOfValue => value(containerOfValue.Content),
-                containerOfExceptionDispatchInfo => error(containerOfExceptionDispatchInfo.Content)
+                containerOfException => error(containerOfException.Content)
             );
         }
 
@@ -118,7 +103,7 @@ namespace BddPipe.Model
 
             return await target.Match(
                 containerOfValue => value(containerOfValue.Content),
-                containerOfExceptionDispatchInfo => error(containerOfExceptionDispatchInfo.Content)
+                containerOfException => error(containerOfException.Content)
             ).ConfigureAwait(false);
         }
 
@@ -137,37 +122,66 @@ namespace BddPipe.Model
         }
 
         /// <summary>
-        /// 
+        /// Returns a new Pipe{T} instance based on the bind function that is invoked with the current T payload.
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="bind"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <remarks>Only executed when this Pipe{T} instance is not in an error state.</remarks>
+        /// <typeparam name="TResult">The target return result type to be returned by the bind function.</typeparam>
+        /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
+        /// <returns>A instance of Pipe{T} that was produced by the bind function.</returns>
+        /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
         public Pipe<TResult> Bind<TResult>([DisallowNull] Func<T, Pipe<TResult>> bind)
         {
             if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
 
-            return MatchCtnInternal(
+            if (_isSync)
+            {
+                return _syncResult.Match(
+                    containerOfValue => bind(containerOfValue.Content),
+                    containerOfException => new Pipe<TResult>(containerOfException));
+            }
+
+            return BindWithTaskContainerAsTaskPipe(_result, bind).AsPipe();
+        }
+
+        private static async Task<Pipe<TResult>> BindWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<T, Pipe<TResult>> bind)
+        {
+            var container = await taskContainer.ConfigureAwait(false);
+
+            return container.Match(
                 containerOfValue => bind(containerOfValue.Content),
-                containerOfExceptionDispatchInfo => new Pipe<TResult>(containerOfExceptionDispatchInfo)
-            );
+                containerOfException => new Pipe<TResult>(containerOfException));
         }
 
         /// <summary>
-        /// 
+        /// Returns a new Pipe{T} instance based on the bind function that is invoked with the current T payload.
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="bind"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        [return: NotNull]
-        public async Task<Pipe<TResult>> BindAsync<TResult>([DisallowNull] Func<T, Task<Pipe<TResult>>> bind)
+        /// <remarks>Only executed when this Pipe{T} instance is not in an error state.</remarks>
+        /// <typeparam name="TResult">The target return result type to be returned by the bind function.</typeparam>
+        /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
+        /// <returns>A instance of Pipe{T} that was produced by the bind function.</returns>
+        /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
+        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<T, Task<Pipe<TResult>>> bind)
         {
             if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
 
-            return await MatchCtnInternal(
+            if (_isSync)
+            {
+                return _syncResult.Match(
+                    containerOfValue => bind(containerOfValue.Content),
+                    containerOfException => Task.FromResult(new Pipe<TResult>(containerOfException))
+                ).AsPipe();
+            }
+
+            return BindAsyncWithTaskContainerAsTaskPipe(_result, bind).AsPipe();
+        }
+
+        private static async Task<Pipe<TResult>> BindAsyncWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<T, Task<Pipe<TResult>>> bind)
+        {
+            var container = await taskContainer.ConfigureAwait(false);
+
+            return await container.Match(
                 containerOfValue => bind(containerOfValue.Content),
-                containerOfExceptionDispatchInfo => Task.FromResult(new Pipe<TResult>(containerOfExceptionDispatchInfo))
+                containerOfException => Task.FromResult(new Pipe<TResult>(containerOfException))
             ).ConfigureAwait(false);
         }
     }

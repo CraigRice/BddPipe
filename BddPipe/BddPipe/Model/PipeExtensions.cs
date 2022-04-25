@@ -22,5 +22,17 @@ namespace BddPipe.Model
                 Task.FromResult,
                 taskPipeData => taskPipeData
             );
+
+        private static async Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> ToContainerAsync<T>(this Task<Pipe<T>> taskPipe)
+        {
+            var pipe = await taskPipe.ConfigureAwait(false);
+            return await pipe.ToContainerAsync().ConfigureAwait(false);
+        }
+
+        public static Pipe<T> AsPipe<T>(this Task<Pipe<T>> taskPipe)
+        {
+            var container = taskPipe.ToContainerAsync();
+            return new Pipe<T>(container);
+        }
     }
 }
