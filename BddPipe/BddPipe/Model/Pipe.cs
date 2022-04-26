@@ -127,7 +127,7 @@ namespace BddPipe.Model
         /// <remarks>Only executed when this Pipe{T} instance is not in an error state.</remarks>
         /// <typeparam name="TResult">The target return result type to be returned by the bind function.</typeparam>
         /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
-        /// <returns>A instance of Pipe{T} that was produced by the bind function.</returns>
+        /// <returns>A new instance of Pipe{T} with the returned value or existing error state.</returns>
         /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
         public Pipe<TResult> Bind<TResult>([DisallowNull] Func<T, Pipe<TResult>> bind)
         {
@@ -158,7 +158,7 @@ namespace BddPipe.Model
         /// <remarks>Only executed when this Pipe{T} instance is not in an error state.</remarks>
         /// <typeparam name="TResult">The target return result type to be returned by the bind function.</typeparam>
         /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
-        /// <returns>A instance of Pipe{T} that was produced by the bind function.</returns>
+        /// <returns>A new instance of Pipe{T} with the returned value or existing error state.</returns>
         /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
         public Pipe<TResult> Bind<TResult>([DisallowNull] Func<T, Task<Pipe<TResult>>> bind)
         {
