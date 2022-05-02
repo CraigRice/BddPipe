@@ -11,6 +11,19 @@ namespace BddPipe.UnitTests.Model.PipeTests
     [TestFixture]
     public class MatchInternalTests
     {
+        [Test]
+        public void MatchInternal_DefaultPipe_ThrowsNotInitializedException()
+        {
+            Pipe<int> pipe = default;
+
+            Action call = () => pipe.MatchInternal(
+                syncState => false,
+                asyncState => true);
+
+            call.Should().ThrowExactly<PipeNotInitializedException>()
+                .WithMessage("Pipe has not been initialized");
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void MatchInternal_WithPipe_MatchesOnState(bool async)
@@ -26,19 +39,6 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 asyncState => true);
 
             result.Should().Be(async);
-        }
-
-        [Test]
-        public void MatchInternal_DefaultPipe_ThrowsNotInitializedException()
-        {
-            Pipe<int> pipe = default;
-
-            Action call = () => pipe.MatchInternal(
-                syncState => false,
-                asyncState => true);
-
-            call.Should().ThrowExactly<PipeNotInitializedException>()
-                .WithMessage("Pipe has not been initialized");
         }
 
         [Test]

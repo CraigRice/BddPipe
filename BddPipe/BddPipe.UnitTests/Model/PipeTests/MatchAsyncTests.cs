@@ -19,7 +19,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Func<Task> call = async () =>
             {
-                await default(Pipe<int>).MatchAsync(v => Task.FromResult(v), e => Task.FromResult(DefaultValue));
+                await default(Pipe<int>).MatchAsync(pipeState => Task.FromResult(pipeState.Value), e => Task.FromResult(DefaultValue));
             };
 
             (await call.Should().ThrowExactlyAsync<PipeNotInitializedException>())
@@ -28,25 +28,26 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncCtnDefaultValue_CallsFuncCtnT(bool async)
+        public async Task MatchAsync_WithFuncRight_CallsFuncRight(bool async)
         {
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<int>(DefaultValue, None);
+
             var pipe = async
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnT = Substitute.For<Func<int, Task<Unit>>>();
-            var fnError = Substitute.For<Func<ExceptionDispatchInfo, Task<Unit>>>();
+            var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
+            var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
 
             await pipe.MatchAsync(fnT, fnError);
 
-            await fnT.Received()(Arg.Is(DefaultValue));
+            await fnT.Received()(Arg.Is<PipeState<int>>(state => state.Value == DefaultValue));
             fnError.DidNotReceive();
         }
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncCtnError_CallsFuncCtnError(bool async)
+        public async Task MatchAsync_WithFuncLeft_CallsFuncLeft(bool async)
         {
             var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
@@ -54,25 +55,25 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnT = Substitute.For<Func<int, Task<Unit>>>();
-            var fnError = Substitute.For<Func<ExceptionDispatchInfo, Task<Unit>>>();
+            var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
+            var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
 
             await pipe.MatchAsync(fnT, fnError);
 
             fnT.DidNotReceive();
-            await fnError.Received()(Arg.Any<ExceptionDispatchInfo>());
+            await fnError.Received()(Arg.Any<PipeErrorState>());
         }
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncCtnDefaultValue_ReturnsFuncOutput(bool async)
+        public async Task MatchAsync_WithFuncRight_ReturnsFuncOutput(bool async)
         {
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<int>(DefaultValue, None);
             var pipe = async
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnError = Substitute.For<Func<ExceptionDispatchInfo, Task<string>>>();
+            var fnError = Substitute.For<Func<PipeErrorState, Task<string>>>();
 
             const string resultText = "some result";
             var result = await pipe.MatchAsync(value => Task.FromResult(resultText), fnError);
@@ -84,7 +85,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncCtnError_ReturnsFuncOutput(bool async)
+        public async Task MatchAsync_WithFuncLeft_ReturnsFuncOutput(bool async)
         {
             var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
@@ -92,7 +93,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnT = Substitute.For<Func<int, Task<string>>>();
+            var fnT = Substitute.For<Func<PipeState<int>, Task<string>>>();
 
             const string resultText = "some result";
             var result = await pipe.MatchAsync(fnT, value => Task.FromResult(resultText));
@@ -104,14 +105,14 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncCtnDefaultValueNull_ThrowsArgNullException(bool async)
+        public async Task MatchAsync_WithFuncRightNull_ThrowsArgNullException(bool async)
         {
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<int>(DefaultValue, None);
             var pipe = async
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnError = Substitute.For<Func<ExceptionDispatchInfo, Task<Unit>>>();
+            var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
 
             Func<Task> call = () => pipe.MatchAsync(null, fnError);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
@@ -123,7 +124,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncCtnErrorNull_ThrowsArgNullException(bool async)
+        public async Task MatchAsync_WithFuncLeftNull_ThrowsArgNullException(bool async)
         {
             var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
             Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
@@ -131,7 +132,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 ? new Pipe<int>(Task.FromResult(pipeState))
                 : new Pipe<int>(pipeState);
 
-            var fnT = Substitute.For<Func<int, Task<Unit>>>();
+            var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
 
             Func<Task> call = () => pipe.MatchAsync(fnT, null);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())

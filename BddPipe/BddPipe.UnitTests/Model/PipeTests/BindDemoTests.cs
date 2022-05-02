@@ -12,14 +12,14 @@ namespace BddPipe.UnitTests.Model.PipeTests
     {
         public static Pipe<T> OptionallyRunStep<T>(this Pipe<T> pipe, Predicate<T> isStepA, RecipeStep<T> recipeStepA, RecipeStep<T> recipeStepB)
         {
-            return pipe.Bind(t => isStepA(t)
+            return pipe.Bind(pipeState => isStepA(pipeState.Value)
                 ? pipe.AndRecipe(recipeStepA)
                 : pipe.AndRecipe(recipeStepB));
         }
 
         public static Pipe<T> OptionallyRunStepAsync<T>(this Pipe<T> pipe, Predicate<T> isStepA, RecipeStep<T> recipeStepA, RecipeStep<T> recipeStepB)
         {
-            return pipe.Bind(t => isStepA(t)
+            return pipe.Bind(pipeState => isStepA(pipeState.Value)
                 ? Task.FromResult(pipe.AndRecipe(recipeStepA))
                 : Task.FromResult(pipe.AndRecipe(recipeStepB)));
         }
