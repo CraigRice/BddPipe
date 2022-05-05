@@ -20,7 +20,9 @@ namespace BddPipe
         [NotNull]
         public ScenarioResult Result { get; }
 
-        internal PipeErrorState(Some<ExceptionDispatchInfo> exceptionDispatchInfo, Some<ScenarioResult> result)
+        internal PipeErrorState(
+            in Some<ExceptionDispatchInfo> exceptionDispatchInfo,
+            in Some<ScenarioResult> result)
         {
             ExceptionDispatchInfo = exceptionDispatchInfo.Value;
             Result = result.Value;

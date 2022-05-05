@@ -19,7 +19,7 @@ namespace BddPipe
         [NotNull]
         public ScenarioResult Result { get; }
 
-        internal PipeState(T value, Some<ScenarioResult> result)
+        internal PipeState(T value, in Some<ScenarioResult> result)
         {
             Value = value;
             Result = result.Value;
