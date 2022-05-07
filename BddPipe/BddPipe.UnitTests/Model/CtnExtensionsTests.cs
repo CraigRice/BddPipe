@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;

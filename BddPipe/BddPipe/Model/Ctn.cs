@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace BddPipe
+namespace BddPipe.Model
 {
     /// <summary>
     /// A container to represent progress and state so far

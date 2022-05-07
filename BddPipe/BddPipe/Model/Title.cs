@@ -1,4 +1,4 @@
-﻿namespace BddPipe
+﻿namespace BddPipe.Model
 {
     internal sealed class Title
     {
