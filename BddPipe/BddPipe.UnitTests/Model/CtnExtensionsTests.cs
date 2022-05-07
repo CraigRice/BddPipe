@@ -16,6 +16,8 @@ namespace BddPipe.UnitTests.Model
         private const string ScenarioTitle = "scenario-title";
         private const string GivenStepTitle = "given-step-title";
         private const string ThenStepTitle = "then-step-title";
+        private const string AndStepTitle = "and-step-title";
+        private const string ButStepTitle = "but-step-title";
 
         private Ctn<int> GetInitialCtnWithSuccessfulGiven() =>
             new Ctn<int>(
@@ -383,6 +385,7 @@ namespace BddPipe.UnitTests.Model
             var scenarioResult = ctn.ToResult().Value;
 
             scenarioResult.StepResults.Should().NotBeNull();
+            scenarioResult.StepResults.Should().BeEmpty();
             scenarioResult.Title.Should().BeNull();
             scenarioResult.Description.Should().Be("Scenario:");
         }
@@ -394,6 +397,7 @@ namespace BddPipe.UnitTests.Model
             var scenarioResult = ctn.ToResult().Value;
 
             scenarioResult.StepResults.Should().NotBeNull();
+            scenarioResult.StepResults.Should().BeEmpty();
             scenarioResult.Title.Should().Be(ScenarioTitle);
             scenarioResult.Description.Should().Be($"Scenario: {ScenarioTitle}");
         }
@@ -409,7 +413,7 @@ namespace BddPipe.UnitTests.Model
         }
 
         [Test]
-        public void ToResult_MultipleStepOutcomes_StepResultsMapped()
+        public void ToResult_MultipleStepOutcomesNoScenarioTitle_StepResultsMapped()
         {
             var stepOutcomes = new List<StepOutcome>
             {
@@ -427,6 +431,81 @@ namespace BddPipe.UnitTests.Model
             scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, $"{GivenStepTitle} [Passed]", Step.Given, 0);
             scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Inconclusive, null, "When [Inconclusive]", Step.When, 1);
             scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.NotRun, ThenStepTitle, $"{ThenStepTitle} [not run]", Step.Then, 2);
+        }
+
+        [Test]
+        public void ToResult_MultipleStepOutcomesWithScenarioTitle_StepResultsMapped()
+        {
+            const string scenarioTitle = "Scenario title";
+
+            var stepOutcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
+                new StepOutcome(Step.When, Outcome.Inconclusive, None),
+                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle)
+            };
+
+            var ctn = new Ctn<int>(DefaultValue, stepOutcomes, scenarioTitle);
+            var scenarioResult = ctn.ToResult().Value;
+
+            scenarioResult.StepResults.Should().NotBeNull();
+            scenarioResult.StepResults.Count.Should().Be(3);
+
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, $"  {GivenStepTitle} [Passed]", Step.Given, 0);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Inconclusive, null, "  When [Inconclusive]", Step.When, 1);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.NotRun, ThenStepTitle, $"  {ThenStepTitle} [not run]", Step.Then, 2);
+        }
+
+        [Test]
+        public void ToResult_MultipleStepOutcomesWithAndButNoScenarioTitle_StepResultsMapped()
+        {
+            var stepOutcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
+                new StepOutcome(Step.And, Outcome.Pass, AndStepTitle),
+                new StepOutcome(Step.When, Outcome.Inconclusive, None),
+                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle),
+                new StepOutcome(Step.But, Outcome.NotRun, ButStepTitle)
+            };
+
+            var ctn = new Ctn<int>(DefaultValue, stepOutcomes, None);
+            var scenarioResult = ctn.ToResult().Value;
+
+            scenarioResult.StepResults.Should().NotBeNull();
+            scenarioResult.StepResults.Count.Should().Be(5);
+
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, $"{GivenStepTitle} [Passed]", Step.Given, 0);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, AndStepTitle, $"  {AndStepTitle} [Passed]", Step.And, 1);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Inconclusive, null, "When [Inconclusive]", Step.When, 2);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.NotRun, ThenStepTitle, $"{ThenStepTitle} [not run]", Step.Then, 3);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.NotRun, ButStepTitle, $"  {ButStepTitle} [not run]", Step.But, 4);
+        }
+
+        [Test]
+        public void ToResult_MultipleStepOutcomesWithAndButScenarioTitle_StepResultsMapped()
+        {
+            const string scenarioTitle = "Scenario title";
+
+            var stepOutcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
+                new StepOutcome(Step.And, Outcome.Pass, AndStepTitle),
+                new StepOutcome(Step.When, Outcome.Inconclusive, None),
+                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle),
+                new StepOutcome(Step.But, Outcome.NotRun, ButStepTitle)
+            };
+
+            var ctn = new Ctn<int>(DefaultValue, stepOutcomes, scenarioTitle);
+            var scenarioResult = ctn.ToResult().Value;
+
+            scenarioResult.StepResults.Should().NotBeNull();
+            scenarioResult.StepResults.Count.Should().Be(5);
+
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, GivenStepTitle, $"  {GivenStepTitle} [Passed]", Step.Given, 0);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, AndStepTitle, $"    {AndStepTitle} [Passed]", Step.And, 1);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Inconclusive, null, "  When [Inconclusive]", Step.When, 2);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.NotRun, ThenStepTitle, $"  {ThenStepTitle} [not run]", Step.Then, 3);
+            scenarioResult.StepResults.ShouldHaveOutcomeAtIndex(Outcome.NotRun, ButStepTitle, $"    {ButStepTitle} [not run]", Step.But, 4);
         }
     }
 }

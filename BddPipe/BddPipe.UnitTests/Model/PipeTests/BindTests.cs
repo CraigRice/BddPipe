@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
@@ -13,6 +14,14 @@ namespace BddPipe.UnitTests.Model.PipeTests
     [TestFixture]
     public partial class BindTests
     {
+        private static Pipe<T> CreatePipe<T>(T value, bool fromTask, IReadOnlyList<StepOutcome> stepOutcomes, string scenarioTitle)
+        {
+            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ctn = new Ctn<T>(value, stepOutcomes, scenarioTitle);
+            return fromTask
+                ? new Pipe<T>(Task.FromResult(ctn))
+                : new Pipe<T>(ctn);
+        }
+
         private static Pipe<T> CreatePipe<T>(T value, bool fromTask) =>
             fromTask
                 ? new Pipe<T>(Task.FromResult<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>(new Ctn<T>(value, None)))
@@ -27,18 +36,47 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 : new Pipe<T>(new Ctn<ExceptionDispatchInfo>(exInfo, None));
         }
 
-        public Func<PipeState<string>, Pipe<int>> FnBindStringLength(string text)
+        private static Func<PipeState<string>, Pipe<int>> FnBindStringLength(string text)
         {
             var fn = Substitute.For<Func<PipeState<string>, Pipe<int>>>();
             fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(CreatePipe(text.Length, false));
             return fn;
         }
 
-        public Func<PipeState<string>, Task<Pipe<int>>> FnBindStringLengthAsync(string text)
+        private static Func<PipeState<string>, Task<Pipe<int>>> FnBindStringLengthAsync(string text)
         {
             var fn = Substitute.For<Func<PipeState<string>, Task<Pipe<int>>>>();
             fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(Task.FromResult(CreatePipe(text.Length, false)));
             return fn;
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Bind_PipeInSuccessState_BindArgIsPopulated(bool fromTask)
+        {
+            const string someText = "some text";
+            const string scenarioTitle = "Scenario title";
+            var stepOutcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, "Step 1"),
+                new StepOutcome(Step.And, Outcome.Fail, "Step 2")
+            };
+
+            var pipe = CreatePipe(someText, fromTask, stepOutcomes, scenarioTitle);
+
+            pipe.Bind(state =>
+            {
+                state.Should().NotBeNull();
+                state.Value.Should().Be(someText);
+                state.Result.Should().NotBeNull();
+                state.Result.Title.Should().Be(scenarioTitle);
+                state.Result.Description.Should().Be("Scenario: Scenario title");
+                state.Result.StepResults.Should().NotBeNull();
+                state.Result.StepResults.Count.Should().Be(stepOutcomes.Count);
+                state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "Step 1", "  Given Step 1 [Passed]", Step.Given, 0);
+                state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Fail, "Step 2", "    And Step 2 [Failed]", Step.And, 1);
+                return pipe;
+            });
         }
 
         [Test]
