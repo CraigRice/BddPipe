@@ -203,28 +203,16 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithScenarioData_MapArgIsPopulated(bool fromTask)
         {
-            const string someText = "some text";
-            const string scenarioTitle = "Scenario title";
-            var stepOutcomes = new List<StepOutcome>
-            {
-                new StepOutcome(Step.Given, Outcome.Pass, "Step 1"),
-                new StepOutcome(Step.And, Outcome.Fail, "Step 2")
-            };
+            var scenarioDetails = GetDefaultScenarioDetails();
 
-            var pipe = CreatePipe(fromTask, someText, stepOutcomes, scenarioTitle);
+            var pipe = CreatePipe(fromTask, scenarioDetails.Value, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             pipe.Match(
                 state =>
                 {
                     state.Should().NotBeNull();
-                    state.Value.Should().Be(someText);
-                    state.Result.Should().NotBeNull();
-                    state.Result.Title.Should().Be(scenarioTitle);
-                    state.Result.Description.Should().Be("Scenario: Scenario title");
-                    state.Result.StepResults.Should().NotBeNull();
-                    state.Result.StepResults.Count.Should().Be(stepOutcomes.Count);
-                    state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "Step 1", "  Given Step 1 [Passed]", Step.Given, 0);
-                    state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Fail, "Step 2", "    And Step 2 [Failed]", Step.And, 1);
+                    state.Value.Should().Be(scenarioDetails.Value);
+                    state.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                     return new Unit();
                 },
                 error =>
@@ -238,28 +226,16 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithActionWithScenarioData_MapArgIsPopulated(bool fromTask)
         {
-            const string someText = "some text";
-            const string scenarioTitle = "Scenario title";
-            var stepOutcomes = new List<StepOutcome>
-            {
-                new StepOutcome(Step.Given, Outcome.Pass, "Step 1"),
-                new StepOutcome(Step.And, Outcome.Fail, "Step 2")
-            };
+            var scenarioDetails = GetDefaultScenarioDetails();
 
-            var pipe = CreatePipe(fromTask, someText, stepOutcomes, scenarioTitle);
+            var pipe = CreatePipe(fromTask, scenarioDetails.Value, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             pipe.Match(
                 state =>
                 {
                     state.Should().NotBeNull();
-                    state.Value.Should().Be(someText);
-                    state.Result.Should().NotBeNull();
-                    state.Result.Title.Should().Be(scenarioTitle);
-                    state.Result.Description.Should().Be("Scenario: Scenario title");
-                    state.Result.StepResults.Should().NotBeNull();
-                    state.Result.StepResults.Count.Should().Be(stepOutcomes.Count);
-                    state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "Step 1", "  Given Step 1 [Passed]", Step.Given, 0);
-                    state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Fail, "Step 2", "    And Step 2 [Failed]", Step.And, 1);
+                    state.Value.Should().Be(scenarioDetails.Value);
+                    state.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                 },
                 error =>
                 {
@@ -272,9 +248,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithExceptionData_MapArgIsPopulated(bool fromTask)
         {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
+            var scenarioDetails = GetDefaultScenarioDetails();
 
-            var pipe = CreatePipeErrorState<int>(fromTask, exInfo);
+            var pipe = CreatePipeErrorState<int>(fromTask, scenarioDetails.ExceptionDispatchInfo, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             pipe.Match(
                 state =>
@@ -286,7 +262,8 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 {
                     error.Should().NotBeNull();
                     error.ExceptionDispatchInfo.Should().NotBeNull();
-                    error.ExceptionDispatchInfo.Should().Be(exInfo);
+                    error.ExceptionDispatchInfo.Should().Be(scenarioDetails.ExceptionDispatchInfo);
+                    error.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                     return new Unit();
                 });
         }
@@ -295,9 +272,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithActionWithExceptionData_MapArgIsPopulated(bool fromTask)
         {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
+            var scenarioDetails = GetDefaultScenarioDetails();
 
-            var pipe = CreatePipeErrorState<int>(fromTask, exInfo);
+            var pipe = CreatePipeErrorState<int>(fromTask, scenarioDetails.ExceptionDispatchInfo, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             pipe.Match(
                 state =>
@@ -308,7 +285,8 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 {
                     error.Should().NotBeNull();
                     error.ExceptionDispatchInfo.Should().NotBeNull();
-                    error.ExceptionDispatchInfo.Should().Be(exInfo);
+                    error.ExceptionDispatchInfo.Should().Be(scenarioDetails.ExceptionDispatchInfo);
+                    error.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                 });
         }
     }

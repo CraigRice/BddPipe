@@ -56,6 +56,46 @@ namespace BddPipe.UnitTests.Model.PipeTests
             });
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Bind_NullSyncFunc_ThrowsArgNullException(bool fromTask)
+        {
+            const string someText = "some text";
+            var fn = FnBindStringLength(someText);
+
+            var pipe = CreatePipe(fromTask, someText);
+
+            Action call = () =>
+            {
+                Func<PipeState<string>, Pipe<string>> fn = null;
+                pipe.Bind(fn);
+            };
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("bind");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Bind_NullAsyncFunc_ThrowsArgNullException(bool fromTask)
+        {
+            const string someText = "some text";
+            var fn = FnBindStringLength(someText);
+
+            var pipe = CreatePipe(fromTask, someText);
+
+            Action call = () =>
+            {
+                Func<PipeState<string>, Task<Pipe<string>>> fn = null;
+                pipe.Bind(fn);
+            };
+
+            call.Should().ThrowExactly<ArgumentNullException>()
+                .Which
+                .ParamName.Should().Be("bind");
+        }
+
         [Test]
         public void Bind_DefaultPipeWithSyncFunc_ThrowsNotInitializedException()
         {
