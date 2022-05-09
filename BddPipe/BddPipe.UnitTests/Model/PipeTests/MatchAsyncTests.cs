@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
+using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using static BddPipe.F;
+using static BddPipe.UnitTests.Model.PipeTests.PipeTestsHelper;
 
 namespace BddPipe.UnitTests.Model.PipeTests
 {
@@ -28,13 +30,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncRight_CallsFuncRight(bool async)
+        public async Task MatchAsync_WithFuncRight_CallsFuncRight(bool fromTask)
         {
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<int>(DefaultValue, None);
-
-            var pipe = async
-                ? new Pipe<int>(Task.FromResult(pipeState))
-                : new Pipe<int>(pipeState);
+            var pipe = CreatePipe(DefaultValue, fromTask);
 
             var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
             var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
@@ -47,13 +45,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncLeft_CallsFuncLeft(bool async)
+        public async Task MatchAsync_WithFuncLeft_CallsFuncLeft(bool fromTask)
         {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
-            var pipe = async
-                ? new Pipe<int>(Task.FromResult(pipeState))
-                : new Pipe<int>(pipeState);
+            var pipe = CreatePipeErrorState<int>(fromTask);
 
             var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
             var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
@@ -66,12 +60,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncRight_ReturnsFuncOutput(bool async)
+        public async Task MatchAsync_WithFuncRight_ReturnsFuncOutput(bool fromTask)
         {
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<int>(DefaultValue, None);
-            var pipe = async
-                ? new Pipe<int>(Task.FromResult(pipeState))
-                : new Pipe<int>(pipeState);
+            var pipe = CreatePipe(DefaultValue, fromTask);
 
             var fnError = Substitute.For<Func<PipeErrorState, Task<string>>>();
 
@@ -85,13 +76,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncLeft_ReturnsFuncOutput(bool async)
+        public async Task MatchAsync_WithFuncLeft_ReturnsFuncOutput(bool fromTask)
         {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
-            var pipe = async
-                ? new Pipe<int>(Task.FromResult(pipeState))
-                : new Pipe<int>(pipeState);
+            var pipe = CreatePipeErrorState<int>(fromTask);
 
             var fnT = Substitute.For<Func<PipeState<int>, Task<string>>>();
 
@@ -105,12 +92,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncRightNull_ThrowsArgNullException(bool async)
+        public async Task MatchAsync_WithFuncRightNull_ThrowsArgNullException(bool fromTask)
         {
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<int>(DefaultValue, None);
-            var pipe = async
-                ? new Pipe<int>(Task.FromResult(pipeState))
-                : new Pipe<int>(pipeState);
+            var pipe = CreatePipe(DefaultValue, fromTask);
 
             var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
 
@@ -124,13 +108,9 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task MatchAsync_WithFuncLeftNull_ThrowsArgNullException(bool async)
+        public async Task MatchAsync_WithFuncLeftNull_ThrowsArgNullException(bool fromTask)
         {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
-            var pipe = async
-                ? new Pipe<int>(Task.FromResult(pipeState))
-                : new Pipe<int>(pipeState);
+            var pipe = CreatePipeErrorState<int>(fromTask);
 
             var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
 
@@ -140,6 +120,62 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 .ParamName.Should().Be("error");
 
             fnT.DidNotReceive();
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task MatchAsync_WithScenarioData_MapArgIsPopulated(bool fromTask)
+        {
+            const string someText = "some text";
+            const string scenarioTitle = "Scenario title";
+            var stepOutcomes = new List<StepOutcome>
+            {
+                new StepOutcome(Step.Given, Outcome.Pass, "Step 1"),
+                new StepOutcome(Step.And, Outcome.Fail, "Step 2")
+            };
+
+            var pipe = CreatePipe(someText, fromTask, stepOutcomes, scenarioTitle);
+
+            await pipe.MatchAsync(
+                state =>
+                {
+                    state.Should().NotBeNull();
+                    state.Value.Should().Be(someText);
+                    state.Result.Should().NotBeNull();
+                    state.Result.Title.Should().Be(scenarioTitle);
+                    state.Result.Description.Should().Be("Scenario: Scenario title");
+                    state.Result.StepResults.Should().NotBeNull();
+                    state.Result.StepResults.Count.Should().Be(stepOutcomes.Count);
+                    state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Pass, "Step 1", "  Given Step 1 [Passed]", Step.Given, 0);
+                    state.Result.StepResults.ShouldHaveOutcomeAtIndex(Outcome.Fail, "Step 2", "    And Step 2 [Failed]", Step.And, 1);
+                    return Task.FromResult(new Unit());
+                },
+                error =>
+                {
+                    Assert.Fail("Expecting value state but was error state.");
+                    return Task.FromResult(new Unit());
+                });
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void MatchAsync_WithExceptionData_MapArgIsPopulated(bool fromTask)
+        {
+            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
+
+            var pipe = CreatePipeErrorState<int>(fromTask, exInfo);
+
+            pipe.Match(
+                state =>
+                {
+                    Assert.Fail("Expecting error state but was value state.");
+                },
+                error =>
+                {
+                    error.Should().NotBeNull();
+                    error.ExceptionDispatchInfo.Should().NotBeNull();
+                    error.ExceptionDispatchInfo.Should().Be(exInfo);
+                });
         }
     }
 }

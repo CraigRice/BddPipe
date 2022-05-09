@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
-using static BddPipe.F;
+using static BddPipe.UnitTests.Model.PipeTests.PipeTestsHelper;
 using NUnit.Framework;
 
 namespace BddPipe.UnitTests.Model.PipeTests
@@ -14,28 +13,6 @@ namespace BddPipe.UnitTests.Model.PipeTests
     [TestFixture]
     public partial class BindTests
     {
-        private static Pipe<T> CreatePipe<T>(T value, bool fromTask, IReadOnlyList<StepOutcome> stepOutcomes, string scenarioTitle)
-        {
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ctn = new Ctn<T>(value, stepOutcomes, scenarioTitle);
-            return fromTask
-                ? new Pipe<T>(Task.FromResult(ctn))
-                : new Pipe<T>(ctn);
-        }
-
-        private static Pipe<T> CreatePipe<T>(T value, bool fromTask) =>
-            fromTask
-                ? new Pipe<T>(Task.FromResult<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>(new Ctn<T>(value, None)))
-                : new Pipe<T>(new Ctn<T>(value, None));
-
-        private static Pipe<T> CreatePipeErrorState<T>(bool fromTask)
-        {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
-            return
-                fromTask
-                ? new Pipe<T>(Task.FromResult<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>(new Ctn<ExceptionDispatchInfo>(exInfo, None)))
-                : new Pipe<T>(new Ctn<ExceptionDispatchInfo>(exInfo, None));
-        }
-
         private static Func<PipeState<string>, Pipe<int>> FnBindStringLength(string text)
         {
             var fn = Substitute.For<Func<PipeState<string>, Pipe<int>>>();
