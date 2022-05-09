@@ -9,7 +9,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 {
     internal static class PipeTestsHelper
     {
-        public static Pipe<T> CreatePipe<T>(T value, bool fromTask, IReadOnlyList<StepOutcome> stepOutcomes, string scenarioTitle)
+        public static Pipe<T> CreatePipe<T>(bool fromTask, T value, IReadOnlyList<StepOutcome> stepOutcomes, string scenarioTitle)
         {
             Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ctn = new Ctn<T>(value, stepOutcomes, scenarioTitle);
             return fromTask
@@ -17,7 +17,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 : new Pipe<T>(ctn);
         }
 
-        public static Pipe<T> CreatePipe<T>(T value, bool fromTask) =>
+        public static Pipe<T> CreatePipe<T>(bool fromTask, T value) =>
             fromTask
                 ? new Pipe<T>(Task.FromResult<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>(new Ctn<T>(value, None)))
                 : new Pipe<T>(new Ctn<T>(value, None));

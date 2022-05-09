@@ -32,7 +32,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public async Task MatchAsync_WithFuncRight_CallsFuncRight(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
             var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
@@ -62,7 +62,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public async Task MatchAsync_WithFuncRight_ReturnsFuncOutput(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnError = Substitute.For<Func<PipeErrorState, Task<string>>>();
 
@@ -94,7 +94,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public async Task MatchAsync_WithFuncRightNull_ThrowsArgNullException(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
 
@@ -134,7 +134,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 new StepOutcome(Step.And, Outcome.Fail, "Step 2")
             };
 
-            var pipe = CreatePipe(someText, fromTask, stepOutcomes, scenarioTitle);
+            var pipe = CreatePipe(fromTask, someText, stepOutcomes, scenarioTitle);
 
             await pipe.MatchAsync(
                 state =>

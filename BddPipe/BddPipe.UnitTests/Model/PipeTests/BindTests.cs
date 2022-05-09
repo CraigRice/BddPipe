@@ -16,14 +16,14 @@ namespace BddPipe.UnitTests.Model.PipeTests
         private static Func<PipeState<string>, Pipe<int>> FnBindStringLength(string text)
         {
             var fn = Substitute.For<Func<PipeState<string>, Pipe<int>>>();
-            fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(CreatePipe(text.Length, false));
+            fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(CreatePipe(false, text.Length));
             return fn;
         }
 
         private static Func<PipeState<string>, Task<Pipe<int>>> FnBindStringLengthAsync(string text)
         {
             var fn = Substitute.For<Func<PipeState<string>, Task<Pipe<int>>>>();
-            fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(Task.FromResult(CreatePipe(text.Length, false)));
+            fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(Task.FromResult(CreatePipe(false, text.Length)));
             return fn;
         }
 
@@ -39,7 +39,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 new StepOutcome(Step.And, Outcome.Fail, "Step 2")
             };
 
-            var pipe = CreatePipe(someText, fromTask, stepOutcomes, scenarioTitle);
+            var pipe = CreatePipe(fromTask, someText, stepOutcomes, scenarioTitle);
 
             pipe.Bind(state =>
             {
@@ -89,7 +89,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             const string someText = "some text";
             var fn = FnBindStringLength(someText);
 
-            CreatePipe(someText, fromTask)
+            CreatePipe(fromTask, someText)
                 .Bind(fn)
                 .ShouldBeSuccessful(ctnT =>
                 {
@@ -106,7 +106,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             const string someText = "some text";
             var fn = FnBindStringLengthAsync(someText);
 
-            CreatePipe(someText, fromTask)
+            CreatePipe(fromTask, someText)
                 .Bind(fn)
                 .ShouldBeSuccessful(ctnT =>
                 {

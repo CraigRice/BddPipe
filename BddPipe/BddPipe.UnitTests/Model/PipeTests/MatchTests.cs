@@ -44,7 +44,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithActionRight_CallsActionCtnT(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnT = Substitute.For<Action<PipeState<int>>>();
             var fnError = Substitute.For<Action<PipeErrorState>>();
@@ -74,7 +74,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithActionRightNull_ThrowsArgNullException(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnError = Substitute.For<Action<PipeErrorState>>();
 
@@ -106,7 +106,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithFuncRight_CallsFuncRight(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnT = Substitute.For<Func<PipeState<int>, Unit>>();
             var fnError = Substitute.For<Func<PipeErrorState, Unit>>();
@@ -136,7 +136,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithFuncRight_ReturnsFuncRightOutput(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnError = Substitute.For<Func<PipeErrorState, string>>();
 
@@ -171,7 +171,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithFuncRightNull_ThrowsArgNullException(bool fromTask)
         {
-            var pipe = CreatePipe(DefaultValue, fromTask);
+            var pipe = CreatePipe(fromTask, DefaultValue);
 
             var fnError = Substitute.For<Func<PipeErrorState, Unit>>();
 
@@ -211,7 +211,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 new StepOutcome(Step.And, Outcome.Fail, "Step 2")
             };
 
-            var pipe = CreatePipe(someText, fromTask, stepOutcomes, scenarioTitle);
+            var pipe = CreatePipe(fromTask, someText, stepOutcomes, scenarioTitle);
 
             pipe.Match(
                 state =>
@@ -246,7 +246,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 new StepOutcome(Step.And, Outcome.Fail, "Step 2")
             };
 
-            var pipe = CreatePipe(someText, fromTask, stepOutcomes, scenarioTitle);
+            var pipe = CreatePipe(fromTask, someText, stepOutcomes, scenarioTitle);
 
             pipe.Match(
                 state =>
