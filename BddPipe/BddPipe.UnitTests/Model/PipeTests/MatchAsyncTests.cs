@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using BddPipe.Model;
-using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -34,12 +31,12 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
-            var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Task<Unit>>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Task<Unit>>>();
 
             await pipe.MatchAsync(fnT, fnError);
 
-            await fnT.Received()(Arg.Is<PipeState<int>>(state => state.Value == DefaultValue));
+            await fnT.Received()(Arg.Is<PipeData<int>>(state => state.Value == DefaultValue));
             fnError.DidNotReceive();
         }
 
@@ -49,13 +46,13 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
-            var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Task<Unit>>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Task<Unit>>>();
 
             await pipe.MatchAsync(fnT, fnError);
 
             fnT.DidNotReceive();
-            await fnError.Received()(Arg.Any<PipeErrorState>());
+            await fnError.Received()(Arg.Any<PipeErrorData>());
         }
 
         [TestCase(true)]
@@ -64,7 +61,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnError = Substitute.For<Func<PipeErrorState, Task<string>>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Task<string>>>();
 
             const string resultText = "some result";
             var result = await pipe.MatchAsync(value => Task.FromResult(resultText), fnError);
@@ -80,7 +77,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Task<string>>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Task<string>>>();
 
             const string resultText = "some result";
             var result = await pipe.MatchAsync(fnT, value => Task.FromResult(resultText));
@@ -96,7 +93,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnError = Substitute.For<Func<PipeErrorState, Task<Unit>>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Task<Unit>>>();
 
             Func<Task> call = () => pipe.MatchAsync(null, fnError);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
@@ -112,7 +109,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Task<Unit>>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Task<Unit>>>();
 
             Func<Task> call = () => pipe.MatchAsync(fnT, null);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())

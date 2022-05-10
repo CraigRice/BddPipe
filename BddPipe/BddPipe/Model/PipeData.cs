@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace BddPipe
+namespace BddPipe.Model
 {
     /// <summary>
     /// Represents the state of a Pipe{T} instance when no error has occurred.
     /// </summary>
-    public sealed class PipeState<T> : IScenarioResult
+    public sealed class PipeData<T> : IScenarioResult
     {
         /// <summary>
         /// Pipe{T} current value.
@@ -19,7 +19,7 @@ namespace BddPipe
         [NotNull]
         public ScenarioResult Result { get; }
 
-        internal PipeState(T value, in Some<ScenarioResult> result)
+        internal PipeData(T value, in Some<ScenarioResult> result)
         {
             Value = value;
             Result = result.Value;

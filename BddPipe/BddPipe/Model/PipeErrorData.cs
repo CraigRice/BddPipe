@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 
-namespace BddPipe
+namespace BddPipe.Model
 {
     /// <summary>
     /// Represents the state of a Pipe{T} instance when in an error state.
     /// </summary>
-    public sealed class PipeErrorState : IScenarioResult
+    public sealed class PipeErrorData : IScenarioResult
     {
         /// <summary>
         /// Pipe{T} exception data.
@@ -20,7 +20,7 @@ namespace BddPipe
         [NotNull]
         public ScenarioResult Result { get; }
 
-        internal PipeErrorState(
+        internal PipeErrorData(
             in Some<ExceptionDispatchInfo> exceptionDispatchInfo,
             in Some<ScenarioResult> result)
         {

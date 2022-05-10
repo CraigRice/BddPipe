@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace BddPipe
+namespace BddPipe.Model
 {
     /// <summary>
     /// When the test is successful and no exceptions are thrown this will be the final result

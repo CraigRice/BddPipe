@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace BddPipe
+namespace BddPipe.Model
 {
     /// <summary>
     /// Describes the outcome after running one or many steps.

@@ -70,7 +70,7 @@ namespace BddPipe.Model
         /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
         [return: MaybeNull]
-        public TResult Match<TResult>([DisallowNull] Func<PipeState<T>, TResult> value, [DisallowNull] Func<PipeErrorState, TResult> error)
+        public TResult Match<TResult>([DisallowNull] Func<PipeData<T>, TResult> value, [DisallowNull] Func<PipeErrorData, TResult> error)
         {
             if (value == null) { throw new ArgumentNullException(nameof(value)); }
             if (error == null) { throw new ArgumentNullException(nameof(error)); }
@@ -78,8 +78,8 @@ namespace BddPipe.Model
 
             var container = this.ToContainer();
             return container.Match(
-                containerOfValue => value(new PipeState<T>(containerOfValue.Content, containerOfValue.ToResult())),
-                containerOfException => error(new PipeErrorState(containerOfException.Content, containerOfException.ToResult()))
+                containerOfValue => value(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => error(new PipeErrorData(containerOfException.Content, containerOfException.ToResult()))
             );
         }
 
@@ -91,7 +91,7 @@ namespace BddPipe.Model
         /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
         [return: NotNull]
-        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<PipeState<T>, Task<TResult>> value, [DisallowNull] Func<PipeErrorState, Task<TResult>> error)
+        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<PipeData<T>, Task<TResult>> value, [DisallowNull] Func<PipeErrorData, Task<TResult>> error)
         {
             if (value == null) { throw new ArgumentNullException(nameof(value)); }
             if (error == null) { throw new ArgumentNullException(nameof(error)); }
@@ -102,8 +102,8 @@ namespace BddPipe.Model
                 : await _result.ConfigureAwait(false);
 
             return await target.Match(
-                containerOfValue => value(new PipeState<T>(containerOfValue.Content, containerOfValue.ToResult())),
-                containerOfException => error(new PipeErrorState(containerOfException.Content, containerOfException.ToResult()))
+                containerOfValue => value(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => error(new PipeErrorData(containerOfException.Content, containerOfException.ToResult()))
             ).ConfigureAwait(false);
         }
 
@@ -113,7 +113,7 @@ namespace BddPipe.Model
         /// <param name="value">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
         /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns>An instance of Unit.</returns>
-        public Unit Match([DisallowNull] Action<PipeState<T>> value, [DisallowNull] Action<PipeErrorState> error)
+        public Unit Match([DisallowNull] Action<PipeData<T>> value, [DisallowNull] Action<PipeErrorData> error)
         {
             if (value == null) { throw new ArgumentNullException(nameof(value)); }
             if (error == null) { throw new ArgumentNullException(nameof(error)); }
@@ -129,7 +129,7 @@ namespace BddPipe.Model
         /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
         /// <returns>A new instance of Pipe{T} with the returned value or existing error state.</returns>
         /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
-        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<PipeState<T>, Pipe<TResult>> bind)
+        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<PipeData<T>, Pipe<TResult>> bind)
         {
             if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
@@ -137,19 +137,19 @@ namespace BddPipe.Model
             if (_isSync)
             {
                 return _syncResult.Match(
-                    containerOfValue => bind(new PipeState<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                    containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
                     containerOfException => new Pipe<TResult>(containerOfException));
             }
 
             return BindWithTaskContainerAsTaskPipe(_result, bind).AsPipe();
         }
 
-        private static async Task<Pipe<TResult>> BindWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<PipeState<T>, Pipe<TResult>> bind)
+        private static async Task<Pipe<TResult>> BindWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<PipeData<T>, Pipe<TResult>> bind)
         {
             var container = await taskContainer.ConfigureAwait(false);
 
             return container.Match(
-                containerOfValue => bind(new PipeState<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
                 containerOfException => new Pipe<TResult>(containerOfException));
         }
 
@@ -161,7 +161,7 @@ namespace BddPipe.Model
         /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
         /// <returns>A new instance of Pipe{T} with the returned value or existing error state.</returns>
         /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
-        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<PipeState<T>, Task<Pipe<TResult>>> bind)
+        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<PipeData<T>, Task<Pipe<TResult>>> bind)
         {
             if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
@@ -169,7 +169,7 @@ namespace BddPipe.Model
             if (_isSync)
             {
                 return _syncResult.Match(
-                    containerOfValue => bind(new PipeState<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                    containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
                     containerOfException => Task.FromResult(new Pipe<TResult>(containerOfException))
                 ).AsPipe();
             }
@@ -177,12 +177,12 @@ namespace BddPipe.Model
             return BindAsyncWithTaskContainerAsTaskPipe(_result, bind).AsPipe();
         }
 
-        private static async Task<Pipe<TResult>> BindAsyncWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<PipeState<T>, Task<Pipe<TResult>>> bind)
+        private static async Task<Pipe<TResult>> BindAsyncWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<PipeData<T>, Task<Pipe<TResult>>> bind)
         {
             var container = await taskContainer.ConfigureAwait(false);
 
             return await container.Match(
-                containerOfValue => bind(new PipeState<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
                 containerOfException => Task.FromResult(new Pipe<TResult>(containerOfException))
             ).ConfigureAwait(false);
         }

@@ -13,17 +13,17 @@ namespace BddPipe.UnitTests.Model.PipeTests
     [TestFixture]
     public partial class BindTests
     {
-        private static Func<PipeState<string>, Pipe<int>> FnBindStringLength(string text)
+        private static Func<PipeData<string>, Pipe<int>> FnBindStringLength(string text)
         {
-            var fn = Substitute.For<Func<PipeState<string>, Pipe<int>>>();
-            fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(CreatePipe(false, text.Length));
+            var fn = Substitute.For<Func<PipeData<string>, Pipe<int>>>();
+            fn(Arg.Is<PipeData<string>>(state => state.Value == text)).Returns(CreatePipe(false, text.Length));
             return fn;
         }
 
-        private static Func<PipeState<string>, Task<Pipe<int>>> FnBindStringLengthAsync(string text)
+        private static Func<PipeData<string>, Task<Pipe<int>>> FnBindStringLengthAsync(string text)
         {
-            var fn = Substitute.For<Func<PipeState<string>, Task<Pipe<int>>>>();
-            fn(Arg.Is<PipeState<string>>(state => state.Value == text)).Returns(Task.FromResult(CreatePipe(false, text.Length)));
+            var fn = Substitute.For<Func<PipeData<string>, Task<Pipe<int>>>>();
+            fn(Arg.Is<PipeData<string>>(state => state.Value == text)).Returns(Task.FromResult(CreatePipe(false, text.Length)));
             return fn;
         }
 
@@ -67,7 +67,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             Action call = () =>
             {
-                Func<PipeState<string>, Pipe<string>> fn = null;
+                Func<PipeData<string>, Pipe<string>> fn = null;
                 pipe.Bind(fn);
             };
 
@@ -87,7 +87,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             Action call = () =>
             {
-                Func<PipeState<string>, Task<Pipe<string>>> fn = null;
+                Func<PipeData<string>, Task<Pipe<string>>> fn = null;
                 pipe.Bind(fn);
             };
 
@@ -101,7 +101,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Action call = () =>
             {
-                var fn = Substitute.For<Func<PipeState<int>, Pipe<string>>>();
+                var fn = Substitute.For<Func<PipeData<int>, Pipe<string>>>();
                 default(Pipe<int>).Bind(fn);
             };
 
@@ -114,7 +114,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Action call = () =>
             {
-                var fn = Substitute.For<Func<PipeState<int>, Task<Pipe<string>>>>();
+                var fn = Substitute.For<Func<PipeData<int>, Task<Pipe<string>>>>();
                 default(Pipe<int>).Bind(fn);
             };
 
@@ -136,7 +136,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     ctnT.Content.Should().Be(9);
                 });
 
-            fn.Received()(Arg.Is<PipeState<string>>(state => state.Value == someText));
+            fn.Received()(Arg.Is<PipeData<string>>(state => state.Value == someText));
         }
 
         [TestCase(true)]
@@ -153,7 +153,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     ctnT.Content.Should().Be(9);
                 });
 
-            await fn.Received()(Arg.Is<PipeState<string>>(state => state.Value == someText));
+            await fn.Received()(Arg.Is<PipeData<string>>(state => state.Value == someText));
         }
 
         [TestCase(true)]
@@ -171,7 +171,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     err.Content.SourceException.Message.Should().Be("test error");
                 });
 
-            fn.DidNotReceiveWithAnyArgs()(Arg.Any<PipeState<string>>());
+            fn.DidNotReceiveWithAnyArgs()(Arg.Any<PipeData<string>>());
         }
 
         [TestCase(true)]
@@ -189,7 +189,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     err.Content.SourceException.Message.Should().Be("test error");
                 });
 
-            await fn.DidNotReceiveWithAnyArgs()(Arg.Any<PipeState<string>>());
+            await fn.DidNotReceiveWithAnyArgs()(Arg.Any<PipeData<string>>());
         }
     }
 }

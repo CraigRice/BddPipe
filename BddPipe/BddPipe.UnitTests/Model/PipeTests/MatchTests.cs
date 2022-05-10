@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
 using BddPipe.Model;
-using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -46,12 +44,12 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnT = Substitute.For<Action<PipeState<int>>>();
-            var fnError = Substitute.For<Action<PipeErrorState>>();
+            var fnT = Substitute.For<Action<PipeData<int>>>();
+            var fnError = Substitute.For<Action<PipeErrorData>>();
 
             pipe.Match(fnT, fnError);
 
-            fnT.Received()(Arg.Any<PipeState<int>>());
+            fnT.Received()(Arg.Any<PipeData<int>>());
             fnError.DidNotReceive();
         }
 
@@ -61,13 +59,13 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Action<PipeState<int>>>();
-            var fnError = Substitute.For<Action<PipeErrorState>>();
+            var fnT = Substitute.For<Action<PipeData<int>>>();
+            var fnError = Substitute.For<Action<PipeErrorData>>();
 
             pipe.Match(fnT, fnError);
 
             fnT.DidNotReceive();
-            fnError.Received()(Arg.Any<PipeErrorState>());
+            fnError.Received()(Arg.Any<PipeErrorData>());
         }
 
         [TestCase(true)]
@@ -76,7 +74,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnError = Substitute.For<Action<PipeErrorState>>();
+            var fnError = Substitute.For<Action<PipeErrorData>>();
 
             Action call = () => pipe.Match(null, fnError);
             call.Should().ThrowExactly<ArgumentNullException>()
@@ -92,7 +90,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Action<PipeState<int>>>();
+            var fnT = Substitute.For<Action<PipeData<int>>>();
 
             Action call = () => pipe.Match(fnT, null);
             call.Should().ThrowExactly<ArgumentNullException>()
@@ -108,12 +106,12 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Unit>>();
-            var fnError = Substitute.For<Func<PipeErrorState, Unit>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Unit>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Unit>>();
 
             pipe.Match(fnT, fnError);
 
-            fnT.Received()(Arg.Any<PipeState<int>>());
+            fnT.Received()(Arg.Any<PipeData<int>>());
             fnError.DidNotReceive();
         }
 
@@ -123,13 +121,13 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Unit>>();
-            var fnError = Substitute.For<Func<PipeErrorState, Unit>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Unit>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Unit>>();
 
             pipe.Match(fnT, fnError);
 
             fnT.DidNotReceive();
-            fnError.Received()(Arg.Any<PipeErrorState>());
+            fnError.Received()(Arg.Any<PipeErrorData>());
         }
 
         [TestCase(true)]
@@ -138,7 +136,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnError = Substitute.For<Func<PipeErrorState, string>>();
+            var fnError = Substitute.For<Func<PipeErrorData, string>>();
 
             const string resultText = "some result";
             var result = pipe.Match(ctnInt => resultText, fnError);
@@ -157,7 +155,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Func<PipeState<int>, string>>();
+            var fnT = Substitute.For<Func<PipeData<int>, string>>();
 
             const string resultText = "some result";
             var result = pipe.Match(fnT, ctnError => resultText);
@@ -173,7 +171,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipe(fromTask, DefaultValue);
 
-            var fnError = Substitute.For<Func<PipeErrorState, Unit>>();
+            var fnError = Substitute.For<Func<PipeErrorData, Unit>>();
 
             Action call = () => pipe.Match(null, fnError);
             call.Should().ThrowExactly<ArgumentNullException>()
@@ -189,7 +187,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             var pipe = CreatePipeErrorState<int>(fromTask);
 
-            var fnT = Substitute.For<Func<PipeState<int>, Unit>>();
+            var fnT = Substitute.For<Func<PipeData<int>, Unit>>();
 
             Action call = () => pipe.Match(fnT, null);
             call.Should().ThrowExactly<ArgumentNullException>()

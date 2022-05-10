@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using BddPipe.Model;
 using FluentAssertions;
 using NUnit.Framework;
 
