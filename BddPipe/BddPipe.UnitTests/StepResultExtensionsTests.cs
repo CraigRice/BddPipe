@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using static BddPipe.F;

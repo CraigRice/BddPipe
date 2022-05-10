@@ -79,12 +79,12 @@ namespace BddPipe.UnitTests
                     .Then("sum should be as expected", arg => { arg.Result.Should().Be(15); });
 
             var raisedExceptionStackTrace = pipeRaisingEx.Match(
-                ctnValue => throw new InconclusiveException("Expecting an exception was raised by a step"),
-                ctnError =>
+                pipeState => throw new InconclusiveException("Expecting an exception was raised by a step"),
+                pipeErrorState =>
                 {
                     try
                     {
-                        ctnError.Content.Throw();
+                        pipeErrorState.ExceptionDispatchInfo.Throw();
                     }
                     catch (Exception ex)
                     {

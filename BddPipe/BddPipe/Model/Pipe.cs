@@ -66,53 +66,125 @@ namespace BddPipe.Model
         /// Returns the value based on the function implementation of each state.
         /// </summary>
         /// <typeparam name="TResult">The target return result type to be returned by both supplied functions.</typeparam>
-        /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
-        /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
+        /// <param name="value">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+        /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
         [return: MaybeNull]
-        public TResult Match<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        public TResult Match<TResult>([DisallowNull] Func<PipeData<T>, TResult> value, [DisallowNull] Func<PipeErrorData, TResult> error)
         {
-            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
-            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
+            if (error == null) { throw new ArgumentNullException(nameof(error)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
-            var target = _isSync ? _syncResult : TaskFunctions.RunAndWait(_result);
-            return target.Match(containerOfValue, containerOfError);
+            var container = this.ToContainer();
+            return container.Match(
+                containerOfValue => value(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => error(new PipeErrorData(containerOfException.Content, containerOfException.ToResult()))
+            );
         }
 
         /// <summary>
         /// Returns the value based on the function implementation of each state.
         /// </summary>
         /// <typeparam name="TResult">The target return result type to be returned by both supplied functions.</typeparam>
-        /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
-        /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
+        /// <param name="value">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+        /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns></returns>
         [return: NotNull]
-        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<Ctn<T>, TResult> containerOfValue, [DisallowNull] Func<Ctn<ExceptionDispatchInfo>, TResult> containerOfError)
+        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<PipeData<T>, Task<TResult>> value, [DisallowNull] Func<PipeErrorData, Task<TResult>> error)
         {
-            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
-            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
+            if (error == null) { throw new ArgumentNullException(nameof(error)); }
             if (!_isInitialized) { throw new PipeNotInitializedException(); }
 
             var target = _isSync
                 ? _syncResult
                 : await _result.ConfigureAwait(false);
 
-            return target.Match(containerOfValue, containerOfError);
+            return await target.Match(
+                containerOfValue => value(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => error(new PipeErrorData(containerOfException.Content, containerOfException.ToResult()))
+            ).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Performs an action based on the value based on the function implementation of each state.
         /// </summary>
-        /// <param name="containerOfValue">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
-        /// <param name="containerOfError">The function to execute if the Pipe{T} is in an error state.</param>
+        /// <param name="value">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+        /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
         /// <returns>An instance of Unit.</returns>
-        public Unit Match([DisallowNull] Action<Ctn<T>> containerOfValue, [DisallowNull] Action<Ctn<ExceptionDispatchInfo>> containerOfError)
+        public Unit Match([DisallowNull] Action<PipeData<T>> value, [DisallowNull] Action<PipeErrorData> error)
         {
-            if (containerOfValue == null) { throw new ArgumentNullException(nameof(containerOfValue)); }
-            if (containerOfError == null) { throw new ArgumentNullException(nameof(containerOfError)); }
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
+            if (error == null) { throw new ArgumentNullException(nameof(error)); }
 
-            return Match(containerOfValue.ToFunc(), containerOfError.ToFunc());
+            return Match(value.ToFunc(), error.ToFunc());
+        }
+
+        /// <summary>
+        /// Returns a new Pipe{T} instance based on the bind function that is invoked with the current T payload.
+        /// </summary>
+        /// <remarks>Only executed when this Pipe{T} instance is not in an error state.</remarks>
+        /// <typeparam name="TResult">The target return result type to be returned by the bind function.</typeparam>
+        /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
+        /// <returns>A new instance of Pipe{T} with the returned value or existing error state.</returns>
+        /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
+        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<PipeData<T>, Pipe<TResult>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
+
+            if (_isSync)
+            {
+                return _syncResult.Match(
+                    containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                    containerOfException => new Pipe<TResult>(containerOfException));
+            }
+
+            return BindWithTaskContainerAsTaskPipe(_result, bind).AsPipe();
+        }
+
+        private static async Task<Pipe<TResult>> BindWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<PipeData<T>, Pipe<TResult>> bind)
+        {
+            var container = await taskContainer.ConfigureAwait(false);
+
+            return container.Match(
+                containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => new Pipe<TResult>(containerOfException));
+        }
+
+        /// <summary>
+        /// Returns a new Pipe{T} instance based on the bind function that is invoked with the current T payload.
+        /// </summary>
+        /// <remarks>Only executed when this Pipe{T} instance is not in an error state.</remarks>
+        /// <typeparam name="TResult">The target return result type to be returned by the bind function.</typeparam>
+        /// <param name="bind">The function to execute if the Pipe{T} is in a success state.</param>
+        /// <returns>A new instance of Pipe{T} with the returned value or existing error state.</returns>
+        /// <exception cref="ArgumentNullException">Bind function must not be null.</exception>
+        public Pipe<TResult> Bind<TResult>([DisallowNull] Func<PipeData<T>, Task<Pipe<TResult>>> bind)
+        {
+            if (bind == null) { throw new ArgumentNullException(nameof(bind)); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
+
+            if (_isSync)
+            {
+                return _syncResult.Match(
+                    containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                    containerOfException => Task.FromResult(new Pipe<TResult>(containerOfException))
+                ).AsPipe();
+            }
+
+            return BindAsyncWithTaskContainerAsTaskPipe(_result, bind).AsPipe();
+        }
+
+        private static async Task<Pipe<TResult>> BindAsyncWithTaskContainerAsTaskPipe<TResult>(Task<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>> taskContainer, Func<PipeData<T>, Task<Pipe<TResult>>> bind)
+        {
+            var container = await taskContainer.ConfigureAwait(false);
+
+            return await container.Match(
+                containerOfValue => bind(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => Task.FromResult(new Pipe<TResult>(containerOfException))
+            ).ConfigureAwait(false);
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using static BddPipe.Runner;
 

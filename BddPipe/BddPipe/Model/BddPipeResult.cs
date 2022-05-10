@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace BddPipe
+namespace BddPipe.Model
 {
     /// <summary>
     /// When the test is successful and no exceptions are thrown this will be the final result
     /// </summary>
     /// <typeparam name="T">Type of the last returned instance from a step</typeparam>
-    public sealed class BddPipeResult<T>
+    public sealed class BddPipeResult<T> : IScenarioResult
     {
         /// <summary>
         /// Last returned item from a step
