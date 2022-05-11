@@ -108,6 +108,30 @@ namespace BddPipe.Model
         }
 
         /// <summary>
+        /// Returns the value based on the function implementation of each state.
+        /// </summary>
+        /// <typeparam name="TResult">The target return result type to be returned by both supplied functions.</typeparam>
+        /// <param name="value">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
+        /// <param name="error">The function to execute if the Pipe{T} is in an error state.</param>
+        /// <returns></returns>
+        [return: NotNull]
+        public async Task<TResult> MatchAsync<TResult>([DisallowNull] Func<PipeData<T>, TResult> value, [DisallowNull] Func<PipeErrorData, TResult> error)
+        {
+            if (value == null) { throw new ArgumentNullException(nameof(value)); }
+            if (error == null) { throw new ArgumentNullException(nameof(error)); }
+            if (!_isInitialized) { throw new PipeNotInitializedException(); }
+
+            var target = _isSync
+                ? _syncResult
+                : await _result.ConfigureAwait(false);
+
+            return target.Match(
+                containerOfValue => value(new PipeData<T>(containerOfValue.Content, containerOfValue.ToResult())),
+                containerOfException => error(new PipeErrorData(containerOfException.Content, containerOfException.ToResult()))
+            );
+        }
+
+        /// <summary>
         /// Performs an action based on the value based on the function implementation of each state.
         /// </summary>
         /// <param name="value">The function to execute if the Pipe{T} is in a success state with the desired value.</param>
