@@ -318,5 +318,61 @@ namespace BddPipe.UnitTests.F
             Either<int, string> either = defaultRight;
             either.ToString().Should().Be("right(six)");
         }
+
+        /// <summary>
+        /// m == m.Bind(Return)
+        /// </summary>
+        [Test]
+        public void Fn_RightIdentityHolds()
+        {
+            Either<int, string> m = defaultRight;
+            Func<string, Either<int, string>> fnReturn = value => new Either<int, string>(value);
+
+            m.Should().Be(m.Bind(fnReturn));
+        }
+
+        [Test]
+        public void Fn_RightIdentityHolds2()
+        {
+            Either<int, string> m = defaultLeft;
+            Func<string, Either<int, string>> fnReturn = value => new Either<int, string>(value);
+
+            m.Should().Be(m.Bind(fnReturn));
+        }
+
+        /// <summary>
+        /// Return(t).Bind(f) == f(t)
+        /// </summary>
+        [Test]
+        public void Fn_LeftIdentityHolds()
+        {
+            Either<int, string> either = defaultRight;
+            Func<string, Either<int, string>> f = value => new Either<int, string>("value 1");
+            either.Bind(f).Should().Be(f(defaultRight));
+        }
+
+        /// <summary>
+        /// m.Bind(f).Bind(g) == m.Bind(x => f(x).Bind(g))
+        /// (m >>= f) >>= g == m >>= (x => f(x) >>= g)
+        /// </summary>
+        [Test]
+        public void Fn_AssociativityHolds()
+        {
+            Either<int, string> m = defaultRight;
+            Func<string, Either<int, string>> f = value => new Either<int, string>("value 1");
+            Func<string, Either<int, string>> g = value => new Either<int, string>("value 2");
+
+            m.Bind(f).Bind(g).Should().Be(m.Bind(x => f(x).Bind(g)));
+        }
+
+        [Test]
+        public void Fn_AssociativityHolds2()
+        {
+            Either<int, string> m = defaultLeft;
+            Func<string, Either<int, string>> f = value => new Either<int, string>("value 1");
+            Func<string, Either<int, string>> g = value => new Either<int, string>("value 2");
+
+            m.Bind(f).Bind(g).Should().Be(m.Bind(x => f(x).Bind(g)));
+        }
     }
 }

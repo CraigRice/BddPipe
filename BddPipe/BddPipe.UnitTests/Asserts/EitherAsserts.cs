@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.ExceptionServices;
-using BddPipe.Model;
 using NUnit.Framework;
 
 namespace BddPipe.UnitTests.Asserts
