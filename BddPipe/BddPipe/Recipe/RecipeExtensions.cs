@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using BddPipe.Model;
 
-namespace BddPipe.Recipe
+namespace BddPipe
 {
     /// <summary>
     /// Allows reusable recipes to be defined and plugged into the pipeline as a step or combination of steps.

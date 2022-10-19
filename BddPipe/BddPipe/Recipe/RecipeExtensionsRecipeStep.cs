@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using BddPipe.Model;
 
-namespace BddPipe.Recipe
+namespace BddPipe
 {
     /// <summary>
     /// Allows reusable recipes to be defined and plugged into the pipeline as a step or combination of steps.
@@ -72,26 +72,6 @@ namespace BddPipe.Recipe
         }
 
         /// <summary>
-        /// <see cref="Step.Then"/> Recipe
-        /// </summary>
-        public static Pipe<R> ThenRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] RecipeStep<T, R> recipeStepFunc)
-        {
-            if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
-
-            return recipeStepFunc(new Recipe<T, R>(pipe, Step.Then));
-        }
-
-        /// <summary>
-        /// <see cref="Step.Then"/> Recipe
-        /// </summary>
-        public static Pipe<T> ThenRecipe<T>(this Pipe<T> pipe, [DisallowNull] RecipeStep<T> recipeStepFunc)
-        {
-            if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
-
-            return recipeStepFunc(new Recipe<T, T>(pipe, Step.Then));
-        }
-
-        /// <summary>
         /// <see cref="Step.When"/> Recipe
         /// </summary>
         public static Pipe<R> WhenRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] RecipeStep<T, R> recipeStepFunc)
@@ -109,6 +89,26 @@ namespace BddPipe.Recipe
             if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
 
             return recipeStepFunc(new Recipe<T, T>(pipe, Step.When));
+        }
+
+        /// <summary>
+        /// <see cref="Step.Then"/> Recipe
+        /// </summary>
+        public static Pipe<R> ThenRecipe<T, R>(this Pipe<T> pipe, [DisallowNull] RecipeStep<T, R> recipeStepFunc)
+        {
+            if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
+
+            return recipeStepFunc(new Recipe<T, R>(pipe, Step.Then));
+        }
+
+        /// <summary>
+        /// <see cref="Step.Then"/> Recipe
+        /// </summary>
+        public static Pipe<T> ThenRecipe<T>(this Pipe<T> pipe, [DisallowNull] RecipeStep<T> recipeStepFunc)
+        {
+            if (recipeStepFunc == null) { throw new ArgumentNullException(nameof(recipeStepFunc)); }
+
+            return recipeStepFunc(new Recipe<T, T>(pipe, Step.Then));
         }
     }
 }
