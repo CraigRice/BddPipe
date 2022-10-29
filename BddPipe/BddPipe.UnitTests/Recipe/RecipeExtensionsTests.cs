@@ -1,6 +1,5 @@
 ﻿using System;
 using BddPipe.Model;
-using BddPipe.Recipe;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;

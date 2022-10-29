@@ -4,12 +4,12 @@
     <PackageId>BddPipe</PackageId>
     <Product>BddPipe</Product>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.6.0</Version>
-    <AssemblyVersion>2.6.0.0</AssemblyVersion>
-    <FileVersion>2.6.0.0</FileVersion>
+    <Version>2.7.0</Version>
+    <AssemblyVersion>2.7.0.0</AssemblyVersion>
+    <FileVersion>2.7.0.0</FileVersion>
     <Copyright>Copyright (c) Craig Rice. All rights reserved.</Copyright>
     <Authors>Craig Rice</Authors>
-    <Description>A fluent API based on Gherkin syntax to assist with the Automated Testing aspect of Behaviour-Driven Development (BDD).</Description>
+    <Description>A fluent API based on Gherkin syntax to assist with the creation of automated tests.</Description>
     <PackageProjectUrl>https://github.com/craigrice/bddpipe</PackageProjectUrl>
     <PackageTags>integrationtest;integrationtesting;unittest;unittesting;testing;tdd;fluent;gherkin</PackageTags>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>

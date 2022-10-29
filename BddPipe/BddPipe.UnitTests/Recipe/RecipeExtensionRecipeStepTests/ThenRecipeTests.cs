@@ -3,7 +3,6 @@ using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
-using static BddPipe.Recipe.RecipeExtensions;
 using static BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests.RecipeExtensionsTestHelpers;
 
 namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
