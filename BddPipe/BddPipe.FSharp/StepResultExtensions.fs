@@ -47,7 +47,7 @@ module internal StepResultExtensions =
             |> withIndendation stepOutcome.Step hasScenario
             |> withOutcomeDescribed stepOutcome.Outcome
 
-    let toResults (outcomes: StepOutcome list) hasScenario =
+    let toResults hasScenario (outcomes: StepOutcome list) =
         outcomes
             |> Seq.map (fun o -> {
                 Step = o.Step
@@ -62,7 +62,7 @@ module internal StepResultExtensions =
         Text = stepOutcome.Text
     }
 
-    let withLatestStepOutcomeAs (outcomes: StepOutcome list) outcome =
+    let withLatestStepOutcomeAs outcome (outcomes: StepOutcome list) =
         outcomes |> Seq.mapi (fun index stepOutcome ->
                     match index with
                         | i when i = outcomes.Length - 1 -> toStepOutcomeOfOutcome stepOutcome outcome
@@ -70,7 +70,7 @@ module internal StepResultExtensions =
                     )
                  |> Seq.toList
 
-    let toStepOutcome title outcome = {
+    let toStepOutcome outcome title = {
         Step = title.Step
         Outcome = outcome
         Text = title.Text
