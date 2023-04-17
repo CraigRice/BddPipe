@@ -8,7 +8,7 @@ using NSubstitute;
 using NUnit.Framework;
 using static BddPipe.F;
 
-namespace BddPipe.UnitTests.Model
+namespace BddPipe.UnitTests
 {
     [TestFixture]
     public class CtnExtensionsTests
@@ -123,7 +123,7 @@ namespace BddPipe.UnitTests.Model
             var newCtn = new Ctn<int>(DefaultValue, scenarioTitle)
                 .Map(value => true);
 
-            newCtn.ScenarioTitle.ShouldBeSome(title => 
+            newCtn.ScenarioTitle.ShouldBeSome(title =>
                 title.Should().Be(scenarioTitle)
             );
         }
@@ -189,7 +189,7 @@ namespace BddPipe.UnitTests.Model
                     new List<StepOutcome>
                     {
                         new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle)
-                    }, 
+                    },
                     None
                 )
                 .Map(value => true);

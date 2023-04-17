@@ -70,7 +70,7 @@ module internal StepResultExtensions =
                     )
                  |> Seq.toList
 
-    let toStepOutcome outcome title = {
+    let toStepOutcome outcome (title: Title) = {
         Step = title.Step
         Outcome = outcome
         Text = title.Text

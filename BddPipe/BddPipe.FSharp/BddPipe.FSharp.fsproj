@@ -10,10 +10,15 @@
     <Compile Include="Model\Step.fs" />
     <Compile Include="Model\Outcome.fs" />
     <Compile Include="Model\StepResult.fs" />
-    <Compile Include="Model\StepOutcome.fs" />
+    <Compile Include="Model\ScenarioResult.fs" />
     <Compile Include="Model\Title.fs" />
+    <Compile Include="Model\StepOutcome.fs" />
+    <Compile Include="Model\Ctn.fs" />
+    <Compile Include="Model\EitherCtn.fs" />
     <Compile Include="StringExtensions.fs" />
     <Compile Include="StepResultExtensions.fs" />
+    <Compile Include="CtnExtensions.fs" />
+    <Compile Include="Runner.fs" />
   </ItemGroup>
 
 </Project>
