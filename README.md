@@ -13,11 +13,13 @@ This project was created to describe test steps.  It has been developed to repla
 
 ### Goals ###
 
-- Let each step _define and return to the next step_ all the state it needs to proceed. 
-- _Avoid declaring variables outside test step functions_ as a way to store/retreive data between steps.
-- Avoid having to set defaults for these declared variables before they are ready to be assigned.
-- Provide a way to reuse steps.
+- Implement tests via a series of steps, providing a title and function for each step.
+- Step functions can be plugged in and reused. These are standalone or composed together and useful for test setup (see Recipes).
+- Let each step _define and return to the next step_ all the state it needs to proceed.
+- _Avoid needing to declare variables outside test step functions_ as a way to store/retreive data between steps.
 - Have better control of output if desired - the outcome is detailed and the default console output can be captured or replaced.
+- Output describing the scenario and step outcomes can be useful when diagnosing remote server test run failures.
+- Support for async step functions and recipes.
 - The steps are documented in greater detail than regular tests due to the step type and title. Tests with documented steps can be easier to understand and maintain.
 
 
