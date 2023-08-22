@@ -26,6 +26,7 @@ This project was created to describe test steps.  It has been developed to repla
 ## Getting started ##
 ### Add the using statement: ###
 ```C#
+using BddPipe;
 using static BddPipe.Runner;
 ```
 
@@ -42,7 +43,34 @@ Scenario()
   .Run();
 ```
 
-> **Steps must end with a call to .Run() or the result is not evaluated.**
+### Integration Test example: ###
+
+```C#
+[Test]
+public Task AddAsync_DefaultAdd_Successful() =>
+    Scenario()
+        .GivenRecipe(WithFeeType())
+        .AndRecipe(WithMembershipType())
+        .AndRecipe(WithDivision())
+        .AndRecipe(WithTitleOrSalutation())
+        .And("with default add record", scenarioInfo => MemberSetup.CreateDefaultAdd(
+            divisionId: scenarioInfo.Divisions[0].Id,
+            titleOrSalutationId: scenarioInfo.TitleOrSalutations[0].Id,
+            membershipTypeId: scenarioInfo.MembershipTypes[0].Id)
+        )
+        .When("AddAsync is called with the record", async record =>
+        {
+            var repo = GetRepo();
+            return await repo.AddAsync(record).ConfigureAwait(false);
+        })
+        .Then("the new record id is returned", result =>
+        {
+            result.Should().NotBe(default);
+        })
+        .RunAsync();
+```
+
+> **Steps must end with a call to .Run() or .RunAsync(), otherwise the result is not evaluated.**
 
 ### Scenario: ###
 
