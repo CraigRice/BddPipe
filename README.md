@@ -8,7 +8,7 @@ This project was created to describe test steps.  It has been developed to repla
 - [Implementing Steps](https://github.com/CraigRice/BddPipe/wiki/Implementing-Steps)
 - [Recipes](https://github.com/CraigRice/BddPipe/wiki/Recipes) (step reuse)
 - [Map](https://github.com/CraigRice/BddPipe/wiki/Recipes-and-Pipe-Map-Function)
-- [Test Output](https://github.com/CraigRice/BddPipe/wiki/Test-Output)
+- [Test Output](https://github.com/CraigRice/BddPipe/wiki/Test-Output,-Run-and-RunAsync)
 - [Version Release Notes](https://github.com/CraigRice/BddPipe/wiki/Version-Release-Notes)
 
 ### Goals ###
@@ -63,9 +63,9 @@ public Task AddAsync_DefaultAdd_Successful() =>
             var repo = GetRepo();
             return await repo.AddAsync(record).ConfigureAwait(false);
         })
-        .Then("the new record id is returned", result =>
+        .Then("the new record id is returned", id =>
         {
-            result.Should().NotBe(default);
+            id.Should().NotBe(default);
         })
         .RunAsync();
 ```
