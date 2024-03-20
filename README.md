@@ -24,6 +24,9 @@ This project was created to describe test steps.  It has been developed to repla
 
 
 ## Getting started ##
+### Install NuGet package: ###
+[https://www.nuget.org/packages/BddPipe/](https://www.nuget.org/packages/BddPipe/)
+
 ### Add the using statement: ###
 ```C#
 using BddPipe;
