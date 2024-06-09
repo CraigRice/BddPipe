@@ -1,11 +1,10 @@
+using BddPipe.Model;
+using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BddPipe.Model;
-using BddPipe.UnitTests.Asserts;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests
@@ -13,15 +12,15 @@ namespace BddPipe.UnitTests
     [TestFixture]
     public class RunnerRunTests
     {
+        private const string ScenarioPrefix = "Scenario:";
+
         private static IReadOnlyList<string> WriteLogsToConsole(ScenarioResult result)
         {
-            Runner.WriteLogsToConsole(result);
+            var lines = new List<string>();
 
-            return
-                (result.Title == null ? Array.Empty<string>() : new[] { result.Description })
-                .Concat(result.StepResults
-                .Select(l => l.Description))
-                .ToList();
+            Runner.WriteLogsToConsole(result, lines.Add);
+
+            return lines;
         }
 
         [Test]
@@ -69,8 +68,58 @@ namespace BddPipe.UnitTests
             logs[0].Should().Be(expected);
         }
 
+        private static void LogLinesShouldExcludeScenario(IReadOnlyList<string> logLines)
+        {
+            logLines.Count.Should().Be(6);
+            logLines[0].Should().Be("Given [Passed]");
+            logLines[1].Should().Be("  And Nothing [Passed]");
+            logLines[2].Should().Be("  And Nothing [Passed]");
+            logLines[3].Should().Be("When the numbers are summed [Passed]");
+            logLines[4].Should().Be("  But Nothing [Passed]");
+            logLines[5].Should().Be("Then sum should be as expected [Passed]");
+        }
+
+        private static void LogLinesShouldHaveScenario(IReadOnlyList<string> logLines, string expectedScenario)
+        {
+            logLines.Count.Should().Be(7);
+            logLines[0].Should().Be(expectedScenario);
+            logLines[1].Should().Be("  Given [Passed]");
+            logLines[2].Should().Be("    And Nothing [Passed]");
+            logLines[3].Should().Be("    And Nothing [Passed]");
+            logLines[4].Should().Be("  When the numbers are summed [Passed]");
+            logLines[5].Should().Be("    But Nothing [Passed]");
+            logLines[6].Should().Be("  Then sum should be as expected [Passed]");
+        }
+
         [Test]
-        public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
+        public void Run_FullExampleWithMethodNameScenario_CorrectOutputAndIndentation()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Scenario()
+                .Given(null, () => new { A = 5, B = 10 })
+                .And("Nothing", () => { })
+                .And("Nothing", () => { })
+                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .But("Nothing", () => { })
+                .Then("sum should be as expected", arg =>
+                {
+                    arg.Result.Should().Be(15);
+                })
+                .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            logLines.Count.Should().Be(7);
+            logLines[0].Should().Be($"Scenario: {nameof(Run_FullExampleWithMethodNameScenario_CorrectOutputAndIndentation)}");
+            logLines[1].Should().Be("  Given [Passed]");
+            logLines[2].Should().Be("    And Nothing [Passed]");
+            logLines[3].Should().Be("    And Nothing [Passed]");
+            logLines[4].Should().Be("  When the numbers are summed [Passed]");
+            logLines[5].Should().Be("    But Nothing [Passed]");
+            logLines[6].Should().Be("  Then sum should be as expected [Passed]");
+        }
+
+        [Test]
+        public void Run_FullExampleWithExplicitScenario_CorrectOutputAndIndentation()
         {
             IReadOnlyList<string> logLines = new List<string>();
 
@@ -94,6 +143,78 @@ namespace BddPipe.UnitTests
             logLines[4].Should().Be("  When the numbers are summed [Passed]");
             logLines[5].Should().Be("    But Nothing [Passed]");
             logLines[6].Should().Be("  Then sum should be as expected [Passed]");
+        }
+
+        [Test]
+        public void Run_FullExampleNullScenario_NoScenarioAndCorrectIndentation()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            Scenario(null, null)
+                .Given(null, () => new { A = 5, B = 10 })
+                .And("Nothing", () => { })
+                .And("Nothing", () => { })
+                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .But("Nothing", () => { })
+                .Then("sum should be as expected", arg =>
+                {
+                    arg.Result.Should().Be(15);
+                })
+                .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            LogLinesShouldExcludeScenario(logLines);
+        }
+
+        [Test]
+        public void Run_FullExampleNullScenarioViaMethodName_NoScenarioAndCorrectIndentation()
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            var runResult = Scenario(methodName: null)
+                .Given(null, () => new { A = 5, B = 10 })
+                .And("Nothing", () => { })
+                .And("Nothing", () => { })
+                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .But("Nothing", () => { })
+                .Then("sum should be as expected", arg =>
+                {
+                    arg.Result.Should().Be(15);
+                })
+                .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            LogLinesShouldExcludeScenario(logLines);
+
+            var scenarioResult = runResult.Result;
+
+            scenarioResult.Title.Should().BeNull();
+            scenarioResult.Description.Should().Be(ScenarioPrefix);
+        }
+
+        [TestCase("")]
+        [TestCase(" ")]
+        public void Run_EmptyOrWhiteSpaceScenario_DefaultScenarioAndCorrectIndentation(string scenarioText)
+        {
+            IReadOnlyList<string> logLines = new List<string>();
+
+            var runResult = Scenario(scenarioText)
+                .Given(null, () => new { A = 5, B = 10 })
+                .And("Nothing", () => { })
+                .And("Nothing", () => { })
+                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .But("Nothing", () => { })
+                .Then("sum should be as expected", arg =>
+                {
+                    arg.Result.Should().Be(15);
+                })
+                .Run(logs => logLines = WriteLogsToConsole(logs));
+
+            // the whitespace is not included after 'Scenario:'
+            LogLinesShouldHaveScenario(logLines, ScenarioPrefix);
+
+            var scenarioResult = runResult.Result;
+
+            scenarioResult.Title.Should().Be(scenarioText);
+            scenarioResult.Description.Should().Be(ScenarioPrefix);
         }
 
         [Test]

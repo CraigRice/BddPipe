@@ -61,10 +61,12 @@ namespace BddPipe.Model
             return new Ctn<R>(newContent, outcomes, ctn.ScenarioTitle);
         }
 
+        private const string ScenarioPrefix = "Scenario:";
+
         public static Some<ScenarioResult> ToResult<T>(this Ctn<T> ctn) =>
             new ScenarioResult(
                 title: ctn.ScenarioTitle.IfNone(null),
-                description: ctn.ScenarioTitle.WithPrefix("Scenario:"),
+                description: ctn.ScenarioTitle.NoneIfWhiteSpace().WithPrefix(ScenarioPrefix),
                 stepResults: ctn.StepOutcomes.ToResults(ctn.ScenarioTitle.IsSome)
             );
     }
