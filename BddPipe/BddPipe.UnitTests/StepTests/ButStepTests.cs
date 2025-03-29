@@ -1,6 +1,7 @@
 ﻿using BddPipe.UnitTests.Model;
 using FluentAssertions;
 using NUnit.Framework;
+using System.Threading.Tasks;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests.StepTests
@@ -29,7 +30,7 @@ namespace BddPipe.UnitTests.StepTests
         {
             var scenarioResult = Scenario()
                 .Given("Initially Model1 is returned", () => new Model1())
-                .But("Model2 is now returned as Func<R>", async () => new Model2())
+                .But("Model2 is now returned as Func<R>", () => Task.FromResult(new Model2()))
                 .Then("current instance is now Model2", result => result.GetType().Should().Be(typeof(Model2)))
                 .Run();
 

@@ -18,7 +18,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Func<Task> call = async () =>
             {
-                await default(Pipe<int>).MatchAsync(pipeState => Task.FromResult(pipeState.Value), e => Task.FromResult(DefaultValue));
+                await default(Pipe<int>).MatchAsync(pipeState => Task.FromResult(pipeState.Value), _ => Task.FromResult(DefaultValue));
             };
 
             (await call.Should().ThrowExactlyAsync<PipeNotInitializedException>())
@@ -30,7 +30,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Func<Task> call = async () =>
             {
-                await default(Pipe<int>).MatchAsync(pipeState => pipeState.Value, e => DefaultValue);
+                await default(Pipe<int>).MatchAsync(pipeState => pipeState.Value, _ => DefaultValue);
             };
 
             (await call.Should().ThrowExactlyAsync<PipeNotInitializedException>())
@@ -106,7 +106,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var fnError = Substitute.For<Func<PipeErrorData, Task<string>>>();
 
             const string resultText = "some result";
-            var result = await pipe.MatchAsync(value => Task.FromResult(resultText), fnError);
+            var result = await pipe.MatchAsync(_ => Task.FromResult(resultText), fnError);
 
             result.Should().Be(resultText);
 
@@ -122,7 +122,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var fnError = Substitute.For<Func<PipeErrorData, string>>();
 
             const string resultText = "some result";
-            var result = await pipe.MatchAsync(value => resultText, fnError);
+            var result = await pipe.MatchAsync(_ => resultText, fnError);
 
             result.Should().Be(resultText);
 
@@ -138,7 +138,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var fnT = Substitute.For<Func<PipeData<int>, Task<string>>>();
 
             const string resultText = "some result";
-            var result = await pipe.MatchAsync(fnT, value => Task.FromResult(resultText));
+            var result = await pipe.MatchAsync(fnT, _ => Task.FromResult(resultText));
 
             result.Should().Be(resultText);
 
@@ -154,7 +154,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var fnT = Substitute.For<Func<PipeData<int>, string>>();
 
             const string resultText = "some result";
-            var result = await pipe.MatchAsync(fnT, value => resultText);
+            var result = await pipe.MatchAsync(fnT, _ => resultText);
 
             result.Should().Be(resultText);
 
@@ -169,7 +169,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnError = Substitute.For<Func<PipeErrorData, Task<Unit>>>();
 
-            Func<Task> call = () => pipe.MatchAsync(null, fnError);
+            Func<Task> call = () => pipe.MatchAsync(null!, fnError);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
                 .ParamName.Should().Be("value");
@@ -185,7 +185,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnError = Substitute.For<Func<PipeErrorData, Unit>>();
 
-            Func<Task> call = () => pipe.MatchAsync(null, fnError);
+            Func<Task> call = () => pipe.MatchAsync(null!, fnError);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
                 .ParamName.Should().Be("value");
@@ -201,7 +201,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnT = Substitute.For<Func<PipeData<int>, Task<Unit>>>();
 
-            Func<Task> call = () => pipe.MatchAsync(fnT, null);
+            Func<Task> call = () => pipe.MatchAsync(fnT, null!);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
                 .ParamName.Should().Be("error");
@@ -217,7 +217,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnT = Substitute.For<Func<PipeData<int>, Unit>>();
 
-            Func<Task> call = () => pipe.MatchAsync(fnT, null);
+            Func<Task> call = () => pipe.MatchAsync(fnT, null!);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
                 .ParamName.Should().Be("error");
@@ -241,7 +241,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     state.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                     return Task.FromResult(new Unit());
                 },
-                error =>
+                _ =>
                 {
                     Assert.Fail("Expecting value state but was error state.");
                     return Task.FromResult(new Unit());
@@ -264,7 +264,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     state.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                     return new Unit();
                 },
-                error =>
+                _ =>
                 {
                     Assert.Fail("Expecting value state but was error state.");
                     return new Unit();
@@ -280,7 +280,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var pipe = CreatePipeErrorState<int>(fromTask, scenarioDetails.ExceptionDispatchInfo, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             await pipe.MatchAsync(
-                state =>
+                _ =>
                 {
                     Assert.Fail("Expecting error state but was value state.");
                     return new Unit();
@@ -304,7 +304,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var pipe = CreatePipeErrorState<int>(fromTask, scenarioDetails.ExceptionDispatchInfo, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             await pipe.MatchAsync(
-                state =>
+                _ =>
                 {
                     Assert.Fail("Expecting error state but was value state.");
                     return new Unit();

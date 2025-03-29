@@ -1,8 +1,8 @@
-﻿using System;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
+using System;
 using static BddPipe.RecipeExtensions;
 using static BddPipe.Runner;
 using static BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests.RecipeExtensionsTestHelpers;
@@ -15,7 +15,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         [Test]
         public void GivenRecipe_OfScenarioRecipeStepFuncNull_ThrowsArgNullException()
         {
-            RecipeStep<Scenario, int> stepFunc = null;
+            RecipeStep<Scenario, int> stepFunc = null!;
 
             Action call = () => Scenario().GivenRecipe(stepFunc);
 
@@ -27,7 +27,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         [Test]
         public void GivenRecipe_OfUnitRecipeStepFuncNull_ThrowsArgNullException()
         {
-            RecipeStep<Unit, int> stepFunc = null;
+            RecipeStep<Unit, int> stepFunc = null!;
 
             Action call = () => GivenRecipe(stepFunc);
 
@@ -87,6 +87,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.NotRun, GivenStepTitle, Step.Given);
@@ -103,6 +104,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeNone();
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.NotRun, GivenStepTitle, Step.Given);

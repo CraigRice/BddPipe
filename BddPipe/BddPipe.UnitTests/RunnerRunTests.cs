@@ -1,5 +1,6 @@
 using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
+using BddPipe.UnitTests.Helpers;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
@@ -23,10 +24,13 @@ namespace BddPipe.UnitTests
             return lines;
         }
 
+        private sealed record IntResult(int Result);
+        private sealed record IntTwoValues(int A, int B);
+
         [Test]
         public void WriteLogsToConsole_ResultNull_ThrowsArgNullException()
         {
-            Action call = () => Runner.WriteLogsToConsole(null);
+            Action call = () => Runner.WriteLogsToConsole(null!);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("result");
@@ -61,7 +65,7 @@ namespace BddPipe.UnitTests
             Runner.WriteLogsToConsole(new ScenarioResult(
                 title: null,
                 description: null,
-                stepResults: new[] { new StepResult(step, outcome, null, null) }
+                stepResults: [new StepResult(step, outcome, null, null)]
             ), logs.Add);
 
             logs.Count.Should().Be(1);
@@ -97,10 +101,10 @@ namespace BddPipe.UnitTests
             IReadOnlyList<string> logLines = new List<string>();
 
             Scenario()
-                .Given(null, () => new { A = 5, B = 10 })
+                .Given(null, () => new IntTwoValues(5, 10))
                 .And("Nothing", () => { })
                 .And("Nothing", () => { })
-                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .When("the numbers are summed", args => new IntResult(args.A + args.B))
                 .But("Nothing", () => { })
                 .Then("sum should be as expected", arg =>
                 {
@@ -124,10 +128,10 @@ namespace BddPipe.UnitTests
             IReadOnlyList<string> logLines = new List<string>();
 
             Scenario("Test scenario")
-                .Given(null, () => new { A = 5, B = 10 })
+                .Given(null, () => new IntTwoValues(5, 10))
                 .And("Nothing", () => { })
                 .And("Nothing", () => { })
-                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .When("the numbers are summed", args => new IntResult(args.A + args.B))
                 .But("Nothing", () => { })
                 .Then("sum should be as expected", arg =>
                 {
@@ -151,10 +155,10 @@ namespace BddPipe.UnitTests
             IReadOnlyList<string> logLines = new List<string>();
 
             Scenario(null, null)
-                .Given(null, () => new { A = 5, B = 10 })
+                .Given(null, () => new IntTwoValues(5, 10))
                 .And("Nothing", () => { })
                 .And("Nothing", () => { })
-                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .When("the numbers are summed", args => new IntResult(args.A + args.B))
                 .But("Nothing", () => { })
                 .Then("sum should be as expected", arg =>
                 {
@@ -171,10 +175,10 @@ namespace BddPipe.UnitTests
             IReadOnlyList<string> logLines = new List<string>();
 
             var runResult = Scenario(methodName: null)
-                .Given(null, () => new { A = 5, B = 10 })
+                .Given(null, () => new IntTwoValues(5, 10))
                 .And("Nothing", () => { })
                 .And("Nothing", () => { })
-                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .When("the numbers are summed", args => new IntResult(args.A + args.B))
                 .But("Nothing", () => { })
                 .Then("sum should be as expected", arg =>
                 {
@@ -197,10 +201,10 @@ namespace BddPipe.UnitTests
             IReadOnlyList<string> logLines = new List<string>();
 
             var runResult = Scenario(scenarioText)
-                .Given(null, () => new { A = 5, B = 10 })
+                .Given(null, () => new IntTwoValues(5, 10))
                 .And("Nothing", () => { })
                 .And("Nothing", () => { })
-                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .When("the numbers are summed", args => new IntResult(args.A + args.B))
                 .But("Nothing", () => { })
                 .Then("sum should be as expected", arg =>
                 {
@@ -221,8 +225,8 @@ namespace BddPipe.UnitTests
         public void Run_Example_Successful()
         {
             Scenario()
-                .Given("two numbers", () => new { A = 5, B = 10 })
-                .When("the numbers are summed", args => new { Result = args.A + args.B })
+                .Given("two numbers", () => new IntTwoValues(5, 10))
+                .When("the numbers are summed", args => new IntResult(args.A + args.B))
                 .Then("sum should be as expected", arg =>
                 {
                     arg.Result.Should().Be(15);
@@ -285,7 +289,7 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<string> logLines = new List<string>();
 
-            Given("Two numbers", () => new { A = 5, B = 10 })
+            Given("Two numbers", () => new IntTwoValues(5, 10))
                 .Run(logs => logLines = WriteLogsToConsole(logs));
 
             logLines.Count.Should().Be(1);
@@ -297,8 +301,8 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<string> logLines = new List<string>();
 
-            Given("Two numbers", () => new { A = 5, B = 10 }).
-                When("The numbers are summed", args => new { Result = args.A + args.B }).
+            Given("Two numbers", () => new IntTwoValues(5, 10)).
+                When("The numbers are summed", args => new IntResult(args.A + args.B)).
                 Then("Sum should be as expected", arg =>
                 {
                     arg.Result.Should().Be(15);
@@ -316,8 +320,8 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<string> logLines = new List<string>();
             Action runTest = () =>
-                Given("Two numbers", () => new { A = 5, B = 10 }).
-                    When("The numbers are summed", args => new { Result = args.A + args.B }).
+                Given("Two numbers", () => new IntTwoValues(5, 10)).
+                    When("The numbers are summed", args => new IntResult(args.A + args.B)).
                     And("Inconclusive is raised", () => Assert.Inconclusive("Inconclusive message")).
                     Then("Sum should be as expected", arg =>
                     {
@@ -343,9 +347,9 @@ namespace BddPipe.UnitTests
                 Given("Two numbers", () =>
                     {
                         Assert.Inconclusive("Inconclusive message");
-                        return new { A = 5, B = 10 };
+                        return new IntTwoValues(5, 10);
                     }).
-                    When("The numbers are summed", args => new { Result = args.A + args.B }).
+                    When("The numbers are summed", args => new IntResult(args.A + args.B)).
                     Then("Sum should be as expected", arg =>
                     {
                         arg.Result.Should().Be(15);
@@ -365,11 +369,11 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<string> logLines = new List<string>();
 
-            Given("Two numbers", () => new { A = 5, B = 10 }).
+            Given("Two numbers", () => new IntTwoValues(5, 10)).
                 When("The numbers are summed", async args =>
                 {
                     await Task.Delay(10);
-                    return new { Result = args.A + args.B };
+                    return new IntResult(args.A + args.B);
                 }).
                 Then("Sum should be as expected", arg =>
                 {
@@ -388,8 +392,8 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<string> logLines = new List<string>();
 
-            Given("Two numbers", () => new { A = 5, B = 10 }).
-                When("The numbers are summed", args => new { Result = args.A + args.B }).
+            Given("Two numbers", () => new IntTwoValues(5, 10)).
+                When("The numbers are summed", args => new IntResult(args.A + args.B)).
                 Then("Sum is not zero", arg =>
                 {
                     arg.Result.Should().NotBe(0);
@@ -412,14 +416,12 @@ namespace BddPipe.UnitTests
         {
             IReadOnlyList<string> logLines = new List<string>();
 
+            Func<IntTwoValues, IntResult> fn = _ => throw new ApplicationException("test error");
+
             Action runTest = () =>
-                Given("Two numbers", () => new { A = 5, B = 10 }).
-                    When("The numbers are summed", args =>
-                    {
-                        throw new ApplicationException("test error");
-                        return new { Result = args.A + args.B };
-                    }).
-                    Then("Sum is not zero", arg =>
+                Given("Two numbers", () => new IntTwoValues(5, 10))
+                    .When("The numbers are summed", fn)
+                    .Then("Sum is not zero", arg =>
                     {
                         arg.Result.Should().NotBe(0);
                     })
@@ -502,8 +504,7 @@ namespace BddPipe.UnitTests
                 Given("Async step throws exception", async () =>
                     {
                         await Task.Delay(1);
-                        throw new ApplicationException("test exception");
-                        return 5;
+                        return TestExceptions.Raise<int>(new ApplicationException("test exception"));
                     })
                     .Run();
             };
@@ -560,7 +561,7 @@ namespace BddPipe.UnitTests
         public async Task RunAsync_GivenAsyncWhenSync_HasCorrectResult()
         {
             var bddPipeResult = await Scenario()
-                .Given("false", async scenario =>
+                .Given("false", async _ =>
                 {
                     await Task.Delay(1);
                     return false;
@@ -580,7 +581,7 @@ namespace BddPipe.UnitTests
         public void Run_GivenAsyncWhenSync_HasCorrectResult()
         {
             var bddPipeResult = Scenario()
-                .Given("false", async scenario =>
+                .Given("false", async _ =>
                 {
                     await Task.Delay(1);
                     return false;
@@ -603,7 +604,7 @@ namespace BddPipe.UnitTests
             Func<Task> runTest = async () =>
             {
                 await Scenario("test")
-                    .Given("false", async scenario =>
+                    .Given("false", async _ =>
                     {
                         await Task.Delay(1);
                         return false;
@@ -631,7 +632,7 @@ namespace BddPipe.UnitTests
             Action runTest = () =>
             {
                 Scenario("test")
-                    .Given("false", async scenario =>
+                    .Given("false", async _ =>
                     {
                         await Task.Delay(1);
                         return false;
@@ -651,7 +652,7 @@ namespace BddPipe.UnitTests
         /// Given - async
         /// When - sync THROWS
         /// </summary>
-        /// <remarks>Run - the Then step is following an a step in a failed state and is async</remarks>
+        /// <remarks>Run - the Then step is following a step in a failed state and is async</remarks>
         [Test]
         public void Run_AsyncStepFollowsWhenInFailedAsyncMode_RaisesThrownExNotAggregateException()
         {
@@ -659,13 +660,13 @@ namespace BddPipe.UnitTests
             Action runTest = () =>
             {
                 Scenario("test")
-                    .Given("false", async scenario =>
+                    .Given("false", async _ =>
                     {
                         await Task.Delay(1);
                         return false;
                     })
                     .When("Step throws exception", () => throw new ApplicationException("test exception"))
-                    .Then("final step", async val =>
+                    .Then("final step", async _ =>
                     {
                         await Task.Delay(1);
                         return false;
@@ -688,7 +689,7 @@ namespace BddPipe.UnitTests
         public async Task RunAsync_GivenAsyncWhenAsync_HasCorrectResult()
         {
             var bddPipeResult = await Scenario()
-                .Given("false", async scenario =>
+                .Given("false", async _ =>
                 {
                     await Task.Delay(1);
                     return false;
@@ -712,7 +713,7 @@ namespace BddPipe.UnitTests
         public void Run_GivenAsyncWhenAsync_HasCorrectResult()
         {
             var bddPipeResult = Scenario()
-                .Given("false", async scenario =>
+                .Given("false", async _ =>
                 {
                     await Task.Delay(1);
                     return false;
@@ -739,7 +740,7 @@ namespace BddPipe.UnitTests
             Func<Task> runTest = async () =>
             {
                 await Scenario("test")
-                    .Given("false", async scenario =>
+                    .Given("false", async _ =>
                     {
                         await Task.Delay(1);
                         return false;
@@ -771,7 +772,7 @@ namespace BddPipe.UnitTests
             Action runTest = () =>
             {
                 Scenario("test")
-                    .Given("false", async scenario =>
+                    .Given("false", async _ =>
                     {
                         await Task.Delay(1);
                         return false;
@@ -800,7 +801,7 @@ namespace BddPipe.UnitTests
         public async Task RunAsync_GivenSyncWhenSync_HasCorrectResult()
         {
             var bddPipeResult = await Scenario()
-                .Given("false", scenario => false)
+                .Given("false", _ => false)
                 .When("not false", falseValue => !falseValue)
                 .RunAsync();
 
@@ -816,7 +817,7 @@ namespace BddPipe.UnitTests
         public void Run_GivenSyncWhenSync_HasCorrectResult()
         {
             var bddPipeResult = Scenario()
-                .Given("false", scenario => false)
+                .Given("false", _ => false)
                 .When("not false", falseValue => !falseValue)
                 .Run();
 
@@ -835,7 +836,7 @@ namespace BddPipe.UnitTests
             Func<Task> runTest = async () =>
             {
                 await Scenario("test")
-                    .Given("false", scenario => false)
+                    .Given("false", _ => false)
                     .When("Step throws exception", () => throw new ApplicationException("test exception"))
                     .Then("final step", val => !val)
                     .RunAsync(logs => logLines = WriteLogsToConsole(logs));
@@ -859,7 +860,7 @@ namespace BddPipe.UnitTests
             Action runTest = () =>
             {
                 Scenario("test")
-                    .Given("false", scenario => false)
+                    .Given("false", _ => false)
                     .When("Step throws exception", () => throw new ApplicationException("test exception"))
                     .Then("final step", val => !val)
                     .Run(logs => logLines = WriteLogsToConsole(logs));
@@ -880,7 +881,7 @@ namespace BddPipe.UnitTests
         public async Task RunAsync_GivenSyncWhenAsync_HasCorrectResult()
         {
             var bddPipeResult = await Scenario()
-                .Given("false", scenario => false)
+                .Given("false", _ => false)
                 .When("not false", async falseValue =>
                 {
                     await Task.Delay(1);
@@ -900,7 +901,7 @@ namespace BddPipe.UnitTests
         public void Run_GivenSyncWhenAsync_HasCorrectResult()
         {
             var bddPipeResult = Scenario()
-                .Given("false", scenario => false)
+                .Given("false", _ => false)
                 .When("not false", async falseValue =>
                 {
                     await Task.Delay(1);
@@ -923,7 +924,7 @@ namespace BddPipe.UnitTests
             Action runTest = () =>
             {
                 Scenario("test")
-                    .Given("false", async scenario => false)
+                    .Given("false", _ => Task.FromResult(false))
                     .When("Step throws exception", async () =>
                     {
                         await Task.Delay(1);
@@ -951,7 +952,7 @@ namespace BddPipe.UnitTests
             Func<Task> runTest = async () =>
             {
                 await Scenario("test")
-                    .Given("false", async scenario => false)
+                    .Given("false", _ => Task.FromResult(false))
                     .When("Step throws exception", async () =>
                     {
                         await Task.Delay(1);
@@ -970,7 +971,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Run_WhenPipeContentNull_ReturnsResultWithNull()
         {
-            var result = Given("content is null", () => (string)null).Run();
+            var result = Given("content is null", () => (string?)null).Run();
 
             result.Should().NotBeNull();
             result.Output.Should().BeNull();
@@ -985,7 +986,7 @@ namespace BddPipe.UnitTests
         [Test]
         public async Task RunAsync_WhenPipeContentNull_ReturnsResultWithNull()
         {
-            var result = await Given("content is null", () => (string)null).RunAsync();
+            var result = await Given("content is null", () => (string?)null).RunAsync();
 
             result.Should().NotBeNull();
             result.Output.Should().BeNull();

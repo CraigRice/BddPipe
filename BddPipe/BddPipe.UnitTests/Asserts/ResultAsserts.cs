@@ -1,43 +1,42 @@
-﻿using System;
-using System.Runtime.ExceptionServices;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
+using System.Runtime.ExceptionServices;
 
-namespace BddPipe.UnitTests.Asserts
+namespace BddPipe.UnitTests.Asserts;
+
+internal static class ResultAsserts
 {
-    internal static class ResultAsserts
+    public static void ShouldBeError<T>(this Result<T> result, Action<ExceptionDispatchInfo>? withError)
     {
-        public static void ShouldBeError<T>(this Result<T> result, Action<ExceptionDispatchInfo> withError)
+        result.Should().NotBeNull();
+        result.IsSuccess.Should().BeFalse();
+
+        result.Match(val =>
         {
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeFalse();
-
-            result.Match(val =>
-            {
-                Assert.Fail($"Expecting ExceptionDispatchInfo but was '{val}'");
-                return new Unit();
-            }, err =>
-            {
-                err.Should().NotBeNull();
-                withError?.Invoke(err);
-                return new Unit();
-            });
-        }
-
-        public static void ShouldBeSuccessful<T>(this Result<T> result, Action<T> withSuccess)
+            Assert.Fail($"Expecting ExceptionDispatchInfo but was '{val}'");
+            return new Unit();
+        }, err =>
         {
-            result.Should().NotBeNull();
-            result.IsSuccess.Should().BeTrue();
+            err.Should().NotBeNull();
+            withError?.Invoke(err);
+            return new Unit();
+        });
+    }
 
-            result.Match(val =>
-            {
-                withSuccess?.Invoke(val);
-                return new Unit();
-            }, err =>
-            {
-                Assert.Fail($"Expecting T but was '{err}'");
-                return new Unit();
-            });
-        }
+    public static void ShouldBeSuccessful<T>(this Result<T> result, Action<T>? withSuccess)
+    {
+        result.Should().NotBeNull();
+        result.IsSuccess.Should().BeTrue();
+
+        result.Match(val =>
+        {
+            withSuccess?.Invoke(val);
+            return new Unit();
+        }, err =>
+        {
+            Assert.Fail($"Expecting T but was '{err}'");
+            return new Unit();
+        });
     }
 }

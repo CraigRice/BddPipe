@@ -1,7 +1,7 @@
-﻿using System;
-using BddPipe.UnitTests.Asserts;
+﻿using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
+using System;
 
 namespace BddPipe.UnitTests
 {

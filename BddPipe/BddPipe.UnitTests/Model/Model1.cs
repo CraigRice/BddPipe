@@ -1,13 +1,9 @@
 ﻿namespace BddPipe.UnitTests.Model
 {
-    public sealed class Model1
+    internal sealed class Model1(string name)
     {
-        public string Name { get; }
+        public string Name { get; } = name;
 
         public Model1() : this(nameof(Model1)) { }
-        public Model1(string name)
-        {
-            Name = name;
-        }
     }
 }

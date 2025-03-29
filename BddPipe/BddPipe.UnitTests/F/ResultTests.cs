@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.ExceptionServices;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using System;
+using System.Runtime.ExceptionServices;
 
 namespace BddPipe.UnitTests.F
 {
@@ -70,7 +70,7 @@ namespace BddPipe.UnitTests.F
             var fnCtnError = Substitute.For<Func<ExceptionDispatchInfo, string>>();
 
             const string resultText = "some result";
-            var outcome = result.Match(ctnInt => resultText, fnCtnError);
+            var outcome = result.Match(_ => resultText, fnCtnError);
 
             outcome.Should().Be(resultText);
 
@@ -85,7 +85,7 @@ namespace BddPipe.UnitTests.F
             var fnCtnT = Substitute.For<Func<int, string>>();
 
             const string resultText = "some result";
-            var outcome = result.Match(fnCtnT, ctnError => resultText);
+            var outcome = result.Match(fnCtnT, _ => resultText);
 
             outcome.Should().Be(resultText);
 

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Runtime.ExceptionServices;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using System;
 using static BddPipe.UnitTests.Model.PipeTests.PipeTestsHelper;
-using static BddPipe.F;
 
 namespace BddPipe.UnitTests.Model.PipeTests
 {
@@ -19,7 +17,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Action call = () =>
             {
-                default(Pipe<int>).Match(v => DefaultValue, e => DefaultValue);
+                default(Pipe<int>).Match(_ => DefaultValue, _ => DefaultValue);
             };
 
             call.Should().ThrowExactly<PipeNotInitializedException>()
@@ -31,7 +29,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
         {
             Action call = () =>
             {
-                default(Pipe<int>).Match(v => {}, e => {});
+                default(Pipe<int>).Match(_ => {}, _ => {});
             };
 
             call.Should().ThrowExactly<PipeNotInitializedException>()
@@ -76,7 +74,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnError = Substitute.For<Action<PipeErrorData>>();
 
-            Action call = () => pipe.Match(null, fnError);
+            Action call = () => pipe.Match(null!, fnError);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("value");
@@ -92,7 +90,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnT = Substitute.For<Action<PipeData<int>>>();
 
-            Action call = () => pipe.Match(fnT, null);
+            Action call = () => pipe.Match(fnT, null!);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("error");
@@ -139,7 +137,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var fnError = Substitute.For<Func<PipeErrorData, string>>();
 
             const string resultText = "some result";
-            var result = pipe.Match(ctnInt => resultText, fnError);
+            var result = pipe.Match(_ => resultText, fnError);
 
             result.Should().Be(resultText);
 
@@ -150,15 +148,12 @@ namespace BddPipe.UnitTests.Model.PipeTests
         [TestCase(false)]
         public void Match_WithFuncLeft_ReturnsFuncLeftOutput(bool fromTask)
         {
-            var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
-            Either<Ctn<ExceptionDispatchInfo>, Ctn<int>> pipeState = new Ctn<ExceptionDispatchInfo>(exInfo, None);
-
             var pipe = CreatePipeErrorState<int>(fromTask);
 
             var fnT = Substitute.For<Func<PipeData<int>, string>>();
 
             const string resultText = "some result";
-            var result = pipe.Match(fnT, ctnError => resultText);
+            var result = pipe.Match(fnT, _ => resultText);
 
             result.Should().Be(resultText);
 
@@ -173,7 +168,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnError = Substitute.For<Func<PipeErrorData, Unit>>();
 
-            Action call = () => pipe.Match(null, fnError);
+            Action call = () => pipe.Match(null!, fnError);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("value");
@@ -189,7 +184,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             var fnT = Substitute.For<Func<PipeData<int>, Unit>>();
 
-            Action call = () => pipe.Match(fnT, null);
+            Action call = () => pipe.Match(fnT, null!);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("error");
@@ -213,7 +208,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     state.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                     return new Unit();
                 },
-                error =>
+                _ =>
                 {
                     Assert.Fail("Expecting value state but was error state.");
                     return new Unit();
@@ -235,7 +230,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     state.Value.Should().Be(scenarioDetails.Value);
                     state.Result.ShouldHaveStepResultsAsDefaultScenarioDetails();
                 },
-                error =>
+                _ =>
                 {
                     Assert.Fail("Expecting value state but was error state.");
                 });
@@ -251,7 +246,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var pipe = CreatePipeErrorState<int>(fromTask, scenarioDetails.ExceptionDispatchInfo, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             pipe.Match(
-                state =>
+                _ =>
                 {
                     Assert.Fail("Expecting error state but was value state.");
                     return new Unit();
@@ -275,7 +270,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             var pipe = CreatePipeErrorState<int>(fromTask, scenarioDetails.ExceptionDispatchInfo, scenarioDetails.StepOutcomes, scenarioDetails.ScenarioTitle);
 
             pipe.Match(
-                state =>
+                _ =>
                 {
                     Assert.Fail("Expecting error state but was value state.");
                 },

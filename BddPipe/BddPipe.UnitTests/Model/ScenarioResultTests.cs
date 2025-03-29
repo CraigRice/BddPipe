@@ -1,6 +1,6 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
 
 namespace BddPipe.UnitTests.Model
 {
@@ -10,7 +10,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Ctor_StepResultsNull_ThrowsArgNullException()
         {
-            Action call = () => new ScenarioResult(string.Empty, string.Empty, null);
+            var call = () => new ScenarioResult(string.Empty, string.Empty, null!);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which.ParamName.Should().Be("stepResults");
         }

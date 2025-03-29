@@ -1,4 +1,5 @@
 ﻿using BddPipe.UnitTests.Asserts;
+using BddPipe.UnitTests.Helpers;
 using FluentAssertions;
 using NUnit.Framework;
 using static BddPipe.F;
@@ -50,7 +51,8 @@ namespace BddPipe.UnitTests
         [Test]
         public void WithPrefix_Null_PrefixReturned()
         {
-            var result = ((string)null).AsOption().WithPrefix(DefaultPrefix);
+
+            var result = ((string?)null).AsOption().WithPrefix(DefaultPrefix);
             result.Value.Should().Be(DefaultPrefix);
         }
 
