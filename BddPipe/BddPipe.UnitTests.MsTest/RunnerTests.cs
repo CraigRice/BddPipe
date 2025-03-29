@@ -10,7 +10,7 @@ namespace BddPipe.UnitTests.MsTest
     [TestClass]
     public class RunnerTests
     {
-        private static IReadOnlyList<string> WriteLogsToConsole(ScenarioResult result)
+        private static IReadOnlyList<string?> WriteLogsToConsole(ScenarioResult result)
         {
             Runner.WriteLogsToConsole(result);
 
@@ -24,7 +24,7 @@ namespace BddPipe.UnitTests.MsTest
         [TestMethod]
         public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Scenario("Test scenario")
                 .Given(null, () => new { A = 5, B = 10 })
@@ -64,7 +64,7 @@ namespace BddPipe.UnitTests.MsTest
         [TestMethod]
         public void Run_GivenWhenAndThenWithAndAssertInconclusive_IndicatedInconclusive()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
             Action runTest = () =>
                 Given("Two numbers", () => new { A = 5, B = 10 }).
                     When("The numbers are summed", args => new { Result = args.A + args.B }).
@@ -87,7 +87,7 @@ namespace BddPipe.UnitTests.MsTest
         [TestMethod]
         public void Run_GivenWhenThenWithGivenAssertInconclusive_IndicatedInconclusive()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Given("Two numbers", () =>
