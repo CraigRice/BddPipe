@@ -1,21 +1,21 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
 using static BddPipe.Runner;
 
 namespace ExceptionTestNamespace
 {
-    public class Person
+    public sealed class Person
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
     }
 
-    public class TestClass
+    public sealed class TestClass
     {
-        private void SetPropertyOfNullInstance()
+        private static void SetPropertyOfNullInstance()
         {
-            Person person = null;
-            person.Name = "test name";
+            Person? person = null;
+            person!.Name = "test name";
         }
 
         public void CauseNullReferenceException()
@@ -33,7 +33,7 @@ namespace BddPipe.UnitTests
         private const string ExpectedStacktraceStart = "   at ExceptionTestNamespace.TestClass.SetPropertyOfNullInstance()";
         private const string StacktraceSectionMarker = "--- End of stack trace from previous location ---";
 
-        private static string GetStackTraceUntilPreviousLocationMarker(string stackTrace)
+        private static string? GetStackTraceUntilPreviousLocationMarker(string? stackTrace)
         {
             if (stackTrace == null)
             {
@@ -59,7 +59,7 @@ namespace BddPipe.UnitTests
                     testClass.CauseNullReferenceException();
                 });
 
-            Action run = () => pipeRaisingEx.Run(result => { /*mute*/ });
+            Action run = () => pipeRaisingEx.Run(_ => { /*mute*/ });
             run.Should().ThrowExactly<NullReferenceException>()
                 .Which
                 .StackTrace.Should().StartWith(ExpectedStacktraceStart);
@@ -79,7 +79,7 @@ namespace BddPipe.UnitTests
                     .Then("sum should be as expected", arg => { arg.Result.Should().Be(15); });
 
             var raisedExceptionStackTrace = pipeRaisingEx.Match(
-                pipeState => throw new InconclusiveException("Expecting an exception was raised by a step"),
+                _ => throw new InconclusiveException("Expecting an exception was raised by a step"),
                 pipeErrorState =>
                 {
                     try
@@ -97,17 +97,17 @@ namespace BddPipe.UnitTests
             var exceptionStack = GetStackTraceUntilPreviousLocationMarker(raisedExceptionStackTrace);
 
             Console.WriteLine("===============");
-            Console.WriteLine($"Expected stack trace to start with this initial stack trace:");
-            Console.WriteLine(exceptionStack);
+            Console.WriteLine("Expected stack trace to start with this initial stack trace:");
+            Console.WriteLine(exceptionStack ?? "not available");
             Console.WriteLine("===============");
 
-            var exceptionStackLines = exceptionStack.Split(Environment.NewLine);
+            var exceptionStackLines = exceptionStack?.Split(Environment.NewLine) ?? [];
             exceptionStackLines.Length.Should().BeGreaterThan(2);
 
             exceptionStackLines[0].Should().StartWith(ExpectedStacktraceStart);
             exceptionStackLines[^1].Should().Be(StacktraceSectionMarker);
 
-            Action run = () => pipeRaisingEx.Run(result => { /*mute*/ });
+            Action run = () => pipeRaisingEx.Run(_ => { /*mute*/ });
             run.Should().ThrowExactly<NullReferenceException>()
                 .Which
                 .StackTrace.Should().StartWith(exceptionStack);

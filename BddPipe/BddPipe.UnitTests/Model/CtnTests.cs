@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using static BddPipe.F;
 
 namespace BddPipe.UnitTests.Model
@@ -17,7 +17,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Ctor_NullReferenceType_DoesNotThrow()
         {
-            var ctn = new Ctn<string>(null, None);
+            var ctn = new Ctn<string>(null!, None);
 
             ctn.Should().NotBeNull();
             ctn.Content.Should().Be(null);
@@ -77,10 +77,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Ctor_StepOutcomesNull_ThrowsArgumentNullException()
         {
-            Action create = () =>
-            {
-                var ctn = new Ctn<int>(DefaultValue, null, None);
-            };
+            var create = () => new Ctn<int>(DefaultValue, null, None);
 
             create.Should().ThrowExactly<ArgumentNullException>()
                 .Which

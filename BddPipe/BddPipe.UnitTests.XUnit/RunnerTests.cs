@@ -9,7 +9,7 @@ namespace BddPipe.UnitTests.XUnit
 {
     public class RunnerTests
     {
-        private static IReadOnlyList<string> WriteLogsToConsole(ScenarioResult result)
+        private static IReadOnlyList<string?> WriteLogsToConsole(ScenarioResult result)
         {
             Runner.WriteLogsToConsole(result);
 
@@ -23,7 +23,7 @@ namespace BddPipe.UnitTests.XUnit
         [Fact]
         public void Run_FullExampleWithScenario_SuccessfulWithCorrectIndentation()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Scenario("Test scenario")
                 .Given(null, () => new { A = 5, B = 10 })

@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace BddPipe.UnitTests.Model
 {
-    public class SomeType {}
+    public sealed class SomeType;
 
     [TestFixture]
     public class BddPipeResultTests
@@ -28,7 +28,7 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Ctor_TNull_AllowsNull()
         {
-            SomeType someType = null;
+            SomeType someType = null!;
             var scenarioResult = new ScenarioResult("title", "desc", new List<StepResult>());
 
             var result = new BddPipeResult<SomeType>(

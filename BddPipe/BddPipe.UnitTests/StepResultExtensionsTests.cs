@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
-using static BddPipe.F;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using static BddPipe.F;
 
 namespace BddPipe.UnitTests
 {
-    internal static class OptionTestExtensions
-    {
-        public static Option<string> AsOption(this string value) =>
-            value == null ? None : (Option<string>)Some(value);
-    }
-
     [TestFixture]
     public class StepResultExtensionsTests
     {
@@ -141,7 +135,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void ToTitle_NullTitleString_ReturnsCorrectTitle()
         {
-            string titleText = null;
+            string? titleText = null;
 
             var result = titleText.ToTitle(Step.And).Value;
 

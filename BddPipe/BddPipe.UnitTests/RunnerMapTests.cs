@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using BddPipe.UnitTests.Helpers;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using static BddPipe.F;
 using static BddPipe.Runner;
 
@@ -17,7 +17,7 @@ namespace BddPipe.UnitTests
     [TestFixture]
     public class RunnerMapTests
     {
-        private static IReadOnlyList<string> WriteLogsToConsole(ScenarioResult result)
+        private static IReadOnlyList<string?> WriteLogsToConsole(ScenarioResult result)
         {
             Runner.WriteLogsToConsole(result);
 
@@ -28,7 +28,6 @@ namespace BddPipe.UnitTests
                 .ToList();
         }
 
-        private const int InitialValue = 1;
         private const int NewValue = 2;
         private const string ErrorMessage = "test message";
 
@@ -69,7 +68,8 @@ namespace BddPipe.UnitTests
         public void Map_NullArgument_ThrowsArgumentNullException()
         {
             var pipe = GetPipeInSuccessState(NewValue);
-            Action map = () => { pipe.Map((Func<int, string>)null); };
+            Func<int, string> fn = null!;
+            var map = () => { pipe.Map(fn); };
             map.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");
@@ -79,7 +79,8 @@ namespace BddPipe.UnitTests
         public void MapAsync_NullArgument_ThrowsArgumentNullException()
         {
             var pipe = GetPipeInSuccessState(NewValue);
-            Action map = () => { pipe.Map((Func<int, Task<string>>)null); };
+            Func<int, Task<string>> fn = null!;
+            var map = () => { pipe.Map(fn); };
             map.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");
@@ -156,7 +157,7 @@ namespace BddPipe.UnitTests
         {
             var pipe = GetPipeInSuccessState(NewValue);
 
-            var asString = pipe.Map(i => (string)null);
+            var asString = pipe.Map(string? (_) => null);
 
             asString.ShouldBeSuccessful(ctn =>
             {
@@ -167,10 +168,10 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_IsInValueStateFromNull_MapsToCtnOfNewValue()
         {
-            var pipe = GetPipeInSuccessState((string)null);
+            var pipe = GetPipeInSuccessState<string?>(null);
             const int nextValue = 423;
 
-            var asString = pipe.Map(i => nextValue);
+            var asString = pipe.Map(_ => nextValue);
 
             asString.ShouldBeSuccessful(ctn =>
             {
@@ -181,16 +182,15 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_AsyncOverload_MapsToCtnOfNewValue()
         {
-            const string initalValue = "initial-value";
+            const string initialValue = "initial-value";
             const string scenarioTitle = "scenario-title";
             const string givenStepText = "given-step";
 
-            var pipe = new Pipe<string>(new Ctn<string>(initalValue, new[]
-            {
+            var pipe = new Pipe<string>(new Ctn<string>(initialValue, [
                 new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
-            }, scenarioTitle));
+            ], scenarioTitle));
 
-            var result = pipe.Map(async value =>
+            var result = pipe.Map(async _ =>
             {
                 await Task.Delay(10);
                 return new DateTime(2000, 1, 1, 1, 1, 1);
@@ -208,24 +208,17 @@ namespace BddPipe.UnitTests
         [TestCase(false, Description = "Sync overload")]
         public void Map_ThrowsException_PipeIsInErrorStateWithFail(bool isAsync)
         {
-            const string initalValue = "initial-value";
+            const string initialValue = "initial-value";
             const string scenarioTitle = "scenario-title";
             const string givenStepText = "given-step";
 
-            var pipe = new Pipe<string>(new Ctn<string>(initalValue, new[]
-            {
+            var pipe = new Pipe<string>(new Ctn<string>(initialValue, [
                 new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
-            }, scenarioTitle));
+            ], scenarioTitle));
 
-            Pipe<int> result;
-            if (isAsync)
-            {
-                result = pipe.Map(PipeMapFunctions.MapAsyncRaiseEx());
-            }
-            else
-            {
-                result = pipe.Map(PipeMapFunctions.MapSyncRaiseEx());
-            }
+            var result = isAsync
+                ? pipe.Map(PipeMapFunctions.MapAsyncRaiseEx())
+                : pipe.Map(PipeMapFunctions.MapSyncRaiseEx());
 
             result.ShouldBeError(ctnError =>
             {
@@ -241,25 +234,17 @@ namespace BddPipe.UnitTests
         [TestCase(false, Description = "Sync overload")]
         public void Map_ThrowsInconclusiveException_PipeIsInErrorStateWithInconclusive(bool isAsync)
         {
-            const string initalValue = "initial-value";
+            const string initialValue = "initial-value";
             const string scenarioTitle = "scenario-title";
             const string givenStepText = "given-step";
 
-            var pipe = new Pipe<string>(new Ctn<string>(initalValue, new[]
-            {
+            var pipe = new Pipe<string>(new Ctn<string>(initialValue, [
                 new StepOutcome(Step.Given, Outcome.Pass, givenStepText)
-            }, scenarioTitle));
+            ], scenarioTitle));
 
-            Pipe<int> result;
-
-            if (isAsync)
-            {
-                result = pipe.Map(PipeMapFunctions.MapAsyncRaiseInconclusiveEx());
-            }
-            else
-            {
-                result = pipe.Map(PipeMapFunctions.MapSyncRaiseInconclusiveEx());
-            }
+            var result = isAsync
+                ? pipe.Map(PipeMapFunctions.MapAsyncRaiseInconclusiveEx())
+                : pipe.Map(PipeMapFunctions.MapSyncRaiseInconclusiveEx());
 
             result.ShouldBeError(ctnError =>
             {
@@ -289,7 +274,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_AsyncMap_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -318,7 +303,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_SyncMap_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -343,7 +328,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_DoubleMap_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -369,7 +354,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_AsyncMapThrowsInconclusiveException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -394,7 +379,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_SyncMapThrowsInconclusiveException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -419,7 +404,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_AsyncMapThrowsException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -444,7 +429,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_SyncMapThrowsException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -469,7 +454,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithAsyncMap_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -502,7 +487,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithSyncMap_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -531,7 +516,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithDoubleMap_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -561,7 +546,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithAsyncMapThrowsInconclusiveException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -590,7 +575,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithSyncMapThrowsInconclusiveException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -619,7 +604,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithAsyncMapThrowsException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()
@@ -648,7 +633,7 @@ namespace BddPipe.UnitTests
         [Test]
         public void Map_PipeIsAsyncWithSyncMapThrowsException_OutputIsCorrect()
         {
-            IReadOnlyList<string> logLines = new List<string>();
+            IReadOnlyList<string?> logLines = [];
 
             Action runTest = () =>
                 Scenario()

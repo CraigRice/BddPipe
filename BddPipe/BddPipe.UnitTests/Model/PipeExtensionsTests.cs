@@ -1,10 +1,10 @@
-﻿using System;
-using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
+using System;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using static BddPipe.F;
 
 namespace BddPipe.UnitTests.Model

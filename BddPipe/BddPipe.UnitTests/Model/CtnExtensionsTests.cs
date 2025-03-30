@@ -21,11 +21,11 @@ namespace BddPipe.UnitTests.Model
         private const string ButStepTitle = "but-step-title";
 
         private Ctn<int> GetInitialCtnWithSuccessfulGiven() =>
-            new Ctn<int>(
+            new(
                 DefaultValue,
                 new List<StepOutcome>
                 {
-                    new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle)
+                    new(Step.Given, Outcome.Pass, GivenStepTitle)
                 },
                 ScenarioTitle
             );
@@ -101,7 +101,7 @@ namespace BddPipe.UnitTests.Model
         public void Map_ScenarioTitleNone_ScenarioTitleRemainsAsNone()
         {
             var newCtn = new Ctn<int>(DefaultValue, None)
-                .Map(value => true);
+                .Map(_ => true);
 
             newCtn.ScenarioTitle.ShouldBeNone();
         }
@@ -110,7 +110,7 @@ namespace BddPipe.UnitTests.Model
         public async Task MapAsync_ScenarioTitleNone_ScenarioTitleRemainsAsNone()
         {
             var newCtn = await new Ctn<int>(DefaultValue, None)
-                .MapAsync(async value => true);
+                .MapAsync(_ => Task.FromResult(true));
 
             newCtn.ScenarioTitle.ShouldBeNone();
         }
@@ -121,7 +121,7 @@ namespace BddPipe.UnitTests.Model
             const string scenarioTitle = "scenario title value";
 
             var newCtn = new Ctn<int>(DefaultValue, scenarioTitle)
-                .Map(value => true);
+                .Map(_ => true);
 
             newCtn.ScenarioTitle.ShouldBeSome(title => 
                 title.Should().Be(scenarioTitle)
@@ -134,7 +134,7 @@ namespace BddPipe.UnitTests.Model
             const string scenarioTitle = "scenario title value";
 
             var newCtn = await new Ctn<int>(DefaultValue, scenarioTitle)
-                .MapAsync(async value => true);
+                .MapAsync(_ => Task.FromResult(true));
 
             newCtn.ScenarioTitle.ShouldBeSome(title =>
                 title.Should().Be(scenarioTitle)
@@ -145,7 +145,7 @@ namespace BddPipe.UnitTests.Model
         public void Map_OutcomesEmptyViaDefaultCtor_OutcomesRemainsAsEmpty()
         {
             var newCtn = new Ctn<int>(DefaultValue, None)
-                .Map(value => true);
+                .Map(_ => true);
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Should().BeEmpty();
@@ -155,7 +155,7 @@ namespace BddPipe.UnitTests.Model
         public async Task MapAsync_OutcomesEmptyViaDefaultCtor_OutcomesRemainsAsEmpty()
         {
             var newCtn = await new Ctn<int>(DefaultValue, None)
-                .MapAsync(async value => true);
+                .MapAsync(_ => Task.FromResult(true));
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Should().BeEmpty();
@@ -165,7 +165,7 @@ namespace BddPipe.UnitTests.Model
         public void Map_OutcomesEmptyViaExplicitCtor_OutcomesRemainsAsEmpty()
         {
             var newCtn = new Ctn<int>(DefaultValue, new List<StepOutcome>(), None)
-                .Map(value => true);
+                .Map(_ => true);
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Should().BeEmpty();
@@ -175,7 +175,7 @@ namespace BddPipe.UnitTests.Model
         public async Task MapAsync_OutcomesEmptyViaExplicitCtor_OutcomesRemainsAsEmpty()
         {
             var newCtn = await new Ctn<int>(DefaultValue, new List<StepOutcome>(), None)
-                .MapAsync(async value => true);
+                .MapAsync(_ => Task.FromResult(true));
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.Should().BeEmpty();
@@ -188,11 +188,11 @@ namespace BddPipe.UnitTests.Model
                     DefaultValue,
                     new List<StepOutcome>
                     {
-                        new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle)
+                        new(Step.Given, Outcome.Pass, GivenStepTitle)
                     }, 
                     None
                 )
-                .Map(value => true);
+                .Map(_ => true);
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, GivenStepTitle, Step.Given);
@@ -205,11 +205,11 @@ namespace BddPipe.UnitTests.Model
                     DefaultValue,
                     new List<StepOutcome>
                     {
-                        new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle)
+                        new(Step.Given, Outcome.Pass, GivenStepTitle)
                     },
                     None
                 )
-                .MapAsync(async value => true);
+                .MapAsync(_ => Task.FromResult(true));
 
             newCtn.StepOutcomes.Should().NotBeNull();
             newCtn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Pass, GivenStepTitle, Step.Given);
@@ -256,7 +256,7 @@ namespace BddPipe.UnitTests.Model
         public async Task MapAsync_FromCtnWithNoStepOutcomes_MapsToNewCtnType()
         {
             var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
-            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => currentValue.ToString());
+            var newCtn = await ctnWithValueOnly.MapAsync(currentValue => Task.FromResult(currentValue.ToString()));
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(DefaultValue.ToString());
@@ -268,10 +268,10 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Map_FromNull_MapsToNewCtnType()
         {
-            var ctnWithValueOnly = new Ctn<string>(null, None);
+            var ctnWithValueOnly = new Ctn<string?>(null, None);
 
-            var newValue = 12.45m;
-            var newCtn = ctnWithValueOnly.Map(currentValue => newValue);
+            const decimal newValue = 12.45m;
+            var newCtn = ctnWithValueOnly.Map(_ => newValue);
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(newValue);
@@ -283,10 +283,10 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public async Task MapAsync_FromNull_MapsToNewCtnType()
         {
-            var ctnWithValueOnly = new Ctn<string>(null, None);
+            var ctnWithValueOnly = new Ctn<string?>(null, None);
 
-            var newValue = 12.45m;
-            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => newValue);
+            const decimal newValue = 12.45m;
+            var newCtn = await ctnWithValueOnly.MapAsync(_ => Task.FromResult(newValue));
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(newValue);
@@ -300,8 +300,8 @@ namespace BddPipe.UnitTests.Model
         {
             var ctnWithValueOnly = new Ctn<string>("initial value", None);
 
-            const string newValue = null;
-            var newCtn = ctnWithValueOnly.Map(currentValue => newValue);
+            const string? newValue = null;
+            var newCtn = ctnWithValueOnly.Map(_ => newValue);
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(newValue);
@@ -315,8 +315,8 @@ namespace BddPipe.UnitTests.Model
         {
             var ctnWithValueOnly = new Ctn<string>("initial value", None);
 
-            const string newValue = null;
-            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => newValue);
+            const string? newValue = null;
+            var newCtn = await ctnWithValueOnly.MapAsync(_ => Task.FromResult(newValue));
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(newValue);
@@ -342,7 +342,7 @@ namespace BddPipe.UnitTests.Model
         public async Task MapAsync_FunctionToValueOfSameType_MapsCorrectly()
         {
             var ctnWithValueOnly = new Ctn<int>(DefaultValue, None);
-            var newCtn = await ctnWithValueOnly.MapAsync(async currentValue => currentValue + 1);
+            var newCtn = await ctnWithValueOnly.MapAsync(currentValue => Task.FromResult(currentValue + 1));
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(DefaultValue + 1);
@@ -369,7 +369,7 @@ namespace BddPipe.UnitTests.Model
         public async Task MapAsync_FunctionToValueOfDifferentType_MapsCorrectly()
         {
             var initialCtn = GetInitialCtnWithSuccessfulGiven();
-            var newCtn = await initialCtn.MapAsync(async currentValue => currentValue.ToString());
+            var newCtn = await initialCtn.MapAsync(currentValue => Task.FromResult(currentValue.ToString()));
 
             newCtn.Should().NotBeNull();
             newCtn.Content.Should().Be(DefaultValue.ToString());
@@ -418,9 +418,9 @@ namespace BddPipe.UnitTests.Model
         {
             var stepOutcomes = new List<StepOutcome>
             {
-                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
-                new StepOutcome(Step.When, Outcome.Inconclusive, None),
-                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle)
+                new(Step.Given, Outcome.Pass, GivenStepTitle),
+                new(Step.When, Outcome.Inconclusive, None),
+                new(Step.Then, Outcome.NotRun, ThenStepTitle)
             };
 
             var ctn = new Ctn<int>(DefaultValue, stepOutcomes, None);
@@ -441,9 +441,9 @@ namespace BddPipe.UnitTests.Model
 
             var stepOutcomes = new List<StepOutcome>
             {
-                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
-                new StepOutcome(Step.When, Outcome.Inconclusive, None),
-                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle)
+                new(Step.Given, Outcome.Pass, GivenStepTitle),
+                new(Step.When, Outcome.Inconclusive, None),
+                new(Step.Then, Outcome.NotRun, ThenStepTitle)
             };
 
             var ctn = new Ctn<int>(DefaultValue, stepOutcomes, scenarioTitle);
@@ -462,11 +462,11 @@ namespace BddPipe.UnitTests.Model
         {
             var stepOutcomes = new List<StepOutcome>
             {
-                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
-                new StepOutcome(Step.And, Outcome.Pass, AndStepTitle),
-                new StepOutcome(Step.When, Outcome.Inconclusive, None),
-                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle),
-                new StepOutcome(Step.But, Outcome.NotRun, ButStepTitle)
+                new(Step.Given, Outcome.Pass, GivenStepTitle),
+                new(Step.And, Outcome.Pass, AndStepTitle),
+                new(Step.When, Outcome.Inconclusive, None),
+                new(Step.Then, Outcome.NotRun, ThenStepTitle),
+                new(Step.But, Outcome.NotRun, ButStepTitle)
             };
 
             var ctn = new Ctn<int>(DefaultValue, stepOutcomes, None);
@@ -489,11 +489,11 @@ namespace BddPipe.UnitTests.Model
 
             var stepOutcomes = new List<StepOutcome>
             {
-                new StepOutcome(Step.Given, Outcome.Pass, GivenStepTitle),
-                new StepOutcome(Step.And, Outcome.Pass, AndStepTitle),
-                new StepOutcome(Step.When, Outcome.Inconclusive, None),
-                new StepOutcome(Step.Then, Outcome.NotRun, ThenStepTitle),
-                new StepOutcome(Step.But, Outcome.NotRun, ButStepTitle)
+                new(Step.Given, Outcome.Pass, GivenStepTitle),
+                new(Step.And, Outcome.Pass, AndStepTitle),
+                new(Step.When, Outcome.Inconclusive, None),
+                new(Step.Then, Outcome.NotRun, ThenStepTitle),
+                new(Step.But, Outcome.NotRun, ButStepTitle)
             };
 
             var ctn = new Ctn<int>(DefaultValue, stepOutcomes, scenarioTitle);

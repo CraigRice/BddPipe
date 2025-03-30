@@ -9,24 +9,16 @@ using static BddPipe.F;
 
 namespace BddPipe.UnitTests.Model.PipeTests
 {
-    internal sealed class ScenarioDetails
+    internal sealed class ScenarioDetails(
+        string value,
+        ExceptionDispatchInfo exceptionDispatchInfo,
+        string scenarioTitle,
+        IReadOnlyList<StepOutcome> stepOutcomes)
     {
-        public string Value { get; }
-        public ExceptionDispatchInfo ExceptionDispatchInfo { get; }
-        public string ScenarioTitle { get; }
-        public IReadOnlyList<StepOutcome> StepOutcomes { get; }
-
-        public ScenarioDetails(
-            string value,
-            ExceptionDispatchInfo exceptionDispatchInfo,
-            string scenarioTitle,
-            IReadOnlyList<StepOutcome> stepOutcomes)
-        {
-            Value = value;
-            ScenarioTitle = scenarioTitle;
-            StepOutcomes = stepOutcomes;
-            ExceptionDispatchInfo = exceptionDispatchInfo;
-        }
+        public string Value { get; } = value;
+        public ExceptionDispatchInfo ExceptionDispatchInfo { get; } = exceptionDispatchInfo;
+        public string ScenarioTitle { get; } = scenarioTitle;
+        public IReadOnlyList<StepOutcome> StepOutcomes { get; } = stepOutcomes;
     }
 
     internal static class PipeTestsHelper
@@ -37,8 +29,8 @@ namespace BddPipe.UnitTests.Model.PipeTests
             const string scenarioTitle = "Scenario title";
             var stepOutcomes = new List<StepOutcome>
             {
-                new StepOutcome(Step.Given, Outcome.Pass, "Step 1"),
-                new StepOutcome(Step.And, Outcome.Fail, "Step 2")
+                new(Step.Given, Outcome.Pass, "Step 1"),
+                new(Step.And, Outcome.Fail, "Step 2")
             };
 
             var exInfo = ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
@@ -71,7 +63,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 ? new Pipe<T>(Task.FromResult<Either<Ctn<ExceptionDispatchInfo>, Ctn<T>>>(new Ctn<T>(value, None)))
                 : new Pipe<T>(new Ctn<T>(value, None));
 
-        public static Pipe<T> CreatePipeErrorState<T>(bool fromTask, ExceptionDispatchInfo exDispatchInfo, IReadOnlyList<StepOutcome> stepOutcomes, string scenarioTitle)
+        public static Pipe<T> CreatePipeErrorState<T>(bool fromTask, ExceptionDispatchInfo? exDispatchInfo, IReadOnlyList<StepOutcome> stepOutcomes, string scenarioTitle)
         {
             var exInfo = exDispatchInfo ?? ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
             Either<Ctn<ExceptionDispatchInfo>, Ctn<T>> ctn = new Ctn<ExceptionDispatchInfo>(exInfo, stepOutcomes, scenarioTitle);
@@ -82,7 +74,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
                     : new Pipe<T>(ctn);
         }
 
-        public static Pipe<T> CreatePipeErrorState<T>(bool fromTask, ExceptionDispatchInfo exDispatchInfo = null)
+        public static Pipe<T> CreatePipeErrorState<T>(bool fromTask, ExceptionDispatchInfo? exDispatchInfo = null)
         {
             var exInfo = exDispatchInfo ?? ExceptionDispatchInfo.Capture(new ApplicationException("test error"));
 

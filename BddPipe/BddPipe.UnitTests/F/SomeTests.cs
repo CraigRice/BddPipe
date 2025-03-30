@@ -1,6 +1,6 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
 
 namespace BddPipe.UnitTests.F
 {
@@ -69,7 +69,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Ctor_ReferenceNull_ThrowsArgNullException()
         {
-            Action call = () => new Some<Scenario>(null);
+            var call = () => new Some<Scenario>(null!);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("value");
@@ -127,6 +127,7 @@ namespace BddPipe.UnitTests.F
         public void Equals_SomeAgainstInnerValue_ReturnsExpected(int a, int b, bool expected)
         {
             Some<int> someA = a;
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var result = someA.Equals(b);
             result.Should().Be(expected);
         }
@@ -173,7 +174,9 @@ namespace BddPipe.UnitTests.F
         public void Map_MapFnNull_ThrowArgNullException()
         {
             Some<int> someA = 5;
-            Action call = () => someA.Map((Func<int, string>)null);
+            Func<int, string> fn = null!;
+
+            Action call = () => someA.Map(fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");

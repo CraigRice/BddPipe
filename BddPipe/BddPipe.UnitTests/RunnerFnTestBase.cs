@@ -1,6 +1,6 @@
-﻿using System;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using NUnit.Framework;
+using System;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests

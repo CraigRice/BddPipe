@@ -1,8 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using BddPipe.UnitTests.Asserts;
+﻿using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
+using BddPipe.UnitTests.Helpers;
 
 namespace BddPipe.UnitTests.F
 {
@@ -14,7 +15,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Try_TryDelegateNull_ThrowsArgNullException()
         {
-            Try<int> tryFunc = null;
+            Try<int> tryFunc = null!;
 
             Action call = () => tryFunc.Try();
 
@@ -26,7 +27,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public async Task TryAsync_TryAsyncDelegateNull_ThrowsArgNullException()
         {
-            TryAsync<int> tryFunc = null;
+            TryAsync<int> tryFunc = null!;
 
             Func<Task> call = () => tryFunc.TryAsync();
 
@@ -47,7 +48,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public async Task TryAsync_TryDelegateReturnsValue_ReturnsResultWithValue()
         {
-            TryAsync<int> tryFunc = async () => DefaultValue;
+            TryAsync<int> tryFunc = () => Task.FromResult(new Result<int>(DefaultValue));
 
             var result = await tryFunc.TryAsync();
             result.ShouldBeSuccessful(val => { val.Should().Be(DefaultValue); });
@@ -73,7 +74,7 @@ namespace BddPipe.UnitTests.F
         public async Task TryAsync_TryDelegateThrowsException_ReturnsResultWithValue()
         {
             const string exMessage = "test ex message";
-            TryAsync<int> tryFunc = async () => throw new ApplicationException(exMessage);
+            TryAsync<int> tryFunc = () => TestExceptions.Raise<Task<Result<int>>>(new ApplicationException(exMessage));
 
             var result = await tryFunc.TryAsync();
             result.ShouldBeError(
@@ -88,7 +89,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void TryRun_FuncRNull_ThrowsArgNullException()
         {
-            Func<int> tryFunc = null;
+            Func<int> tryFunc = null!;
 
             Action call = () => tryFunc.TryRun();
 
@@ -100,7 +101,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public async Task TryRunAsync_FuncRNull_ThrowsArgNullException()
         {
-            Func<Task<int>> tryFunc = null;
+            Func<Task<int>> tryFunc = null!;
 
             Func<Task> call = () => tryFunc.TryRunAsync();
 
@@ -121,7 +122,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public async Task TryRunAsync_FuncRReturnsValue_ReturnsResultWithValue()
         {
-            Func<Task<int>> tryFunc = async () => DefaultValue;
+            Func<Task<int>> tryFunc = () => Task.FromResult(DefaultValue);
 
             var result = await tryFunc.TryRunAsync();
             result.ShouldBeSuccessful(val => { val.Should().Be(DefaultValue); });
