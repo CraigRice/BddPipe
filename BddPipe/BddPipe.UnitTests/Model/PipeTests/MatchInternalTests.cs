@@ -17,8 +17,8 @@ namespace BddPipe.UnitTests.Model.PipeTests
             Pipe<int> pipe = default;
 
             Action call = () => pipe.MatchInternal(
-                syncState => false,
-                asyncState => true);
+                _ => false,
+                _ => true);
 
             call.Should().ThrowExactly<PipeNotInitializedException>()
                 .WithMessage("Pipe has not been initialized");
@@ -35,8 +35,8 @@ namespace BddPipe.UnitTests.Model.PipeTests
                 : new Pipe<int>(pipeState);
 
             var result = pipe.MatchInternal(
-                syncState => false,
-                asyncState => true);
+                _ => false,
+                _ => true);
 
             result.Should().Be(async);
         }
@@ -48,7 +48,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
 
             Action call = () => pipe.MatchInternal(
                 null,
-                asyncState => true);
+                _ => true);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
@@ -61,7 +61,7 @@ namespace BddPipe.UnitTests.Model.PipeTests
             Pipe<int> pipe = default;
 
             Action call = () => pipe.MatchInternal(
-                syncState => false,
+                _ => false,
                 null);
 
             call.Should().ThrowExactly<ArgumentNullException>()

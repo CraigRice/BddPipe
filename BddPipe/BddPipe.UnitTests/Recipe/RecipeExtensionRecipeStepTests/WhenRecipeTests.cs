@@ -1,8 +1,8 @@
-﻿using System;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NUnit.Framework;
+using System;
 using static BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests.RecipeExtensionsTestHelpers;
 
 namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
@@ -15,7 +15,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         {
             var pipe = GetPipeAfterGiven();
 
-            RecipeStep<int, int> stepFunc = null;
+            RecipeStep<int, int> stepFunc = null!;
 
             Action call = () => pipe.WhenRecipe(stepFunc);
 
@@ -29,7 +29,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         {
             var pipe = GetPipeAfterGiven();
 
-            RecipeStep<int> stepFunc = null;
+            RecipeStep<int> stepFunc = null!;
 
             Action call = () => pipe.WhenRecipe(stepFunc);
 
@@ -50,7 +50,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         public void WhenRecipe_RecipeStepTReturnsValue_ShouldBeSuccessWithNewValue()
         {
             var step = GetPipeAfterGiven()
-                .WhenRecipe(RecipeStepReturns<int>(NextStepTitle, NextValue));
+                .WhenRecipe(RecipeStepReturns(NextStepTitle, NextValue));
             step.ShouldBeSuccessfulSecondStepWithValue(Step.When, GivenStepTitle, NextStepTitle, NextValue);
         }
 

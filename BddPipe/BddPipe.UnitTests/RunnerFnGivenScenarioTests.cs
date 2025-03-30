@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using BddPipe.UnitTests.Asserts;
+﻿using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests
@@ -15,7 +15,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_FuncScenarioRStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Func<Scenario, int>)null);
+            Func<Scenario, int> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -58,6 +60,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -80,6 +83,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -89,7 +93,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_FuncScenarioTaskRStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Func<Scenario, Task<int>>)null);
+            Func<Scenario, Task<int>> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -132,6 +138,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -154,6 +161,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -163,7 +171,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_FuncRStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Func<int>)null);
+            Func<int> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -206,6 +216,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -228,6 +239,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -237,7 +249,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_FuncTaskRStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Func<Task<int>>)null);
+            Func<Task<int>> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -280,6 +294,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -302,6 +317,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -311,7 +327,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_FuncScenarioTaskStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Func<Scenario, Task>)null);
+            Func<Scenario, Task> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -355,6 +373,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -377,6 +396,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -386,7 +406,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_FuncTaskStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Func<Task>)null);
+            Func<Task> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -430,6 +452,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -452,6 +475,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -461,7 +485,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_ActionScenarioStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Action<Scenario>)null);
+            Action<Scenario> fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -493,7 +519,7 @@ namespace BddPipe.UnitTests
         {
             const string title = "Action<Scenario> step";
             var ex = GetTestException();
-            Action<Scenario> fn = scenario => throw ex;
+            Action<Scenario> fn = _ => throw ex;
 
             // act
             var step = Scenario(ScenarioText).Given(title, fn);
@@ -501,6 +527,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -512,7 +539,7 @@ namespace BddPipe.UnitTests
         {
             const string title = "Action<Scenario> step";
             var ex = GetInconclusiveException();
-            Action<Scenario> fn = scenario => throw ex;
+            Action<Scenario> fn = _ => throw ex;
 
             // act
             var step = Scenario(ScenarioText).Given(title, fn);
@@ -520,6 +547,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);
@@ -529,7 +557,9 @@ namespace BddPipe.UnitTests
         [Test]
         public void GivenScenario_ActionStepNull_ThrowsArgNullException()
         {
-            Action call = () => Scenario(ScenarioText).Given("title", (Action)null);
+            Action fn = null!;
+
+            Action call = () => Scenario(ScenarioText).Given("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -570,6 +600,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Fail, title, Step.Given);
@@ -590,6 +621,7 @@ namespace BddPipe.UnitTests
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(ex);
                 ctn.ScenarioTitle.ShouldBeSome(scenarioText => scenarioText.Should().Be(ScenarioText));
                 ctn.StepOutcomes.ShouldHaveSingleStepOutcome(Outcome.Inconclusive, title, Step.Given);

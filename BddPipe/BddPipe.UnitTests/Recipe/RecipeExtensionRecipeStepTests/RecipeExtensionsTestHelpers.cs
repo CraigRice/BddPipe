@@ -1,5 +1,5 @@
-﻿using System;
-using BddPipe.Model;
+﻿using BddPipe.Model;
+using System;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
@@ -16,40 +16,34 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
 
         public static Pipe<int> GetPipeAfterGiven() =>
             Scenario(ScenarioText)
-                .Given(GivenStepTitle, u => NewValue);
-
-        public static Exception GetTestException() =>
-            new ApplicationException("test exception message");
+                .Given(GivenStepTitle, _ => NewValue);
 
         public static RecipeStep<TSource, T> RecipeStepMapThrowsException<TSource, T>(
             string title,
-            Exception exceptionToThrow
-            )
+            Exception exceptionToThrow)
+            where T : struct
         {
             return recipe => recipe
-                .Map<T>(tSource => throw exceptionToThrow)
-                .Step(title, t => default(T));
+                .Map<T>(_ => throw exceptionToThrow)
+                .Step(title, _ => default(T));
         }
 
         public static RecipeStep<TSource, T> RecipeStepMapArgumentNull<TSource, T>()
+            where T : struct
         {
+            Func<TSource, T> fn = null!;
+
             return recipe => recipe
-                .Map<T>(null)
-                .Step(GivenStepTitle, t => default(T));
+                .Map(fn)
+                .Step(GivenStepTitle, _ => default(T));
         }
 
         public static RecipeStep<TSource, T> RecipeStepStepArgumentNull<TSource, T>()
         {
-            return recipe => recipe
-                .Step(GivenStepTitle, (Func<TSource, T>)null);
-        }
+            Func<TSource, T> fn = null!;
 
-        public static RecipeStep<TSource, T> RecipeStepReturnsDefault<TSource, T>(
-            string title
-        )
-        {
             return recipe => recipe
-                .Step(title, tSource => default(T));
+                .Step(GivenStepTitle, fn);
         }
 
         public static RecipeStep<TSource, T> RecipeStepReturns<TSource, T>(
@@ -58,7 +52,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         )
         {
             return recipe => recipe
-                .Step(title, tSource => returnValue);
+                .Step(title, _ => returnValue);
         }
 
         public static RecipeStep<T> RecipeStepReturns<T>(
@@ -67,7 +61,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         )
         {
             return recipe => recipe
-                .Step(title, tSource => returnValue);
+                .Step(title, _ => returnValue);
         }
 
         public static RecipeStep<TSource, string> RecipeStepMapsThenReturns<TSource, T>(
@@ -76,17 +70,7 @@ namespace BddPipe.UnitTests.Recipe.RecipeExtensionRecipeStepTests
         )
         {
             return recipe => recipe
-                .Map(source => MapToStringResult)
-                .Step(title, mapResult => $"{mapResult} then {returnValue}");
-        }
-
-        public static RecipeStep<string> RecipeStepMapsThenReturns<T>(
-            string title,
-            T returnValue
-        )
-        {
-            return recipe => recipe
-                .Map(source => MapToStringResult)
+                .Map(_ => MapToStringResult)
                 .Step(title, mapResult => $"{mapResult} then {returnValue}");
         }
     }

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 
 namespace BddPipe.UnitTests
 {
@@ -18,7 +18,7 @@ namespace BddPipe.UnitTests
             var result = 0;
 
             Action<int> action = i => { result = i; };
-            Func<int, int> fn = action.PipeFunc<int>();
+            Func<int, int> fn = action.PipeFunc();
 
             var fnResult = fn(DefaultInput);
             fnResult.Should().Be(DefaultInput);
@@ -70,7 +70,7 @@ namespace BddPipe.UnitTests
                 return Task.CompletedTask;
             };
 
-            Func<int, Task<int>> fn = funcTask.PipeFunc<int>();
+            Func<int, Task<int>> fn = funcTask.PipeFunc();
 
             var fnResult = await fn(DefaultInput);
             fnResult.Should().Be(DefaultInput);

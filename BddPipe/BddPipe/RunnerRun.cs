@@ -64,7 +64,10 @@ namespace BddPipe
 
         private static Action<ScenarioResult, Action<string>> WriteOutput => (scenarioResult, writeLine) =>
         {
-            if (!string.IsNullOrWhiteSpace(scenarioResult.Title))
+            // Description won't be null when ScenarioResult is created internally.
+            // Render the scenario description unless Title was explicitly set null.
+            if (scenarioResult.Title != null &&
+                scenarioResult.Description != null)
             {
                 writeLine(scenarioResult.Description);
             }

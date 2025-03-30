@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
 using static BddPipe.F;
 
 namespace BddPipe.UnitTests.F
@@ -14,7 +13,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Ctor_WithNull_ThrowsArgNullException()
         {
-            Action call = () => new Option<string>(null);
+            var call = () => new Option<string>(null!);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("value");
@@ -46,41 +45,6 @@ namespace BddPipe.UnitTests.F
         {
             Option<string> option = None;
             option.IsSome.Should().BeFalse();
-        }
-
-        [Test]
-        public void AsEnumerable_OptionOfSome_ReturnsSingle()
-        {
-            Option<string> option = SomeValue;
-            var asEnumerable = option.AsEnumerable();
-            asEnumerable.Should().NotBeNull();
-
-            var result = asEnumerable.ToList();
-            result.Count.Should().Be(1);
-            result[0].Should().Be(SomeValue);
-        }
-
-        [Test]
-        public void AsEnumerable_OptionOfSomeT_ReturnsSingle()
-        {
-            Option<string> option = new Some<string>(SomeValue);
-            var asEnumerable = option.AsEnumerable();
-            asEnumerable.Should().NotBeNull();
-
-            var result = asEnumerable.ToList();
-            result.Count.Should().Be(1);
-            result[0].Should().Be(SomeValue);
-        }
-
-        [Test]
-        public void AsEnumerable_OptionOfNone_ReturnsEmpty()
-        {
-            Option<string> option = None;
-            var asEnumerable = option.AsEnumerable();
-            asEnumerable.Should().NotBeNull();
-
-            var result = asEnumerable.ToList();
-            result.Count.Should().Be(0);
         }
 
         [Test]
@@ -258,7 +222,7 @@ namespace BddPipe.UnitTests.F
         public void Equals_OptionOfSomeComparedToNull_False()
         {
             Option<string> option = SomeValue;
-            object option2 = null;
+            object? option2 = null;
             var result = option.Equals(option2);
             result.Should().BeFalse();
         }
@@ -267,7 +231,7 @@ namespace BddPipe.UnitTests.F
         public void Equals_OptionOfNoneComparedToNull_False()
         {
             Option<string> option = None;
-            object option2 = null;
+            object? option2 = null;
             var result = option.Equals(option2);
             result.Should().BeFalse();
         }
@@ -351,7 +315,7 @@ namespace BddPipe.UnitTests.F
 
             Option<string> option = SomeValue;
             var result = option.Match(
-                some => valueSome,
+                _ => valueSome,
                 () => valueNone
             );
 
@@ -366,7 +330,7 @@ namespace BddPipe.UnitTests.F
 
             Option<string> option = None;
             var result = option.Match(
-                some => valueSome,
+                _ => valueSome,
                 () => valueNone
             );
 

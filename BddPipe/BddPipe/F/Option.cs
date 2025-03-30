@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using static BddPipe.F;
 
 namespace BddPipe
@@ -40,14 +39,6 @@ namespace BddPipe
 
         public R Match<R>(Func<T, R> some, Func<R> none)
             => _isSome ? some(_value) : none();
-
-        public IEnumerable<T> AsEnumerable()
-        {
-            if (_isSome)
-            {
-                yield return _value;
-            }
-        }
 
         public bool Equals(Option<T> other)
             => _isSome == other._isSome

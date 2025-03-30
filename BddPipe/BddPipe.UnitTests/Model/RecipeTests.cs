@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 
 namespace BddPipe.UnitTests.Model
 {
@@ -21,14 +21,16 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Map_MapFnSupplied_DoesNotThrow()
         {
-            Action call = () => RecipeOfGivenStep().Map(intValue => Guid.NewGuid());
+            Action call = () => RecipeOfGivenStep().Map(_ => Guid.NewGuid());
             call.Should().NotThrow();
         }
 
         [Test]
         public void Map_MapFnNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Map((Func<int, Guid>) null);
+            Func<int, Guid> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Map(fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("map");
@@ -38,7 +40,7 @@ namespace BddPipe.UnitTests.Model
         public void Map_MapFnThrows_DoesNotThrow()
         {
             // map won't raise the exception, the pipe will change to failed on its current step
-            Func<int, Guid> mapFn = intValue => throw GetTestException();
+            Func<int, Guid> mapFn = _ => throw GetTestException();
             Action call = () => RecipeOfGivenStep().Map(mapFn);
             call.Should().NotThrow();
         }
@@ -54,7 +56,7 @@ namespace BddPipe.UnitTests.Model
 
             // act
             var step = RecipeOfGivenStep()
-                .Map(intValue => newValue)
+                .Map(_ => newValue)
                 .Step(title, fn);
 
             fn.Received()(newValue);
@@ -66,16 +68,17 @@ namespace BddPipe.UnitTests.Model
         {
             const string title = "not run step";
             var expectedException = GetTestException();
-            Func<int, Guid> mapFn = intValue => throw expectedException;
+            Func<int, Guid> mapFn = _ => throw expectedException;
 
             // act
             var step = RecipeOfGivenStep()
                 .Map(mapFn)
-                .Step(title, g => AnyStringArg);
+                .Step(title, _ => AnyStringArg);
 
             step.ShouldBeError(ctn =>
             {
                 ctn.Should().NotBeNull();
+                ctn.Content.Should().NotBeNull();
                 ctn.Content.SourceException.Should().Be(expectedException);
                 ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.Fail, GivenTitle, Step.Given, 0);
                 ctn.StepOutcomes.ShouldHaveStepOutcomeAtIndex(Outcome.NotRun, title, Step.And, 1);
@@ -86,7 +89,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_FuncTRStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Func<int, string>)null);
+            Func<int, string> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -145,7 +150,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_FuncTTaskRStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Func<int, Task<string>>)null);
+            Func<int, Task<string>> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -204,7 +211,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_FuncRStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Func<string>)null);
+            Func<string> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -263,7 +272,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_FuncTaskRStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Func<Task<string>>)null);
+            Func<Task<string>> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -322,7 +333,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_FuncTTaskStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Func<int, Task>)null);
+            Func<int, Task> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -381,7 +394,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_FuncTaskStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Func<Task>)null);
+            Func<Task> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -440,7 +455,9 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_ActionTStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Action<int>)null);
+            Action<int> fn = null!;
+
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");
@@ -466,7 +483,7 @@ namespace BddPipe.UnitTests.Model
         {
             const string title = "Action<T> step";
             var ex = GetTestException();
-            Action<int> fn = i => throw ex;
+            Action<int> fn = _ => throw ex;
 
             var runner = RecipeOfGivenStep();
 
@@ -481,7 +498,7 @@ namespace BddPipe.UnitTests.Model
         {
             const string title = "Action<T> step";
             var ex = GetInconclusiveException();
-            Action<int> fn = i => throw ex;
+            Action<int> fn = _ => throw ex;
 
             var runner = RecipeOfGivenStep();
 
@@ -494,7 +511,8 @@ namespace BddPipe.UnitTests.Model
         [Test]
         public void Step_ActionStepNull_ThrowsArgNullException()
         {
-            Action call = () => RecipeOfGivenStep().Step("title", (Action)null);
+            Action fn = null!;
+            Action call = () => RecipeOfGivenStep().Step("title", fn);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
                 .ParamName.Should().Be("step");

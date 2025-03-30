@@ -1,35 +1,23 @@
-﻿using System;
-using BddPipe.Model;
+﻿using BddPipe.Model;
 using BddPipe.UnitTests.Asserts;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using System;
 using static BddPipe.Runner;
 
 namespace BddPipe.UnitTests.Recipe
 {
-    public sealed class ScenarioInfo
+    public sealed class ScenarioInfo(string testValueOne, string? testValueTwo)
     {
-        public string TestValueOne { get; }
-        public string TestValueTwo { get; }
-
-        public ScenarioInfo(string testValueOne, string testValueTwo)
-        {
-            TestValueOne = testValueOne;
-            TestValueTwo = testValueTwo;
-        }
+        public string TestValueOne { get; } = testValueOne;
+        public string? TestValueTwo { get; } = testValueTwo;
     }
 
-    public sealed class ScenarioInfoAlternate
+    public sealed class ScenarioInfoAlternate(string testValueOne, string? testValueTwo)
     {
-        public string TestValueOne { get; }
-        public string TestValueTwo { get; }
-
-        public ScenarioInfoAlternate(string testValueOne, string testValueTwo)
-        {
-            TestValueOne = testValueOne;
-            TestValueTwo = testValueTwo;
-        }
+        public string TestValueOne { get; } = testValueOne;
+        public string? TestValueTwo { get; } = testValueTwo;
     }
 
     public static class Recipe
@@ -49,13 +37,13 @@ namespace BddPipe.UnitTests.Recipe
                 scenario.Given(GivenStepTitle, () => new ScenarioInfo(StringArgValueOne, null));
 
 
-        public static Func<Pipe<Scenario>, Pipe<ScenarioInfo>> SetupScenarioWithGivenStepInErrorState() =>
-            scenario =>
-                scenario.Given(GivenStepTitle, () =>
-                {
-                    throw new ApplicationException("test exception");
-                    return new ScenarioInfo("", "");
-                });
+        public static Func<Pipe<Scenario>, Pipe<ScenarioInfo>> SetupScenarioWithGivenStepInErrorState()
+        {
+            Func<ScenarioInfo> fn = () => throw new ApplicationException("test exception");
+
+            return scenario =>
+                scenario.Given(GivenStepTitle, fn);
+        }
 
         public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> AddToScenarioWithAndStep() =>
             pipe =>
@@ -92,16 +80,16 @@ namespace BddPipe.UnitTests.Recipe
                     scenarioInfo => new ScenarioInfoAlternate(scenarioInfo.TestValueOne, StringArgValueTwo)
                 );
 
-        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> AddToScenarioWithAndStepInErrorState(Exception exToThrow) =>
-            pipe =>
+        public static Func<Pipe<ScenarioInfo>, Pipe<ScenarioInfo>> AddToScenarioWithAndStepInErrorState(Exception exToThrow)
+        {
+            Func<ScenarioInfo, ScenarioInfo> fn = _ => throw exToThrow;
+
+            return pipe =>
                 pipe.And(
                     AndStepTitle,
-                    scenarioInfo =>
-                    {
-                        throw exToThrow;
-                        return new ScenarioInfo("", "");
-                    }
+                    fn
                 );
+        }
 
         public static Func<Pipe<Scenario>, Pipe<ScenarioInfo>> CombinedRecipe() =>
             scenario =>
@@ -140,7 +128,7 @@ namespace BddPipe.UnitTests.Recipe
             var mapped = Scenario()
                 .GivenRecipe(
                     Recipe.SetupScenarioWithGivenStep()
-                ).Map(scenarioInfo => true);
+                ).Map(_ => true);
 
             mapped.ShouldBeSuccessfulGivenStepWithValue(Recipe.GivenStepTitle, true);
         }
@@ -192,7 +180,7 @@ namespace BddPipe.UnitTests.Recipe
             var mapped = Scenario()
                 .GivenRecipe(Recipe.SetupScenarioWithGivenStep())
                 .AndRecipe(Recipe.AddToScenarioWithAndStep())
-                .Map(scenarioInfo => true);
+                .Map(_ => true);
 
             mapped.ShouldBeSuccessfulSecondStepWithValue(Step.And, Recipe.GivenStepTitle, Recipe.AndStepTitle, true);
         }
@@ -261,7 +249,9 @@ namespace BddPipe.UnitTests.Recipe
         {
             var scenario = Scenario();
 
-            Action call = () => scenario.GivenRecipe((Func<Pipe<Scenario>, Pipe<int>>)null);
+            Func<Pipe<Scenario>, Pipe<int>> fn = null!;
+
+            Action call = () => scenario.GivenRecipe(fn);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
@@ -273,7 +263,9 @@ namespace BddPipe.UnitTests.Recipe
         {
             var pipe = Given("anything", () => 4);
 
-            Action call = () => pipe.AndRecipe((Func<Pipe<int>, Pipe<int>>)null);
+            Func<Pipe<int>, Pipe<int>> fn = null!;
+
+            Action call = () => pipe.AndRecipe(fn);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
@@ -285,7 +277,9 @@ namespace BddPipe.UnitTests.Recipe
         {
             var pipe = Given("anything", () => 4);
 
-            Action call = () => pipe.ButRecipe((Func<Pipe<int>, Pipe<int>>)null);
+            Func<Pipe<int>, Pipe<int>> fn = null!;
+
+            Action call = () => pipe.ButRecipe(fn);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
@@ -297,7 +291,9 @@ namespace BddPipe.UnitTests.Recipe
         {
             var pipe = Given("anything", () => 4);
 
-            Action call = () => pipe.ThenRecipe((Func<Pipe<int>, Pipe<int>>)null);
+            Func<Pipe<int>, Pipe<int>> fn = null!;
+
+            Action call = () => pipe.ThenRecipe(fn);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which
@@ -309,7 +305,9 @@ namespace BddPipe.UnitTests.Recipe
         {
             var pipe = Given("anything", () => 4);
 
-            Action call = () => pipe.WhenRecipe((Func<Pipe<int>, Pipe<int>>)null);
+            Func<Pipe<int>, Pipe<int>> fn = null!;
+
+            Action call = () => pipe.WhenRecipe(fn);
 
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which

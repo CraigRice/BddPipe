@@ -1,28 +1,28 @@
-﻿using System;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 
 namespace BddPipe.UnitTests.F
 {
+    [TestFixture]
     public class EitherTests
     {
-        private const int defaultLeft = 5;
-        private const int newLeft = 55;
-        private const string defaultRight = "six";
-        private const string expectedNotInitializedMessage = "Either has not been initialized";
-        private class SomeInstance { }
-        private const string intToStringResult = "value is 5";
-        private const string stringToStringResult = "value is six";
+        private const int DefaultLeft = 5;
+        private const int NewLeft = 55;
+        private const string DefaultRight = "six";
+        private const string ExpectedNotInitializedMessage = "Either has not been initialized";
+        private const string IntToStringResult = "value is 5";
+        private const string StringToStringResult = "value is six";
 
         [Test]
         public void Ctor_WithLeftNull_ThrowsArgNullException()
         {
-            SomeInstance instance = null;
+            object instance = null!;
             Action call = () =>
             {
-                Either<SomeInstance, string> either = instance;
+                Either<object, string> _ = instance;
             };
 
             call.Should().ThrowExactly<ArgumentNullException>()
@@ -32,10 +32,10 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Ctor_WithRightNull_ThrowsArgNullException()
         {
-            string instance = null;
+            string instance = null!;
             Action call = () =>
             {
-                Either<SomeInstance, string> either = instance;
+                Either<object, string> _ = instance;
             };
 
             call.Should().ThrowExactly<ArgumentNullException>()
@@ -48,23 +48,23 @@ namespace BddPipe.UnitTests.F
             Either<int, string> either = default;
             Func<string> call = () => either.ToString();
             call.Should().ThrowExactly<EitherNotInitialzedException>()
-                .Which.Message.Should().Be(expectedNotInitializedMessage);
+                .Which.Message.Should().Be(ExpectedNotInitializedMessage);
         }
 
         [Test]
         public void Match_NotInitialized_ThrowsException()
         {
             Either<int, string> either = default;
-            Action call = () => either.Match(r => true, l => true);
+            Action call = () => either.Match(_ => true, _ => true);
             call.Should().ThrowExactly<EitherNotInitialzedException>()
-                .Which.Message.Should().Be(expectedNotInitializedMessage);
+                .Which.Message.Should().Be(ExpectedNotInitializedMessage);
         }
 
         [Test]
         public void Match_FnLeftNull_ThrowsArgNullException()
         {
-            Either<int, string> either = defaultRight;
-            Action call = () => either.Match(x => true, null);
+            Either<int, string> either = DefaultRight;
+            Action call = () => either.Match(_ => true, null);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which.ParamName.Should().Be("left");
         }
@@ -72,8 +72,8 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Match_FnRightNull_ThrowsArgNullException()
         {
-            Either<int, string> either = defaultRight;
-            Action call = () => either.Match(null, x => true);
+            Either<int, string> either = DefaultRight;
+            Action call = () => either.Match(null, _ => true);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which.ParamName.Should().Be("right");
         }
@@ -81,16 +81,16 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Match_AssignLeftMatchToBool_RunsLeft()
         {
-            Either<int, string> either = defaultLeft;
-            var result = either.Match(r => false, l => true);
+            Either<int, string> either = DefaultLeft;
+            var result = either.Match(_ => false, _ => true);
             result.Should().BeTrue();
         }
 
         [Test]
         public void Match_AssignRightMatchToBool_RunsRight()
         {
-            Either<int, string> either = defaultRight;
-            var result = either.Match(r => true, l => false);
+            Either<int, string> either = DefaultRight;
+            var result = either.Match(_ => true, _ => false);
             result.Should().BeTrue();
         }
 
@@ -98,49 +98,49 @@ namespace BddPipe.UnitTests.F
         public void Match_AssignLeftMatchToString_RunsLeft()
         {
             var stringToString = Substitute.For<Func<string, string>>();
-            stringToString(defaultRight).Returns(stringToStringResult);
+            stringToString(DefaultRight).Returns(StringToStringResult);
 
             var intToString = Substitute.For<Func<int, string>>();
-            intToString(defaultLeft).Returns(intToStringResult);
+            intToString(DefaultLeft).Returns(IntToStringResult);
 
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
             var result = either.Match(stringToString, intToString);
-            result.Should().Be(intToStringResult);
+            result.Should().Be(IntToStringResult);
 
             stringToString.DidNotReceive()(Arg.Any<string>());
-            intToString.Received()(defaultLeft);
+            intToString.Received()(DefaultLeft);
         }
 
         [Test]
         public void Match_AssignRightMatchToString_RunsRight()
         {
             var stringToString = Substitute.For<Func<string, string>>();
-            stringToString(defaultRight).Returns(stringToStringResult);
+            stringToString(DefaultRight).Returns(StringToStringResult);
 
             var intToString = Substitute.For<Func<int, string>>();
-            intToString(defaultLeft).Returns(intToStringResult);
+            intToString(DefaultLeft).Returns(IntToStringResult);
 
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
             var result = either.Match(stringToString, intToString);
-            result.Should().Be(stringToStringResult);
+            result.Should().Be(StringToStringResult);
 
             intToString.DidNotReceive()(Arg.Any<int>());
-            stringToString.Received()(defaultRight);
+            stringToString.Received()(DefaultRight);
         }
 
         [Test]
         public void Bind_NotInitialized_ThrowsException()
         {
             Either<int, string> either = default;
-            Action call = () => either.Bind<bool>(r => true);
+            Action call = () => either.Bind<bool>(_ => true);
             call.Should().ThrowExactly<EitherNotInitialzedException>()
-                .Which.Message.Should().Be(expectedNotInitializedMessage);
+                .Which.Message.Should().Be(ExpectedNotInitializedMessage);
         }
 
         [Test]
         public void Bind_FnNull_ThrowsArgNullException()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
             Action call = () => either.Bind<bool>(null);
             call.Should().ThrowExactly<ArgumentNullException>()
                 .Which.ParamName.Should().Be("bind");
@@ -149,22 +149,22 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Bind_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
         {
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
 
-            var result = either.Bind<bool>(x => true);
+            var result = either.Bind<bool>(_ => true);
 
             result.IsLeft.Should().BeTrue();
 
             var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-            matchToString.Should().Be(defaultLeft.ToString());
+            matchToString.Should().Be(DefaultLeft.ToString());
         }
 
         [Test]
         public void Bind_AssignRightFunctionReturnsNewRight_CallsBindChangesType()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
 
-            var result = either.Bind<bool>(x => true);
+            var result = either.Bind<bool>(_ => true);
 
             result.IsRight.Should().BeTrue();
 
@@ -176,7 +176,7 @@ namespace BddPipe.UnitTests.F
         public async Task BindAsync_NotInitialized_ThrowsException()
         {
             Either<int, string> either = default;
-            Func<Task<Either<int, bool>>> call = () => either.BindAsync(r =>
+            Func<Task<Either<int, bool>>> call = () => either.BindAsync(_ =>
             {
                 Either<int, bool> result = true;
                 return Task.FromResult(result);
@@ -184,13 +184,13 @@ namespace BddPipe.UnitTests.F
 
             (await call.Should().ThrowExactlyAsync<EitherNotInitialzedException>())
                 .Which
-                .Message.Should().Be(expectedNotInitializedMessage);
+                .Message.Should().Be(ExpectedNotInitializedMessage);
         }
 
         [Test]
         public async Task BindAsync_FnNull_ThrowsArgNullException()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
             Func<Task<Either<int, bool>>> call = () => either.BindAsync<bool>(null);
             (await call.Should().ThrowExactlyAsync<ArgumentNullException>())
                 .Which
@@ -200,22 +200,22 @@ namespace BddPipe.UnitTests.F
         [Test]
         public async Task BindAsync_AssignLeftFunctionReturnsNewRight_DoesNotCallBindChangesType()
         {
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
 
-            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(true));
+            var result = await either.BindAsync(_ => Task.FromResult<Either<int, bool>>(true));
 
             result.IsLeft.Should().BeTrue();
 
             var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-            matchToString.Should().Be(defaultLeft.ToString());
+            matchToString.Should().Be(DefaultLeft.ToString());
         }
 
         [Test]
         public async Task BindAsync_AssignRightFunctionReturnsNewRight_CallsBindChangesType()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
 
-            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(true));
+            var result = await either.BindAsync(_ => Task.FromResult<Either<int, bool>>(true));
 
             result.IsRight.Should().BeTrue();
 
@@ -226,53 +226,53 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Bind_AssignLeftFunctionReturnsNewLeft_DoesNotCallBindChangesType()
         {
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
 
-            var result = either.Bind<bool>(x => newLeft);
+            var result = either.Bind<bool>(_ => NewLeft);
 
             result.IsLeft.Should().BeTrue();
 
             var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-            matchToString.Should().Be(defaultLeft.ToString());
+            matchToString.Should().Be(DefaultLeft.ToString());
         }
 
         [Test]
         public void Bind_AssignRightFunctionReturnsNewLeft_CallsBindChangesType()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
 
-            var result = either.Bind<bool>(x => newLeft);
+            var result = either.Bind<bool>(_ => NewLeft);
 
             result.IsLeft.Should().BeTrue();
 
             var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-            matchToString.Should().Be(newLeft.ToString());
+            matchToString.Should().Be(NewLeft.ToString());
         }
 
         [Test]
         public async Task BindAsync_AssignLeftFunctionReturnsNewLeft_DoesNotCallBindChangesType()
         {
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
 
-            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(newLeft));
+            var result = await either.BindAsync(_ => Task.FromResult<Either<int, bool>>(NewLeft));
 
             result.IsLeft.Should().BeTrue();
 
             var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-            matchToString.Should().Be(defaultLeft.ToString());
+            matchToString.Should().Be(DefaultLeft.ToString());
         }
 
         [Test]
         public async Task BindAsync_AssignRightFunctionReturnsNewLeft_CallsBindChangesType()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
 
-            var result = await either.BindAsync(x => Task.FromResult<Either<int, bool>>(newLeft));
+            var result = await either.BindAsync(_ => Task.FromResult<Either<int, bool>>(NewLeft));
 
             result.IsLeft.Should().BeTrue();
 
             var matchToString = result.Match(r => r.ToString(), l => l.ToString());
-            matchToString.Should().Be(newLeft.ToString());
+            matchToString.Should().Be(NewLeft.ToString());
         }
 
         [Test]
@@ -285,7 +285,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void IsLeft_AssignLeft_True()
         {
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
             either.IsLeft.Should().BeTrue();
             either.IsRight.Should().BeFalse();
         }
@@ -300,7 +300,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void IsRight_AssignRight_True()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
             either.IsRight.Should().BeTrue();
             either.IsLeft.Should().BeFalse();
         }
@@ -308,14 +308,14 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void ToString_AssignLeft_AsExpected()
         {
-            Either<int, string> either = defaultLeft;
+            Either<int, string> either = DefaultLeft;
             either.ToString().Should().Be("left(5)");
         }
 
         [Test]
         public void ToString_AssignRight_AsExpected()
         {
-            Either<int, string> either = defaultRight;
+            Either<int, string> either = DefaultRight;
             either.ToString().Should().Be("right(six)");
         }
 
@@ -325,7 +325,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Fn_RightIdentityHolds()
         {
-            Either<int, string> m = defaultRight;
+            Either<int, string> m = DefaultRight;
             Func<string, Either<int, string>> fnReturn = value => new Either<int, string>(value);
 
             m.Should().Be(m.Bind(fnReturn));
@@ -334,7 +334,7 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Fn_RightIdentityHolds2()
         {
-            Either<int, string> m = defaultLeft;
+            Either<int, string> m = DefaultLeft;
             Func<string, Either<int, string>> fnReturn = value => new Either<int, string>(value);
 
             m.Should().Be(m.Bind(fnReturn));
@@ -346,9 +346,9 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Fn_LeftIdentityHolds()
         {
-            Either<int, string> either = defaultRight;
-            Func<string, Either<int, string>> f = value => new Either<int, string>("value 1");
-            either.Bind(f).Should().Be(f(defaultRight));
+            Either<int, string> either = DefaultRight;
+            Func<string, Either<int, string>> f = _ => new Either<int, string>("value 1");
+            either.Bind(f).Should().Be(f(DefaultRight));
         }
 
         /// <summary>
@@ -358,9 +358,9 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Fn_AssociativityHolds()
         {
-            Either<int, string> m = defaultRight;
-            Func<string, Either<int, string>> f = value => new Either<int, string>("value 1");
-            Func<string, Either<int, string>> g = value => new Either<int, string>("value 2");
+            Either<int, string> m = DefaultRight;
+            Func<string, Either<int, string>> f = _ => new Either<int, string>("value 1");
+            Func<string, Either<int, string>> g = _ => new Either<int, string>("value 2");
 
             m.Bind(f).Bind(g).Should().Be(m.Bind(x => f(x).Bind(g)));
         }
@@ -368,9 +368,9 @@ namespace BddPipe.UnitTests.F
         [Test]
         public void Fn_AssociativityHolds2()
         {
-            Either<int, string> m = defaultLeft;
-            Func<string, Either<int, string>> f = value => new Either<int, string>("value 1");
-            Func<string, Either<int, string>> g = value => new Either<int, string>("value 2");
+            Either<int, string> m = DefaultLeft;
+            Func<string, Either<int, string>> f = _ => new Either<int, string>("value 1");
+            Func<string, Either<int, string>> g = _ => new Either<int, string>("value 2");
 
             m.Bind(f).Bind(g).Should().Be(m.Bind(x => f(x).Bind(g)));
         }
