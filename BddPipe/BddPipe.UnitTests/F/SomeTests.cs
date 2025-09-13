@@ -95,13 +95,6 @@ namespace BddPipe.UnitTests.F
             result.Should().Be(instance);
         }
 
-        [Test]
-        public void GetUnderlyingType_OfSomeT_ReturnsTypeT()
-        {
-            var type = new Some<int>(5).GetUnderlyingType();
-            type.Should().Be(typeof(int));
-        }
-
         [TestCase(5, 5, true)]
         [TestCase(5, 6, false)]
         public void EqualsOperator_InnerValues_ReturnsExpected(int a, int b, bool expected)

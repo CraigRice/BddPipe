@@ -5,7 +5,7 @@ namespace BddPipe
     /// <summary>
     /// Raised when a <see cref="Some{T}"/> instance is used - after being created as default and not initialized by normal means.
     /// </summary>
-    public class NotInitializedException : Exception
+    public sealed class NotInitializedException : Exception
     {
         /// <summary>
         /// Create a new instance of <see cref="NotInitializedException"/>
@@ -44,8 +44,6 @@ namespace BddPipe
         public static implicit operator Some<T>(T value) => new Some<T>(value);
         public static implicit operator T(in Some<T> value) => value.Value;
 
-        public Type GetUnderlyingType() =>
-            typeof(T);
 
         public override string ToString() =>
             Value.ToString();
